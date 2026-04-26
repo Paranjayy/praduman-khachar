@@ -1,5 +1,6 @@
 import { MEDIA_STATS, SOCIALS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+import { useChannelStats } from "../hooks/useChannelStats";
 
 const ICONS = {
   youtube: (
@@ -24,6 +25,16 @@ const ICONS = {
 
 export default function Media() {
   const [ref, visible] = useReveal();
+  // Live YouTube subscriber/video count — falls back to MEDIA_STATS values
+  const { stats } = useChannelStats();
+
+  // Merge live data into the static stats array
+  const dynamicStats = MEDIA_STATS.map((s) => {
+    if (s.label.toLowerCase().includes("video")) {
+      return { ...s, number: stats.videoCount };
+    }
+    return s;
+  });
 
   return (
     <section id="media" className="media-banner">
@@ -34,12 +45,14 @@ export default function Media() {
           <div className="section-divider" />
         </div>
 
+        {/* Dynamic stats — videoCount from /api/channel */}
         <div className="media-stats">
-          {MEDIA_STATS.map((s, i) => (
+          {dynamicStats.map((s, i) => (
             <MediaStat key={i} {...s} index={i} />
           ))}
         </div>
 
+        {/* Social links with brand hover colors via data-icon */}
         <div className="media-channels">
           {SOCIALS.map((s) => (
             <a
@@ -48,8 +61,9 @@ export default function Media() {
               target="_blank"
               rel="noopener noreferrer"
               className="channel-link"
+              data-icon={s.icon}
             >
-              {ICONS[s.icon]}
+              {ICONS[s.icon as keyof typeof ICONS]}
               {s.name}
               <span>↗</span>
             </a>
@@ -60,7 +74,7 @@ export default function Media() {
   );
 }
 
-function MediaStat({ number, label, index }) {
+function MediaStat({ number, label, index }: { number: string; label: string; index: number }) {
   const [ref, visible] = useReveal(0.2);
   return (
     <div
