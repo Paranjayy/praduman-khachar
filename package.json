@@ -7,13 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "scrape:videos": "node scripts/scrape-videos.mjs",
+    "scrape:videos:test": "node scripts/scrape-videos.mjs --limit 5",
+    "scrape:playlist": "node scripts/scrape-videos.mjs --playlist"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-router-dom": "^7.14.2"
+    "react-router-dom": "^7.14.2",
+    "youtube-transcript": "^1.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Dr. Praduman Khachar — Historian · Author · Researcher",
+  "/": "Dr. Praduman Khachar — Historian · Author · YouTuber",
   "/about": "About — Dr. Praduman Khachar",
   "/books": "33 Books — Dr. Praduman Khachar",
   "/media": "Media & YouTube — Dr. Praduman Khachar",
+  "/articles": "Video Articles — Dr. Praduman Khachar",
 };
 
 export function usePageTitle() {
