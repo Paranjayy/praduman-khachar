@@ -22,15 +22,8 @@ export default function Contact() {
           </div>
           <div className="contact-info-item">
             <div>
-              <strong>Work Address</strong>
-              Bilkha Road, Manoranjan Campus, Junagadh – 362001
-            </div>
-          </div>
-          <div className="contact-info-item">
-            <div>
-              <strong>Residence</strong>
-              "SHIV SHAKTI", Valani Nagar, Plot No. 14,<br />
-              Street No. 2, Junagadh – 362002
+              <strong>Location</strong>
+              Junagadh, Gujarat, India
             </div>
           </div>
           <div className="contact-info-item">
@@ -41,8 +34,10 @@ export default function Contact() {
           </div>
           <div className="contact-info-item">
             <div>
-              <strong>Phone</strong>
-              <a href={`tel:${SITE.phone.replace(/\s/g, "")}`}>{SITE.phone}</a>
+              <strong>Connect</strong>
+              <span style={{ fontSize: "0.9rem", color: "var(--c-ink-soft)" }}>
+                Find Dr. Khachar on YouTube, Instagram, Facebook, and other platforms in the Media section above.
+              </span>
             </div>
           </div>
         </div>

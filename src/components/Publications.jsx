@@ -1,7 +1,25 @@
+import { useState } from "react";
+import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+
+const FILTERS = [
+  { key: "all", label: "All Books" },
+  { key: "kathi", label: "Kathi History" },
+  { key: "history", label: "Regional History" },
+  { key: "royals", label: "Royal Heritage" },
+  { key: "heritage", label: "Culture & Heritage" },
+];
 
 export default function Publications() {
   const [ref, visible] = useReveal();
+  const [filter, setFilter] = useState("all");
+  const [expanded, setExpanded] = useState(false);
+
+  const filtered = filter === "all"
+    ? BOOKS
+    : BOOKS.filter((b) => b.category === filter);
+
+  const displayBooks = expanded ? filtered : filtered.slice(0, 12);
 
   return (
     <section id="publications" className="section">
@@ -19,63 +37,115 @@ export default function Publications() {
             maxWidth: "36rem",
             lineHeight: 1.7,
           }}>
-            A prolific author whose work spans the breadth of Saurashtra's 
-            history — from ancient kingdoms and Nawabi courts to folk traditions 
-            and architectural heritage. Each book represents years of primary 
-            research, field documentation, and archival scholarship. Dr. Khachar 
-            has also authored sections of the well-known Gujarati Encyclopedia 
-            and published 15 research articles in peer-reviewed journals.
+            A prolific author whose work spans the breadth of Saurashtra's
+            history — from ancient kingdoms and Nawabi courts to folk traditions
+            and architectural heritage. Each book represents years of primary
+            research, field documentation, and archival scholarship.
           </p>
         </div>
         <div className="books-count">33</div>
       </div>
 
-      <div className="books-grid">
-        {[
-          {
-            num: "Recognition",
-            title: "Library of Congress, USA",
-            desc: "23 of his 33 books have been selected and preserved by the Library of Congress — one of the highest honors for any regional historian worldwide.",
-          },
-          {
-            num: "Research",
-            title: "15 Research Articles",
-            desc: "Published in various national and international research journals, covering unexplored dimensions of Saurashtra's medieval and modern history.",
-          },
-          {
-            num: "Encyclopedia",
-            title: "Gujarati Vishwakosh",
-            desc: "Author of Adhikarn (chapters) in the well-known Gujarati Encyclopedia — contributing authoritative entries on regional history.",
-          },
-          {
-            num: "Legal Impact",
-            title: "Cited in 11 Court Cases",
-            desc: "His books have served as evidence in Gujarat courts — a testament to the rigor and authority of his historical documentation.",
-          },
-          {
-            num: "Exhibitions",
-            title: "Historical Picture Exhibitions",
-            desc: "Curated and organized exhibitions of rare historical photographs across multiple cities in Gujarat, bringing visual history to public audiences.",
-          },
-          {
-            num: "Consulting",
-            title: "Telefilm Consultant",
-            desc: "Historical consultant for various telefilms and documentary productions, ensuring accuracy in visual storytelling of Gujarat's past.",
-          },
-        ].map((book, i) => (
-          <BookCard key={i} {...book} index={i} />
+      {/* Filter tabs */}
+      <div className="book-filters">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            className={`book-filter-btn${filter === f.key ? " active" : ""}`}
+            onClick={() => { setFilter(f.key); setExpanded(false); }}
+          >
+            {f.label}
+            {f.key !== "all" && (
+              <span className="filter-count">
+                {BOOKS.filter((b) => b.category === f.key).length}
+              </span>
+            )}
+          </button>
         ))}
+      </div>
+
+      {/* Books grid */}
+      <div className="books-grid">
+        {displayBooks.map((book, i) => (
+          <BookCard key={book.title} {...book} index={i} />
+        ))}
+      </div>
+
+      {filtered.length > 12 && !expanded && (
+        <div style={{ textAlign: "center", marginTop: "var(--space-lg)" }}>
+          <button
+            className="show-more-btn"
+            onClick={() => setExpanded(true)}
+          >
+            Show All {filtered.length} Books
+          </button>
+        </div>
+      )}
+
+      {/* Highlights grid */}
+      <div style={{ marginTop: "var(--space-2xl)" }}>
+        <h3 style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "0.72rem",
+          fontWeight: 600,
+          color: "var(--c-ink-muted)",
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          marginBottom: "var(--space-lg)",
+        }}>Scholarly Impact</h3>
+        <div className="books-grid">
+          {[
+            {
+              num: "Recognition",
+              title: "Library of Congress, USA",
+              desc: "23 of his 33 books have been selected and preserved by the Library of Congress — one of the highest honors for any regional historian worldwide.",
+            },
+            {
+              num: "Research",
+              title: "15 Research Articles",
+              desc: "Published in various national and international research journals, covering unexplored dimensions of Saurashtra's medieval and modern history.",
+            },
+            {
+              num: "Legal Impact",
+              title: "Cited in 11 Court Cases",
+              desc: "His books have served as evidence in Gujarat courts — a testament to the rigor and authority of his historical documentation.",
+            },
+          ].map((item, i) => (
+            <HighlightCard key={i} {...item} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function BookCard({ num, title, desc, index }) {
-  const [ref, visible] = useReveal(0.1);
+function BookCard({ title, titleGu, category, year, index }) {
+  const [ref, visible] = useReveal(0.05);
+  const categoryLabel = BOOK_CATEGORIES[category] || category;
+
   return (
     <div
       ref={ref}
       className="book-card"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: `all 0.5s ${Math.min(index * 0.04, 0.5)}s cubic-bezier(0.16, 1, 0.3, 1)`,
+      }}
+    >
+      <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
+      <div className="book-title">{title}</div>
+      {titleGu && <div className="book-gujarati">{titleGu}</div>}
+    </div>
+  );
+}
+
+function HighlightCard({ num, title, desc, index }) {
+  const [ref, visible] = useReveal(0.1);
+  return (
+    <div
+      ref={ref}
+      className="book-card highlight-card"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",
