@@ -1,50 +1,71 @@
 # Dr. Praduman Khachar — Portfolio Website
 ## Ideas & Future Additions
 
+### ✅ Done
+- [x] All 33 book titles extracted and displayed with Gujarati names
+- [x] Category filter tabs for books (Kathi History, Regional, Royal, etc.)
+- [x] Phone number and address removed for privacy
+- [x] Telegram link removed (lost access)
+- [x] JSON-LD structured data for Google Knowledge Panel (Person schema)
+- [x] Open Graph & Twitter Card meta tags
+- [x] YouTube, Instagram, Facebook, X, Spotify, Blog links
+- [x] Chanhdai-inspired social grid layout
+- [x] Gujarati font (Noto Sans Gujarati) for book titles
+- [x] Deployed to Vercel: https://praduman-khachar.vercel.app
+- [x] GitHub repo: https://github.com/Paranjayy/praduman-khachar
+
 ### 📚 Content to Add
-- [ ] **All 33 book titles** with covers, descriptions, publication years
+- [ ] **Verify which 23 books** are selected by Library of Congress
 - [ ] **Book cover photographs** — scan or photograph each book
 - [ ] **Individual book pages** — detailed page per book with excerpts
 - [ ] **Research articles list** — 15 articles with journal names and links
 - [ ] **PhD scholars section** — names and thesis topics of guided students
 - [ ] **Historical exhibitions gallery** — photos from exhibitions across Gujarat
-- [ ] **Personal photos** — replace generated portrait with real photo
+- [ ] **Real portrait photo** — replace generated portrait with real photo
 - [ ] **Junagadh hero image** — replace with real photo of Girnar/Junagadh
+- [ ] **Custom favicon** — replace placeholder with actual branding
 
 ### 🎥 Media & Video
+- [ ] **YouTube live tracking** — dynamic subscriber/view count via YouTube API
 - [ ] **YouTube video embeds** — featured/popular videos on the site
+- [ ] **YouTube playlist viewer** — nice visual playlist browser
 - [ ] **Podcast section** — Spotify embed for podcast episodes
 - [ ] **Doordarshan & Radio clips** — if recordings are available
 - [ ] **Newspaper columns** — scans of Mumbai Samachar & Fulchhab articles
 - [ ] **Telefilm credits** — list of telefilms consulted on
 
+### 🌐 Multi-language (i18n)
+- [ ] **English/Gujarati/Hindi toggle** — full site translation
+- [ ] **Consider next-intl or similar** (Theo's recommendation for Next.js i18n)
+- [ ] **Noto Sans Gujarati already loaded** — ready for gu content
+- [ ] **Devanagari font** — load Noto Sans Devanagari for Hindi
+
 ### 🎨 Design Enhancements
-- [ ] **Dark mode toggle** — already warm, add a moody night-archive mode
-- [ ] **Gujarati language toggle** — ગુજરાતી version (Noto Sans Gujarati is loaded)
+- [ ] **Multi-page architecture** — separate pages for Books, About, Media
+- [ ] **Dark mode toggle** — moody night-archive mode
 - [ ] **Animated timeline** — interactive scrolling career timeline
 - [ ] **Book shelf component** — 3D bookshelf visual for publications
 - [ ] **Map of Gujarat** — interactive map showing exhibition locations
-- [ ] **Citation counter** — animated counter for court citations
 - [ ] **Photo gallery lightbox** — for historical picture exhibitions
 - [ ] **Testimonials section** — quotes from students, peers, officials
 
 ### 🔧 Technical
-- [ ] **SEO optimization** — Open Graph images, structured data (JSON-LD)
 - [ ] **Google Analytics** — track visitors
-- [ ] **Contact form** — functional email form
+- [ ] **Contact form** — functional email form (Formspree/Resend)
 - [ ] **RSS feed** — for blog posts if added
 - [ ] **Sitemap** — XML sitemap for search engines
 - [ ] **Performance** — optimize images (WebP conversion, lazy loading)
 - [ ] **PWA support** — offline access, app-like experience
+- [ ] **Wikipedia draft** — consider creating a Wikipedia page
 
 ### 🌐 Social Integration
 - [x] YouTube link
 - [x] Instagram link
-- [x] Facebook link (both pages)
+- [x] Facebook link
 - [x] Twitter/X link
 - [x] Spotify Podcast link
 - [x] Blog link
-- [x] Telegram link
+- [x] ~~Telegram~~ (removed — lost access)
 - [ ] **WhatsApp contact** — direct link
 - [ ] **Google Scholar** — if profile exists
 - [ ] **ORCID** — academic identifier
@@ -64,9 +85,7 @@
 **DOB:** 06/02/1969  
 **Designation:** Associate Professor  
 **Institution:** Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh  
-**Phone:** 98794 21025  
 **Email:** pkhachar@gmail.com  
-**Address:** "SHIV SHAKTI", Valani Nagar, Plot No.14, Street No.: 2, Junagadh - 362002  
 **Education:** B.A. (1989), M.A. (1991) – Saurashtra University; Ph.D. (2006) – M.K. Uni. Bhavnagar  
 **Books:** 33 total, 23 selected by Library of Congress  
 **Research Articles:** 15 in various journals  
