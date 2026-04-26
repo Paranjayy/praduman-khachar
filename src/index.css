@@ -863,3 +863,171 @@ body {
   .pl-cat-pill { padding: 0.3rem 0.65rem; font-size: 0.7rem; }
   .back-to-top { bottom: 1rem; right: 1rem; width: 36px; height: 36px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LANDO-STYLE CHARACTER ANIMATION
+   ══════════════════════════════════════════════════════════════════════════ */
+.split-title { display: inline; }
+.split-word { display: inline-block; overflow: hidden; }
+.split-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+  animation: charReveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.split-space { width: 0.28em; }
+@keyframes charReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── HERO LABEL HIGHLIGHT WORDS ── */
+.hero-label-anim { display: flex; flex-wrap: wrap; gap: 0.15em 0.5em; align-items: center; }
+.hl-sep { opacity: 0.5; font-size: 0.7em; }
+.hl-word {
+  position: relative; display: inline-block;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.label-revealed .hl-word { opacity: 1; transform: translateY(0); }
+.label-revealed .hl-word:nth-child(1) { transition-delay: 0.2s; }
+.label-revealed .hl-word:nth-child(3) { transition-delay: 0.32s; }
+.label-revealed .hl-word:nth-child(5) { transition-delay: 0.44s; }
+.label-revealed .hl-word:nth-child(7) { transition-delay: 0.56s; }
+/* YouTuber accent pill */
+.hl-word--yt {
+  background: oklch(0.38 0.17 25);
+  color: var(--c-parchment) !important;
+  padding: 0.1em 0.5em; border-radius: 2px;
+  font-size: 0.78em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SUPPORT SECTION
+   ══════════════════════════════════════════════════════════════════════════ */
+.support-section {
+  padding: var(--space-2xl) var(--space-lg);
+  background: var(--c-parchment-deep);
+  border-top: 1px solid var(--c-border);
+  text-align: center;
+}
+.support-inner { max-width: 38rem; margin: 0 auto; }
+.support-badge {
+  display: inline-block; font-size: 0.68rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--c-amber);
+  border: 1px solid var(--c-amber); padding: 0.25rem 0.75rem;
+  margin-bottom: var(--space-md);
+}
+.support-title {
+  font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700; color: var(--c-ink); line-height: 1.2;
+  margin-bottom: var(--space-md);
+}
+.support-sub {
+  color: var(--c-ink-soft); font-size: 1rem; line-height: 1.7;
+  margin-bottom: var(--space-xl);
+}
+.support-options { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-sm); margin-bottom: var(--space-md); }
+.support-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600;
+  border-radius: 2px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.02em; cursor: pointer;
+}
+.support-btn--primary {
+  background: oklch(0.55 0.18 40); color: white;
+}
+.support-btn--primary:hover { background: oklch(0.5 0.2 40); transform: translateY(-2px); box-shadow: 0 6px 20px oklch(0.5 0.18 40 / 0.3); color: white; }
+.support-btn--secondary {
+  background: var(--c-ink); color: var(--c-parchment);
+}
+.support-btn--secondary:hover { background: oklch(0.25 0.04 60); transform: translateY(-2px); color: var(--c-parchment); }
+.support-btn--outline {
+  border: 1.5px solid var(--c-border); color: var(--c-ink-soft);
+  background: transparent;
+}
+.support-btn--outline:hover { border-color: var(--c-terracotta); color: var(--c-terracotta); transform: translateY(-2px); }
+.support-note { font-size: 0.8rem; color: var(--c-ink-muted); line-height: 1.6; }
+[data-theme="dark"] .support-section { background: oklch(0.13 0.02 60); }
+[data-theme="dark"] .support-title { color: var(--c-ink); }
+[data-theme="dark"] .support-btn--outline { border-color: oklch(0.4 0.02 60); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE IMPROVEMENTS
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Nav mobile menu full-screen feel */
+  .nav-links.open {
+    gap: var(--space-md);
+    padding: var(--space-lg);
+  }
+  .nav-links.open a { font-size: 1rem; padding: 0.5rem 0; }
+
+  /* Hero: tighter on mobile */
+  .hero { grid-template-columns: 1fr; min-height: 92dvh; padding: 5rem var(--space-md) 0; }
+  .hero-title { font-size: clamp(2.2rem, 8vw, 3.5rem); }
+  .hero-subtitle { font-size: 0.95rem; }
+  .split-char { animation-duration: 0.4s; }
+
+  /* Page headers */
+  .page-header { padding: calc(4rem + 60px) var(--space-md) var(--space-lg); }
+  .page-header-title { font-size: clamp(1.6rem, 7vw, 2.8rem); }
+
+  /* Stats ribbon: 2 col */
+  .stats-ribbon { grid-template-columns: repeat(2, 1fr); }
+
+  /* Media page stats: 2 col */
+  .media-page-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 1px; }
+
+  /* YT tabs: no hint text on mobile */
+  .yt-tabs-hint { display: none; }
+  .yt-tabs { gap: 0.5rem; }
+  .yt-tab { font-size: 0.8rem; padding: 0.5rem 0.9rem; }
+
+  /* Playlist cards: full width */
+  .playlist-full-card { padding: 0.75rem 0.9rem; }
+  .playlist-cat-filter { gap: 0.25rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .playlist-cat-filter::-webkit-scrollbar { display: none; }
+
+  /* Books: single column */
+  .books-grid-full { grid-template-columns: 1fr !important; }
+  .books-search-row { flex-direction: column; align-items: stretch; }
+  .books-search { width: 100%; }
+
+  /* About: single col */
+  .about-page-grid { grid-template-columns: 1fr !important; }
+
+  /* Support */
+  .support-options { flex-direction: column; align-items: stretch; }
+  .support-btn { justify-content: center; }
+
+  /* Section padding tighter */
+  .section { padding: var(--space-xl) var(--space-md); }
+}
+
+@media (max-width: 480px) {
+  /* Hero */
+  .hero-label-anim { gap: 0.1em 0.35em; font-size: 0.7rem; }
+  .hl-word--yt { font-size: 0.9em; }
+  .hero-title { font-size: clamp(1.9rem, 9vw, 2.8rem); }
+
+  /* Marquee smaller */
+  .marquee-item { font-size: 0.65rem; }
+
+  /* Playlist count badge */
+  .playlist-full-count { display: none; }
+
+  /* Video grid: 1 col */
+  .yt-video-grid { grid-template-columns: 1fr !important; }
+
+  /* Podcast grid: 1 col */
+  .podcast-grid { grid-template-columns: 1fr !important; }
+
+  /* Social grid: 1 col */
+  .social-grid-full { grid-template-columns: 1fr !important; }
+
+  /* Media stats ribbon: 3 col then 2 col */
+  .media-page-stats { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Back to top smaller */
+  .back-to-top { width: 36px; height: 36px; }
+}

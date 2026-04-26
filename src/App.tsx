@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./hooks/useTheme";
+import { usePageTitle } from "./hooks/usePageTitle";
 import ScrollProgress from "./components/ScrollProgress";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
@@ -9,9 +11,10 @@ import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
 import AboutPage from "./pages/About";
 
-export default function App() {
+function AppInner() {
+  usePageTitle(); // Updates document.title on every route change
   return (
-    <ThemeProvider>
+    <>
       <ScrollProgress />
       <Nav />
       <Routes>
@@ -22,6 +25,16 @@ export default function App() {
       </Routes>
       <Footer />
       <BackToTop />
+      {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
+      <Analytics />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
     </ThemeProvider>
   );
 }

@@ -1,7 +1,7 @@
+import { useEffect, useRef } from "react";
 import Marquee from "./Marquee";
 import { SITE } from "../data/content";
 
-// Book titles for marquee — keeps it contextual and Gujarati-flavoured
 const MARQUEE_ITEMS = [
   "Junagadh State History",
   "Kathi Darbars of Saurashtra",
@@ -17,7 +17,41 @@ const MARQUEE_ITEMS = [
   "History of Porbandar",
 ];
 
+// Split title into words, then chars — Lando-style character animation
+function SplitTitle({ text }: { text: string }) {
+  return (
+    <span aria-label={text} className="split-title">
+      {text.split(" ").map((word, wi) => (
+        <span key={wi} className="split-word">
+          {word.split("").map((char, ci) => (
+            <span
+              key={ci}
+              className="split-char"
+              style={{ animationDelay: `${0.5 + (wi * 4 + ci) * 0.035}s` }}
+              aria-hidden="true"
+            >
+              {char}
+            </span>
+          ))}
+          {wi < text.split(" ").length - 1 && (
+            <span className="split-char split-space" aria-hidden="true"> </span>
+          )}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function Hero() {
+  const labelRef = useRef<HTMLParagraphElement>(null);
+
+  // Staggered highlight reveal on the label words (Lando-style)
+  useEffect(() => {
+    const el = labelRef.current;
+    if (!el) return;
+    setTimeout(() => el.classList.add("label-revealed"), 300);
+  }, []);
+
   return (
     <section className="hero">
       <div className="hero-bg">
@@ -25,8 +59,18 @@ export default function Hero() {
       </div>
 
       <div className="hero-text">
-        <p className="hero-label">Historian · Author · Researcher</p>
-        <h1 className="hero-title">{SITE.title}</h1>
+        <p ref={labelRef} className="hero-label hero-label-anim">
+          <span className="hl-word">Historian</span>
+          <span className="hl-sep"> · </span>
+          <span className="hl-word">Author</span>
+          <span className="hl-sep"> · </span>
+          <span className="hl-word">Researcher</span>
+          <span className="hl-sep"> · </span>
+          <span className="hl-word hl-word--yt">YouTuber</span>
+        </p>
+        <h1 className="hero-title">
+          <SplitTitle text={SITE.title} />
+        </h1>
         <p className="hero-subtitle">{SITE.tagline}</p>
       </div>
 
@@ -34,7 +78,6 @@ export default function Hero() {
         <img src="/portrait.png" alt={`Portrait of ${SITE.name}`} />
       </div>
 
-      {/* Marquee ticker at the bottom of the hero */}
       <div className="hero-marquee">
         <Marquee items={MARQUEE_ITEMS} speed={55} separator="·" />
       </div>
