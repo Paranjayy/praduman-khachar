@@ -104,16 +104,17 @@ function ytdlp(argsList, opts = {}) {
 
 // ── Phase 1: Enumerate all video IDs ──────────────────────────────────────────────
 async function getAllVideoIds() {
-  console.log("🔍 Phase 1: Enumerating ALL channel videos via yt-dlp...");
+  console.log("🔍 Phase 1: Enumerating ALL channel content (videos, shorts, streams)...");
 
-  // Try multiple URL formats — yt-dlp prefers @handle/videos
-  const urlsToTry = [
+  const urlsToScrape = [
     `${CHANNEL_URL}/videos`,
-    `https://www.youtube.com/channel/${CHANNEL_ID}/videos`,
-    `https://www.youtube.com/channel/${CHANNEL_ID}`,
+    `${CHANNEL_URL}/shorts`,
+    `${CHANNEL_URL}/streams`,
   ];
 
-  for (const url of urlsToTry) {
+  const allParsed = [];
+
+  for (const url of urlsToScrape) {
     console.log(`   Trying: ${url}`);
     const raw = ytdlp([
       "--flat-playlist",
@@ -121,19 +122,35 @@ async function getAllVideoIds() {
       "--no-warnings",
       "--quiet",
       url,
-    ], { timeout: 300000 }); // 5 min for 500+ videos
+    ], { timeout: 300000 }); // 5 min
 
     if (raw && raw.trim()) {
       const parsed = parseVideoList(raw);
       if (parsed.length > 0) {
-        console.log(`   ✅ Found ${parsed.length} videos via ${url}`);
-        return parsed;
+        console.log(`   ✅ Found ${parsed.length} items via ${url}`);
+        allParsed.push(...parsed);
+      } else {
+        console.log(`   ⚠️  No items found at ${url}`);
       }
+    } else {
+      console.log(`   ⚠️  No items found at ${url}`);
     }
-    console.log(`   ⚠️  No results, trying next URL...`);
   }
 
-  throw new Error("Could not enumerate channel from any URL. Check network/yt-dlp.");
+  // Deduplicate by ID
+  const uniqueMap = new Map();
+  for (const item of allParsed) {
+    if (!uniqueMap.has(item.id)) {
+      uniqueMap.set(item.id, item);
+    }
+  }
+
+  const uniqueList = Array.from(uniqueMap.values());
+  if (uniqueList.length === 0) {
+    throw new Error("Could not enumerate channel from any URL. Check network/yt-dlp.");
+  }
+
+  return uniqueList;
 }
 
 function parseVideoList(raw) {

@@ -327,18 +327,20 @@ function WritingsGrid() {
   );
 }
 
+// ─── 404 Redirect (proper hooks-compliant component) ─────────────────────────
+function WritingsRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => { navigate("/writings", { replace: true }); }, [navigate]);
+  return null;
+}
+
 // ─── Router wrapper ───────────────────────────────────────────────────────────
 export default function WritingsPage() {
   const { slug } = useParams<{ slug?: string }>();
-  const navigate = useNavigate();
 
   if (slug) {
     const writing = WRITINGS.find(w => w.id === slug);
-    if (!writing) {
-      // 404 — redirect to grid
-      useEffect(() => { navigate("/writings", { replace: true }); }, []);
-      return null;
-    }
+    if (!writing) return <WritingsRedirect />;
     return <WritingArticlePage writing={writing} />;
   }
 

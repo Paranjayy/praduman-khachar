@@ -28,7 +28,7 @@ export const SITE: SiteConfig = {
 export const STATS: StatItem[] = [
   { number: "33", label: "Books Published" },
   { number: "23", label: "Selected by Library of Congress, USA" },
-  { number: "485+", label: "Historical Videos on YouTube" },
+  { number: "575+", label: "Historical Videos on YouTube" },
   { number: "33+", label: "Years in Education" },
 ];
 
@@ -111,7 +111,7 @@ export const CAREER: CareerItem[] = [
 ];
 
 export const MEDIA_STATS: MediaStatItem[] = [
-  { number: "485+", label: "Historical Videos Uploaded" },
+  { number: "575+", label: "Historical Videos Archived" },
   { number: "15+", label: "Research Articles Published" },
   { number: "25+", label: "Keynote Speeches Across India" },
 ];
