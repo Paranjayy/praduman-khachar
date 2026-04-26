@@ -1,5 +1,6 @@
 import Hero from "../components/Hero";
 import StatsRibbon from "../components/StatsRibbon";
+import FeaturedTalks from "../components/FeaturedTalks";
 import About from "../components/About";
 import Achievements from "../components/Achievements";
 import Testimonials from "../components/Testimonials";
@@ -14,6 +15,7 @@ export default function HomePage() {
     <>
       <Hero />
       <StatsRibbon />
+      <FeaturedTalks />
       <About />
       <Achievements />
       <Testimonials />
@@ -25,4 +27,6 @@ export default function HomePage() {
     </>
   );
 }
+
+
 
