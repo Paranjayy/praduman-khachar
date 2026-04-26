@@ -8,6 +8,16 @@
     <meta name="theme-color" content="#2c2418" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
+    <!-- Anti-FOUC: set theme before React hydrates -->
+    <script>
+      (function () {
+        var saved = localStorage.getItem("theme");
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = saved ? saved : prefersDark ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+
 
     <!-- Open Graph -->
     <meta property="og:type" content="profile" />
