@@ -1,23 +1,37 @@
-export const SITE = {
+import type {
+  SiteConfig,
+  StatItem,
+  Achievement,
+  EducationItem,
+  CareerItem,
+  MediaStatItem,
+  Social,
+  Book,
+  BookCategory,
+} from "../types";
+
+export const SITE: SiteConfig = {
   name: "Dr. Praduman Khachar",
   title: "Dr. Pradumankumar B. Khachar",
   role: "Historian · Author · Researcher",
-  tagline: "Chronicling the untold stories of Saurashtra and Gujarat — preserving heritage through scholarship, one chapter at a time.",
+  tagline:
+    "Chronicling the untold stories of Saurashtra and Gujarat — preserving heritage through scholarship, one chapter at a time.",
   location: "Junagadh, Gujarat, India",
   email: "pkhachar@gmail.com",
   designation: "Associate Professor",
-  institution: "Dr. Subhash Mahila Arts, Commerce & Home Science College, Junagadh",
+  institution:
+    "Dr. Subhash Mahila Arts, Commerce & Home Science College, Junagadh",
   url: "https://praduman-khachar.vercel.app",
 };
 
-export const STATS = [
+export const STATS: StatItem[] = [
   { number: "33", label: "Books Published" },
   { number: "23", label: "Selected by Library of Congress, USA" },
   { number: "485+", label: "Historical Videos on YouTube" },
   { number: "33+", label: "Years in Education" },
 ];
 
-export const ACHIEVEMENTS = [
+export const ACHIEVEMENTS: Achievement[] = [
   {
     icon: "🏛️",
     text: "Honored by **Government of Gujarat** as a Distinguished Person of Sorath District",
@@ -52,7 +66,7 @@ export const ACHIEVEMENTS = [
   },
 ];
 
-export const EDUCATION = [
+export const EDUCATION: EducationItem[] = [
   { degree: "Ph.D.", university: "M. K. Bhavnagar University", year: "2006" },
   {
     degree: "M.A. (History)",
@@ -68,7 +82,7 @@ export const EDUCATION = [
   },
 ];
 
-export const CAREER = [
+export const CAREER: CareerItem[] = [
   {
     period: "1992 – Present",
     title: "Associate Professor",
@@ -95,13 +109,13 @@ export const CAREER = [
   },
 ];
 
-export const MEDIA_STATS = [
+export const MEDIA_STATS: MediaStatItem[] = [
   { number: "485+", label: "Historical Videos Uploaded" },
   { number: "15+", label: "Research Articles Published" },
   { number: "25+", label: "Keynote Speeches Across India" },
 ];
 
-export const SOCIALS = [
+export const SOCIALS: Social[] = [
   {
     name: "YouTube",
     url: "https://www.youtube.com/c/PradumanKhachar",
@@ -134,15 +148,13 @@ export const SOCIALS = [
   },
 ];
 
-// Books extracted from the PDF directory listing
-// User to verify which 23 are selected by Library of Congress
-export const BOOKS = [
+export const BOOKS: Book[] = [
   { title: "Bahauddin College: Ek Aitihasik Adhyayan", titleGu: "બહાઉદ્દીન કોલેજ", year: "2017", category: "institutional" },
   { title: "Itihas Etale Dr. Khachar", titleGu: "ઈતિહાસ એટલે ડૉ. ખાચર", category: "history" },
-  { title: "Bhuchar Mori Ni Ladai", titleGu: "ભુચર મોરીની લડાઈ", category: "battles" },
+  { title: "Bhuchar Mori Ni Ladai", titleGu: "ભૂચર મોરીની લડાઈ", category: "battles" },
   { title: "Itihas No Aaradhak", titleGu: "ઈતિહાસનો આરાધક", category: "history" },
-  { title: "Kathio Ane Kathiyavad (Vol. 3)", titleGu: "કાઠીઓ અને કાઠિયાવાડ - ભા. ૩", category: "kathi" },
-  { title: "Kathio Ane Kathiyavad (Vol. 9)", titleGu: "કાઠીઓ અને કાઠિયાવાડ - ભા. ૯", category: "kathi" },
+  { title: "Kathio Ane Kathiyavad (Vol. 3)", titleGu: "કાઠીઓ અને કાઠિયાવાડ – ભા. ૩", category: "kathi" },
+  { title: "Kathio Ane Kathiyavad (Vol. 9)", titleGu: "કાઠીઓ અને કાઠિયાવાડ – ભા. ૯", category: "kathi" },
   { title: "Grantho Ane Shilalekho", titleGu: "ગ્રંથો અને શિલાલેખો", category: "epigraphy" },
   { title: "Girnar No Itihas", titleGu: "ગિરનારનો ઈતિહાસ", category: "history" },
   { title: "Kathiyavad Na Rajvio", titleGu: "કાઠિયાવાડના રાજવીઓ", category: "royals" },
@@ -172,7 +184,7 @@ export const BOOKS = [
   { title: "Muslim Samaj Ni Vato", titleGu: "મુસ્લિમ સમાજની વાતો", category: "society" },
 ];
 
-export const BOOK_CATEGORIES = {
+export const BOOK_CATEGORIES: BookCategory = {
   kathi: "Kathi History",
   history: "Regional History",
   royals: "Royal Heritage",

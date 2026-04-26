@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./hooks/useTheme";
+import ScrollProgress from "./components/ScrollProgress";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import HomePage from "./pages/Home";
@@ -10,6 +11,7 @@ import AboutPage from "./pages/About";
 export default function App() {
   return (
     <ThemeProvider>
+      <ScrollProgress />
       <Nav />
       <Routes>
         <Route path="/" element={<HomePage />} />

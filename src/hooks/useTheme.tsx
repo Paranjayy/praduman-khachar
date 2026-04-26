@@ -1,9 +1,17 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-const ThemeContext = createContext();
+interface ThemeContextValue {
+  dark: boolean;
+  toggle: () => void;
+}
 
-export function ThemeProvider({ children }) {
-  const [dark, setDark] = useState(() => {
+const ThemeContext = createContext<ThemeContextValue>({
+  dark: false,
+  toggle: () => {},
+});
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [dark, setDark] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     const saved = localStorage.getItem("theme");
     if (saved) return saved === "dark";
@@ -22,6 +30,6 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   return useContext(ThemeContext);
 }

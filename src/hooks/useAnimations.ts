@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, RefObject } from "react";
 
-export function useReveal(threshold = 0.15) {
-  const ref = useRef(null);
+export function useReveal(threshold = 0.15): [RefObject<HTMLDivElement>, boolean] {
+  const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function useReveal(threshold = 0.15) {
   return [ref, visible];
 }
 
-export function useScrolled(offset = 20) {
+export function useScrolled(offset = 20): boolean {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > offset);
