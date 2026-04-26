@@ -102,31 +102,38 @@ function ytdlp(argsList, opts = {}) {
   }
 }
 
-// ── Phase 1: Enumerate all video IDs ─────────────────────────────────────────
+// ── Phase 1: Enumerate all video IDs ──────────────────────────────────────────────
 async function getAllVideoIds() {
   console.log("🔍 Phase 1: Enumerating ALL channel videos via yt-dlp...");
-  console.log(`   Channel: ${CHANNEL_URL}`);
 
-  const raw = ytdlp([
-    "--flat-playlist",
-    "--print", "%(id)s\t%(title)s\t%(upload_date)s\t%(view_count)s\t%(duration)s",
-    "--no-warnings",
-    "--quiet",
+  // Try multiple URL formats — yt-dlp prefers @handle/videos
+  const urlsToTry = [
     `${CHANNEL_URL}/videos`,
-  ], { timeout: 120000 });
+    `https://www.youtube.com/channel/${CHANNEL_ID}/videos`,
+    `https://www.youtube.com/channel/${CHANNEL_ID}`,
+  ];
 
-  if (!raw) {
-    console.log("⚠️  yt-dlp failed for channel, trying channel ID...");
-    const raw2 = ytdlp([
+  for (const url of urlsToTry) {
+    console.log(`   Trying: ${url}`);
+    const raw = ytdlp([
       "--flat-playlist",
       "--print", "%(id)s\t%(title)s\t%(upload_date)s\t%(view_count)s\t%(duration)s",
-      "--no-warnings", "--quiet",
-      `https://www.youtube.com/channel/${CHANNEL_ID}/videos`,
-    ], { timeout: 120000 });
-    if (!raw2) throw new Error("Could not enumerate channel. Check network/yt-dlp.");
-    return parseVideoList(raw2);
+      "--no-warnings",
+      "--quiet",
+      url,
+    ], { timeout: 300000 }); // 5 min for 500+ videos
+
+    if (raw && raw.trim()) {
+      const parsed = parseVideoList(raw);
+      if (parsed.length > 0) {
+        console.log(`   ✅ Found ${parsed.length} videos via ${url}`);
+        return parsed;
+      }
+    }
+    console.log(`   ⚠️  No results, trying next URL...`);
   }
-  return parseVideoList(raw);
+
+  throw new Error("Could not enumerate channel from any URL. Check network/yt-dlp.");
 }
 
 function parseVideoList(raw) {
