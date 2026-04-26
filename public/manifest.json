@@ -1,0 +1,21 @@
+{
+  "name": "Dr. Praduman Khachar",
+  "short_name": "Dr. Khachar",
+  "description": "Historian, Author, and Researcher Portfolio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c2418",
+  "theme_color": "#d4715a",
+  "icons": [
+    {
+      "src": "/portrait.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/portrait.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

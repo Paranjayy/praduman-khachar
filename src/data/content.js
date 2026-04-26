@@ -7,6 +7,7 @@ export const SITE = {
   email: "pkhachar@gmail.com",
   designation: "Associate Professor",
   institution: "Dr. Subhash Mahila Arts, Commerce & Home Science College, Junagadh",
+  url: "https://praduman-khachar.vercel.app",
 };
 
 export const STATS = [

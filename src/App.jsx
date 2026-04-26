@@ -1,27 +1,23 @@
+import { Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./hooks/useTheme";
 import Nav from "./components/Nav";
-import Hero from "./components/Hero";
-import StatsRibbon from "./components/StatsRibbon";
-import About from "./components/About";
-import Achievements from "./components/Achievements";
-import Career from "./components/Career";
-import Publications from "./components/Publications";
-import Media from "./components/Media";
-import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import HomePage from "./pages/Home";
+import BooksPage from "./pages/Books";
+import MediaPage from "./pages/Media";
+import AboutPage from "./pages/About";
 
 export default function App() {
   return (
-    <>
+    <ThemeProvider>
       <Nav />
-      <Hero />
-      <StatsRibbon />
-      <About />
-      <Achievements />
-      <Career />
-      <Publications />
-      <Media />
-      <Contact />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/books" element={<BooksPage />} />
+        <Route path="/media" element={<MediaPage />} />
+        <Route path="/about" element={<AboutPage />} />
+      </Routes>
       <Footer />
-    </>
+    </ThemeProvider>
   );
 }
