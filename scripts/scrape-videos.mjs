@@ -4,16 +4,16 @@
  *
  * Scrapes Dr. Praduman Khachar's YouTube channel for:
  *   - Video metadata (title, description, thumbnail, publishedAt, views, likes)
- *   - Full transcripts (Hindi/Gujarati/English via YouTube's auto-captions)
+ *   - Full transcripts (Hindi/Gujarati/English via YouTube's captions)
  *
- * Output: src/data/videos.json  (used by Articles page)
+ * Output: public/data/videos.json  (fetched at runtime by /articles page)
  *
  * Usage:
- *   node scripts/scrape-videos.mjs
- *   node scripts/scrape-videos.mjs --limit 20   (only first 20 videos)
- *   node scripts/scrape-videos.mjs --playlist PLxxxxxx
+ *   node scripts/scrape-videos.mjs                  # full channel
+ *   node scripts/scrape-videos.mjs --limit 5        # test with 5 videos
+ *   node scripts/scrape-videos.mjs --playlist PLxx  # specific playlist
  *
- * Requirements: no API key needed (uses public RSS + transcript APIs)
+ * No API key required — uses public YouTube RSS feeds.
  */
 
 import { writeFileSync, mkdirSync, existsSync } from "fs";
@@ -24,27 +24,30 @@ import { YoutubeTranscript } from "youtube-transcript";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const CHANNEL_ID = "UCPradumanKhachar"; // Will be resolved from handle
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+// The channel ID — find it by going to the YouTube channel > View Page Source
+// and searching for "channelId". For @PradumanKhachar this is typically below.
+const CHANNEL_ID = "UCcxFZ3XuZjB9eXyFZdrjDXQ"; // Update if wrong!
 const CHANNEL_HANDLE = "PradumanKhachar";
-const RSS_URL = `https://www.youtube.com/feeds/videos.xml?user=${CHANNEL_HANDLE}`;
-const RSS2JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}&count=50`;
-const PLAYLIST_RSS = (id) =>
-  `https://www.youtube.com/feeds/videos.xml?playlist_id=${id}`;
 
 const args = process.argv.slice(2);
-const limitArg = args.indexOf("--limit");
-const LIMIT = limitArg !== -1 ? parseInt(args[limitArg + 1], 10) : 100;
-const playlistArg = args.indexOf("--playlist");
-const PLAYLIST = playlistArg !== -1 ? args[playlistArg + 1] : null;
+const limitIdx = args.indexOf("--limit");
+const LIMIT = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 100;
+const plIdx = args.indexOf("--playlist");
+const PLAYLIST = plIdx !== -1 ? args[plIdx + 1] : null;
 
-const DELAY_MS = 1200; // Polite delay between transcript fetches
+const DELAY_MS = 1000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 function extractVideoId(url) {
-  const m = url?.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
+  const m = (url || "").match(
+    /(?:v=|\/embed\/|\/shorts\/|youtu\.be\/|\/watch\?v=)([A-Za-z0-9_-]{11})/
+  );
+  if (m) return m[1];
+  // RSS uses yt:videoId tag content
+  const yt = (url || "").match(/^([A-Za-z0-9_-]{11})$/);
+  return yt ? yt[1] : null;
 }
 
 function cleanText(str) {
@@ -54,7 +57,7 @@ function cleanText(str) {
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/<[^>]+>/g, " ")
+    .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -68,197 +71,201 @@ function slugify(str) {
     .slice(0, 80);
 }
 
-function transcriptToText(segments) {
-  if (!segments || !segments.length) return "";
-  return segments
+function transcriptToText(segs) {
+  if (!segs?.length) return "";
+  return segs
     .map((s) => cleanText(s.text))
     .join(" ")
-    .replace(/\[.*?\]/g, "") // remove [Music], [Applause]
+    .replace(/\[.*?\]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function estimateReadTime(text) {
-  const words = text.split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
+function estimateRead(text) {
+  return Math.max(1, Math.ceil((text || "").split(/\s+/).length / 200));
 }
 
-// ── FETCH VIDEOS FROM RSS ────────────────────────────────────────────────────
-async function fetchVideosFromRSS(url) {
-  console.log(`\n📡 Fetching RSS: ${url}`);
-  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=50`;
-  const res = await fetch(apiUrl, { signal: AbortSignal.timeout(15000) });
-  const data = await res.json();
-  if (data.status !== "ok") throw new Error(`RSS failed: ${data.message}`);
-  return data.items || [];
+// ── FETCH RSS XML ─────────────────────────────────────────────────────────────
+async function fetchRSSXML(url) {
+  console.log(`\n📡 Fetching: ${url}`);
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible)" },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.text();
 }
 
-// ── FETCH EXTENDED VIDEO PAGE DATA ───────────────────────────────────────────
-async function fetchVideoPageData(videoId) {
+// Parse YouTube RSS XML manually (no DOM required in Node)
+function parseRSSItems(xml) {
+  const items = [];
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  let m;
+  while ((m = entryRegex.exec(xml)) !== null) {
+    const entry = m[1];
+    const get = (tag) => {
+      const r = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\/${tag}>`);
+      const res = r.exec(entry);
+      return res ? cleanText(res[1]) : "";
+    };
+    const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : null;
+    if (!videoId) continue;
+
+    const viewsMatch = entry.match(/<media:statistics views="(\d+)"/);
+    const thumbMatch = entry.match(/url="(https:\/\/i[^"]+)"/);
+
+    items.push({
+      videoId,
+      title: get("title"),
+      published: get("published"),
+      description: get("media:description") || get("description"),
+      views: viewsMatch ? parseInt(viewsMatch[1]).toLocaleString("en-IN") : null,
+      thumbnail: thumbMatch ? thumbMatch[1] : `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+    });
+  }
+  return items;
+}
+
+// ── FETCH VIDEO PAGE ──────────────────────────────────────────────────────────
+async function fetchVideoPage(videoId) {
   try {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
       headers: {
         "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
       },
       signal: AbortSignal.timeout(8000),
     });
     const html = await res.text();
 
-    // Views
-    const viewsMatch = html.match(/"viewCount":"(\d+)"/);
-    const views = viewsMatch ? parseInt(viewsMatch[1]).toLocaleString("en-IN") : null;
-
-    // Likes (approximate — YouTube often hides exact count)
     const likesMatch = html.match(/"label":"([\d,]+) likes"/);
-    const likes = likesMatch ? likesMatch[1] : null;
-
-    // Description (from ytInitialPlayerResponse)
     const descMatch = html.match(/"shortDescription":"((?:[^"\\]|\\.)*)"/);
-    const description = descMatch ? cleanText(JSON.parse(`"${descMatch[1]}"`)) : null;
-
-    // Keywords/tags
     const tagsMatch = html.match(/"keywords":\[(.*?)\]/s);
-    const tags = tagsMatch
-      ? tagsMatch[1]
-          .split(",")
-          .map((t) => t.replace(/"/g, "").trim())
-          .filter(Boolean)
-          .slice(0, 8)
-      : [];
 
-    // Category
-    const catMatch = html.match(/"category":"([^"]+)"/);
-    const category = catMatch ? catMatch[1] : null;
+    return {
+      likes: likesMatch ? likesMatch[1] : null,
+      description: descMatch ? cleanText(JSON.parse(`"${descMatch[1]}"`)) : null,
+      tags: tagsMatch
+        ? tagsMatch[1].split(",").map((t) => t.replace(/"/g, "").trim()).filter(Boolean).slice(0, 8)
+        : [],
+    };
+  } catch {
+    return { likes: null, description: null, tags: [] };
+  }
+}
 
-    return { views, likes, description, tags, category };
-  } catch (e) {
-    console.warn(`  ⚠️  Page fetch failed for ${videoId}: ${e.message}`);
-    return { views: null, likes: null, description: null, tags: [], category: null };
+// ── CHANNEL ID RESOLVER ───────────────────────────────────────────────────────
+async function resolveChannelId(handle) {
+  try {
+    const res = await fetch(`https://www.youtube.com/@${handle}`, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+      signal: AbortSignal.timeout(8000),
+    });
+    const html = await res.text();
+    const m = html.match(/"channelId":"([^"]+)"/);
+    return m ? m[1] : null;
+  } catch {
+    return null;
   }
 }
 
 // ── MAIN ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log("🎬 Dr. Praduman Khachar — YouTube Video Scraper");
-  console.log("═".repeat(55));
+  console.log("🎬 Dr. Praduman Khachar — YouTube Scraper");
+  console.log("═".repeat(50));
 
-  let rssItems = [];
-
+  let rssUrl;
   if (PLAYLIST) {
-    rssItems = await fetchVideosFromRSS(PLAYLIST_RSS(PLAYLIST));
-    console.log(`✅ Playlist feed: ${rssItems.length} videos`);
+    rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${PLAYLIST}`;
   } else {
-    rssItems = await fetchVideosFromRSS(RSS2JSON);
-    console.log(`✅ Channel feed: ${rssItems.length} videos`);
+    // Try configured ID first
+    let channelId = CHANNEL_ID;
+    if (!channelId) {
+      console.log(`🔍 Resolving channel ID for @${CHANNEL_HANDLE}...`);
+      channelId = await resolveChannelId(CHANNEL_HANDLE);
+      if (!channelId) throw new Error("Could not resolve channel ID. Set CHANNEL_ID in script.");
+      console.log(`✅ Channel ID: ${channelId}`);
+    }
+    rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
   }
 
-  const toProcess = rssItems.slice(0, LIMIT);
-  console.log(`\n🔄 Processing ${toProcess.length} videos...\n`);
+  const xml = await fetchRSSXML(rssUrl);
+  const allItems = parseRSSItems(xml);
+  console.log(`✅ Found ${allItems.length} videos in feed`);
+
+  const toProcess = allItems.slice(0, LIMIT);
+  console.log(`\n🔄 Processing ${toProcess.length} videos (limit: ${LIMIT})\n`);
 
   const results = [];
-  let transcriptOk = 0;
-  let transcriptFail = 0;
+  let transcriptOk = 0, transcriptFail = 0;
 
   for (let i = 0; i < toProcess.length; i++) {
     const item = toProcess[i];
-    const videoId = extractVideoId(item.link) || extractVideoId(item.guid);
-
-    if (!videoId) {
-      console.warn(`  ⚠️  Could not extract video ID from: ${item.link}`);
-      continue;
-    }
-
+    const { videoId } = item;
     const progress = `[${String(i + 1).padStart(3)}/${toProcess.length}]`;
     const title = cleanText(item.title);
-    console.log(`${progress} 📹 ${title.slice(0, 65)}...`);
+    console.log(`${progress} ${title.slice(0, 60)}…`);
 
-    // Fetch extended page data
-    const pageData = await fetchVideoPageData(videoId);
+    // Extended page data
+    const page = await fetchVideoPage(videoId);
     await sleep(400);
 
-    // Fetch transcript
-    let transcript = "";
-    let transcriptLang = null;
+    // Transcript
+    let transcript = "", transcriptLang = null;
     try {
-      // Try English first, then Hindi, then Gujarati, then auto-generated
       const langs = ["en", "hi", "gu", "en-IN"];
       let segs = null;
       for (const lang of langs) {
-        try {
-          segs = await YoutubeTranscript.fetchTranscript(videoId, { lang });
-          transcriptLang = lang;
-          break;
-        } catch {
-          continue;
-        }
+        try { segs = await YoutubeTranscript.fetchTranscript(videoId, { lang }); transcriptLang = lang; break; }
+        catch { continue; }
       }
-      if (!segs) {
-        // Fallback: no lang preference
-        segs = await YoutubeTranscript.fetchTranscript(videoId);
-        transcriptLang = "auto";
-      }
+      if (!segs) { segs = await YoutubeTranscript.fetchTranscript(videoId); transcriptLang = "auto"; }
       transcript = transcriptToText(segs);
       transcriptOk++;
-      console.log(
-        `         ✅ Transcript (${transcriptLang}): ${transcript.split(" ").length} words`
-      );
+      console.log(`         ✅ ${transcriptLang} — ${transcript.split(" ").length} words`);
     } catch (e) {
       transcriptFail++;
-      console.log(`         ❌ Transcript unavailable: ${e.message?.slice(0, 60)}`);
+      console.log(`         ❌ ${e.message?.slice(0, 55)}`);
     }
 
-    const description = pageData.description || cleanText(item.description || item.content || "");
-
+    const desc = page.description || item.description || "";
     results.push({
       id: videoId,
       slug: slugify(title),
       title,
-      description: description.slice(0, 800), // truncate for JSON size
+      description: desc.slice(0, 800),
       thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
       thumbnailMq: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-      publishedAt: item.pubDate || item.published,
-      views: pageData.views,
-      likes: pageData.likes,
-      tags: pageData.tags,
-      category: pageData.category,
+      publishedAt: item.published,
+      views: item.views,
+      likes: page.likes,
+      tags: page.tags,
       transcriptLang,
       transcriptWordCount: transcript ? transcript.split(" ").filter(Boolean).length : 0,
-      readMinutes: estimateReadTime(transcript || description),
-      transcript: transcript.slice(0, 15000), // ~3000-word cap per video
+      readMinutes: estimateRead(transcript || desc),
+      transcript: transcript.slice(0, 15000),
       url: `https://www.youtube.com/watch?v=${videoId}`,
     });
 
     await sleep(DELAY_MS);
   }
 
-  // ── WRITE OUTPUT ───────────────────────────────────────────────────────────
   const outDir = join(ROOT, "public", "data");
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
   const outPath = join(outDir, "videos.json");
 
-  const output = {
+  writeFileSync(outPath, JSON.stringify({
     scraped_at: new Date().toISOString(),
     total: results.length,
     transcript_ok: transcriptOk,
     transcript_fail: transcriptFail,
     videos: results,
-  };
+  }, null, 2), "utf8");
 
-  writeFileSync(outPath, JSON.stringify(output, null, 2), "utf8");
-
-  console.log("\n" + "═".repeat(55));
-  console.log(`✅ Done! ${results.length} videos saved to public/data/videos.json`);
+  console.log("\n" + "═".repeat(50));
+  console.log(`✅ ${results.length} videos → public/data/videos.json`);
   console.log(`   Transcripts: ${transcriptOk} OK / ${transcriptFail} failed`);
-  console.log(`   File: ${outPath}`);
-  console.log("\nNext steps:");
-  console.log("  • Run again with --limit 20 to test on a small batch");
-  console.log("  • Run with --playlist PLxxxxxx for a specific playlist");
-  console.log("  • The Articles page at /articles will auto-load this data\n");
 }
 
-main().catch((e) => {
-  console.error("❌ Fatal:", e);
-  process.exit(1);
-});
+main().catch((e) => { console.error("❌", e.message); process.exit(1); });

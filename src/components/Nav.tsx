@@ -16,6 +16,7 @@ export default function Nav() {
     ["Books", "/books"],
     ["Media", "/media"],
     ["Articles", "/articles"],
+    ["Writings", "/writings"],
   ];
 
   return (

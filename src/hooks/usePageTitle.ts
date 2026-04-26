@@ -7,13 +7,18 @@ const PAGE_TITLES: Record<string, string> = {
   "/books": "33 Books — Dr. Praduman Khachar",
   "/media": "Media & YouTube — Dr. Praduman Khachar",
   "/articles": "Video Articles — Dr. Praduman Khachar",
+  "/writings": "Writings — Dr. Praduman Khachar",
 };
 
-export function usePageTitle() {
+/** Used in AppInner to keep tab title in sync with route */
+export function usePageTitle(override?: string) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const title = PAGE_TITLES[pathname] ?? "Dr. Praduman Khachar";
-    document.title = title;
-  }, [pathname]);
+    if (override) {
+      document.title = `${override} — Dr. Praduman Khachar`;
+    } else {
+      document.title = PAGE_TITLES[pathname] ?? "Dr. Praduman Khachar";
+    }
+  }, [pathname, override]);
 }
