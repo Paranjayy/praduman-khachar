@@ -1,9 +1,17 @@
-import { useState, useMemo, useEffect } from "react";
+/**
+ * src/pages/Articles.tsx
+ *
+ * Video Articles page — inline transcript reader (NOT opening YouTube)
+ * Click card → open full transcript reader with TOC, metadata, YouTube link
+ */
+
+import { useState, useMemo, useEffect, useRef } from "react";
 import { track } from "@vercel/analytics";
 import { useReveal } from "../hooks/useAnimations";
 import PageHeader from "../components/PageHeader";
+import { usePageTitle } from "../hooks/usePageTitle";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface VideoArticle {
   id: string;
   slug: string;
@@ -31,13 +39,11 @@ interface VideosJson {
   videos: VideoArticle[];
 }
 
-// ─── Load the scraped JSON via fetch (graceful if file doesn't exist yet) ──
+// ─── Data loader ──────────────────────────────────────────────────────────────
 let cachedData: VideosJson | null = null;
-
 async function loadVideos(): Promise<VideosJson | null> {
   if (cachedData) return cachedData;
   try {
-    // videos.json is placed in /public/data/ by the scraper for runtime fetch
     const res = await fetch("/data/videos.json");
     if (!res.ok) return null;
     cachedData = await res.json();
@@ -47,12 +53,10 @@ async function loadVideos(): Promise<VideosJson | null> {
   }
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function relativeDate(iso: string) {
   const d = new Date(iso);
-  const now = Date.now();
-  const diff = now - d.getTime();
-  const days = Math.floor(diff / 86_400_000);
+  const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
   if (days < 1) return "Today";
   if (days < 7) return `${days}d ago`;
   if (days < 30) return `${Math.floor(days / 7)}w ago`;
@@ -62,15 +66,182 @@ function relativeDate(iso: string) {
 
 function langLabel(lang: string | null) {
   if (!lang) return null;
-  if (lang === "hi") return "हिन्दी";
-  if (lang === "gu") return "ગુજરાતી";
-  if (lang === "en" || lang === "en-IN") return "English";
-  if (lang === "auto") return "Auto";
-  return lang;
+  const map: Record<string, string> = { hi: "हिन्दी", gu: "ગુજરાતી", en: "English", "en-IN": "English", auto: "Auto" };
+  return map[lang] ?? lang;
 }
 
-// ─── Components ───────────────────────────────────────────────────────────────
-function ArticleCard({ v, index }: { v: VideoArticle; index: number }) {
+/**
+ * Turn a raw transcript string into readable paragraphs.
+ * Splits on sentence-boundary heuristics (double space, 5+ word chunks, etc.)
+ */
+function formatTranscript(raw: string): string[] {
+  if (!raw) return [];
+  // Split into ~sentence chunks, then group into paragraphs of ~5 sentences
+  const sentences = raw
+    .replace(/([।॥])/g, "$1\n")          // Gujarati/Hindi punctuation
+    .replace(/([.!?])\s+(?=[A-ZA-Z\u0A80-\u0AFF\u0900-\u097F])/g, "$1\n")
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const paras: string[] = [];
+  const CHUNK = 5;
+  for (let i = 0; i < sentences.length; i += CHUNK) {
+    paras.push(sentences.slice(i, i + CHUNK).join(" "));
+  }
+  return paras.length ? paras : [raw];
+}
+
+/**
+ * Build TOC: every Nth paragraph becomes a section with an anchor
+ */
+function buildTOC(paras: string[]) {
+  const SECTION_SIZE = 4; // paragraphs per section
+  return paras
+    .filter((_, i) => i % SECTION_SIZE === 0)
+    .map((p, i) => ({
+      id: `section-${i}`,
+      label: `Part ${i + 1}`,
+      preview: p.slice(0, 60) + "…",
+    }));
+}
+
+// ─── Article Reader (full-screen panel) ──────────────────────────────────────
+function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void }) {
+  const paras = useMemo(() => formatTranscript(v.transcript), [v.transcript]);
+  const toc = useMemo(() => buildTOC(paras), [paras]);
+  const SECTION_SIZE = 4;
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  // Close on ESC
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const scrollTo = (id: string) => {
+    const el = contentRef.current?.querySelector(`#${id}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const dateStr = v.publishedAt
+    ? new Date(v.publishedAt).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })
+    : "";
+
+  return (
+    <div className="reader-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="reader-panel" role="dialog" aria-modal="true" aria-label={`Article: ${v.title}`}>
+
+        {/* ── LEFT: TOC sidebar ── */}
+        {toc.length > 1 && (
+          <nav className="reader-toc" aria-label="Table of contents">
+            <div className="reader-toc-label">Contents</div>
+            <ol className="reader-toc-list">
+              {toc.map(item => (
+                <li key={item.id}>
+                  <button className="reader-toc-item" onClick={() => scrollTo(item.id)}>
+                    <span className="reader-toc-num">{item.label}</span>
+                    <span className="reader-toc-preview">{item.preview}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        {/* ── RIGHT: Article content ── */}
+        <div className="reader-content" ref={contentRef}>
+          {/* Close */}
+          <button className="reader-close" onClick={onClose} aria-label="Close reader">✕</button>
+
+          {/* Hero image */}
+          <img
+            src={v.thumbnail}
+            alt={v.title}
+            className="reader-hero-img"
+            onError={e => { (e.currentTarget as HTMLImageElement).src = v.thumbnailMq; }}
+          />
+
+          {/* Meta */}
+          <div className="reader-meta">
+            {v.publishedAt && <time className="reader-date">{dateStr}</time>}
+            {v.transcriptLang && (
+              <span className="reader-lang-pill">{langLabel(v.transcriptLang)}</span>
+            )}
+            <span className="reader-read-time">~{v.readMinutes} min read</span>
+            {v.views && <span className="reader-stat">👁 {v.views}</span>}
+            {v.likes && <span className="reader-stat">👍 {v.likes}</span>}
+          </div>
+
+          {/* Title */}
+          <h1 className="reader-title">{v.title}</h1>
+
+          <div className="reader-divider" />
+
+          {/* Tags */}
+          {v.tags.length > 0 && (
+            <div className="reader-tags">
+              {v.tags.map(t => <span key={t} className="article-tag">{t}</span>)}
+            </div>
+          )}
+
+          {/* Transcript body */}
+          {paras.length > 0 ? (
+            <div className="reader-body">
+              {paras.map((para, i) => {
+                const sectionIdx = Math.floor(i / SECTION_SIZE);
+                const isFirst = i % SECTION_SIZE === 0 && i > 0;
+                return (
+                  <p
+                    key={i}
+                    id={isFirst ? `section-${sectionIdx}` : undefined}
+                    className={`reader-para${isFirst ? " reader-section-start" : ""}`}
+                  >
+                    {para}
+                  </p>
+                );
+              })}
+            </div>
+          ) : v.description ? (
+            <div className="reader-body">
+              <p className="reader-para">{v.description}</p>
+            </div>
+          ) : (
+            <p className="reader-no-transcript">
+              No transcript available for this video.
+            </p>
+          )}
+
+          {/* Footer */}
+          <div className="reader-footer">
+            <a
+              href={v.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="reader-yt-btn"
+              onClick={() => track("article_watch", { videoId: v.id })}
+            >
+              ▶ Watch on YouTube
+            </a>
+            <span className="reader-word-count">
+              {v.transcriptWordCount.toLocaleString()} words
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Article Card ─────────────────────────────────────────────────────────────
+function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onOpen: (v: VideoArticle) => void }) {
   const [ref, visible] = useReveal();
 
   return (
@@ -81,37 +252,33 @@ function ArticleCard({ v, index }: { v: VideoArticle; index: number }) {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",
         transition: `all 0.6s ${(index % 6) * 0.07}s ease`,
+        cursor: "pointer",
       }}
+      onClick={() => {
+        track("article_open", { videoId: v.id, title: v.title.slice(0, 50) });
+        onOpen(v);
+      }}
+      onKeyDown={e => e.key === "Enter" && onOpen(v)}
+      tabIndex={0}
+      role="button"
+      aria-label={`Read article: ${v.title}`}
     >
-      {/* Thumbnail */}
-      <a
-        href={v.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="article-thumb-link"
-        onClick={() => track("article_click", { videoId: v.id, title: v.title.slice(0, 50) })}
-      >
-        <div className="article-thumb">
-          <img
-            src={v.thumbnailMq}
-            alt={v.title}
-            loading="lazy"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = v.thumbnail;
-            }}
-          />
-          <span className="article-thumb-play">▶</span>
-          <span className="article-thumb-duration">{v.readMinutes} min read</span>
-        </div>
-      </a>
+      {/* Thumbnail — clicking doesn't navigate to YT, whole card opens reader */}
+      <div className="article-thumb">
+        <img
+          src={v.thumbnailMq}
+          alt={v.title}
+          loading="lazy"
+          onError={e => { (e.currentTarget as HTMLImageElement).src = v.thumbnail; }}
+        />
+        <span className="article-thumb-play">📖</span>
+        <span className="article-thumb-duration">{v.readMinutes} min read</span>
+      </div>
 
       {/* Content */}
       <div className="article-content">
-        {/* Meta row */}
         <div className="article-meta">
-          {v.publishedAt && (
-            <time className="article-date">{relativeDate(v.publishedAt)}</time>
-          )}
+          {v.publishedAt && <time className="article-date">{relativeDate(v.publishedAt)}</time>}
           {v.transcriptWordCount > 0 && (
             <span className="article-transcript-badge" title="Transcript available">
               📝 {langLabel(v.transcriptLang)}
@@ -120,49 +287,22 @@ function ArticleCard({ v, index }: { v: VideoArticle; index: number }) {
           {v.views && <span className="article-views">👁 {v.views}</span>}
         </div>
 
-        {/* Title */}
-        <h3 className="article-title">
-          <a
-            href={v.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => track("article_click", { videoId: v.id, title: v.title.slice(0, 50) })}
-          >
-            {v.title}
-          </a>
-        </h3>
+        <h3 className="article-title">{v.title}</h3>
 
-        {/* Description */}
         {v.description && (
           <p className="article-desc">{v.description.slice(0, 160)}…</p>
         )}
 
-        {/* Tags */}
         {v.tags && v.tags.length > 0 && (
           <div className="article-tags">
-            {v.tags.slice(0, 4).map((t) => (
-              <span key={t} className="article-tag">
-                {t}
-              </span>
-            ))}
+            {v.tags.slice(0, 4).map(t => <span key={t} className="article-tag">{t}</span>)}
           </div>
         )}
 
-        {/* Footer CTA */}
         <div className="article-footer">
-          <a
-            href={v.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="article-watch-link"
-            onClick={() => track("article_watch", { videoId: v.id })}
-          >
-            Watch on YouTube ↗
-          </a>
+          <span className="article-watch-link">Read article →</span>
           {v.transcriptWordCount > 0 && (
-            <span className="article-word-count">
-              {v.transcriptWordCount.toLocaleString()} words
-            </span>
+            <span className="article-word-count">{v.transcriptWordCount.toLocaleString()} words</span>
           )}
         </div>
       </div>
@@ -170,39 +310,32 @@ function ArticleCard({ v, index }: { v: VideoArticle; index: number }) {
   );
 }
 
+// ─── Empty state ──────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
     <div className="articles-empty">
       <div className="articles-empty-icon">📜</div>
       <h2>Articles Not Yet Generated</h2>
-      <p>
-        Run the scraper to pull videos and transcripts from YouTube, then this
-        page will populate automatically.
-      </p>
-      <div className="articles-empty-code">
-        <code>npm run scrape:videos:test</code>
-        <span>— test with 5 videos first</span>
-      </div>
-      <div className="articles-empty-code">
-        <code>npm run scrape:videos</code>
-        <span>— full channel scrape (~45 min)</span>
-      </div>
+      <p>Run the scraper to pull videos and transcripts from YouTube, then this page will populate automatically.</p>
+      <div className="articles-empty-code"><code>npm run scrape:videos:test</code><span>— test with 5 videos first</span></div>
+      <div className="articles-empty-code"><code>npm run scrape:videos</code><span>— full channel scrape</span></div>
     </div>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ArticlesPage() {
+  usePageTitle("Video Articles");
   const [videos, setVideos] = useState<VideoArticle[] | null>(null);
   const [meta, setMeta] = useState<Omit<VideosJson, "videos"> | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState("");
-  const [langFilter, setLangFilter] = useState<string>("all");
+  const [langFilter, setLangFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"date" | "words" | "views">("date");
+  const [openArticle, setOpenArticle] = useState<VideoArticle | null>(null);
 
-  // Load on mount
   useEffect(() => {
-    loadVideos().then((data) => {
+    loadVideos().then(data => {
       if (data) {
         setVideos(data.videos);
         setMeta({ scraped_at: data.scraped_at, total: data.total, transcript_ok: data.transcript_ok, transcript_fail: data.transcript_fail });
@@ -211,43 +344,35 @@ export default function ArticlesPage() {
     });
   }, []);
 
-  // Derived lists
   const langs = useMemo(() => {
     if (!videos) return [];
-    const s = new Set(videos.map((v) => v.transcriptLang).filter(Boolean));
-    return Array.from(s) as string[];
+    return [...new Set(videos.map(v => v.transcriptLang).filter(Boolean))] as string[];
   }, [videos]);
 
   const filtered = useMemo(() => {
     if (!videos) return [];
     let list = [...videos];
-
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(
-        (v) =>
-          v.title.toLowerCase().includes(q) ||
-          v.description?.toLowerCase().includes(q) ||
-          v.tags?.some((t) => t.toLowerCase().includes(q))
+      list = list.filter(v =>
+        v.title.toLowerCase().includes(q) ||
+        v.description?.toLowerCase().includes(q) ||
+        v.tags?.some(t => t.toLowerCase().includes(q))
       );
     }
-    if (langFilter !== "all") {
-      list = list.filter((v) => v.transcriptLang === langFilter);
-    }
+    if (langFilter !== "all") list = list.filter(v => v.transcriptLang === langFilter);
     if (sortBy === "words") list.sort((a, b) => b.transcriptWordCount - a.transcriptWordCount);
-    else if (sortBy === "views")
-      list.sort((a, b) => {
-        const av = parseInt((a.views || "0").replace(/\D/g, ""));
-        const bv = parseInt((b.views || "0").replace(/\D/g, ""));
-        return bv - av;
-      });
+    else if (sortBy === "views") list.sort((a, b) => parseInt((b.views || "0").replace(/\D/g, "")) - parseInt((a.views || "0").replace(/\D/g, "")));
     else list.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-
     return list;
   }, [videos, search, langFilter, sortBy]);
 
   return (
     <>
+      {openArticle && (
+        <ArticleReader v={openArticle} onClose={() => setOpenArticle(null)} />
+      )}
+
       <PageHeader
         label="Video Articles"
         title="History in Every Frame"
@@ -256,7 +381,6 @@ export default function ArticlesPage() {
       />
 
       <main className="section articles-page">
-        {/* Metadata strip */}
         {meta && (
           <div className="articles-meta-strip">
             <span>{meta.total} videos indexed</span>
@@ -267,7 +391,6 @@ export default function ArticlesPage() {
           </div>
         )}
 
-        {/* Controls */}
         {videos && videos.length > 0 && (
           <div className="articles-controls">
             <input
@@ -275,29 +398,16 @@ export default function ArticlesPage() {
               className="articles-search"
               placeholder="Search titles, tags, descriptions…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
               aria-label="Search articles"
+              id="articles-search"
             />
             <div className="articles-filters">
-              <select
-                className="articles-select"
-                value={langFilter}
-                onChange={(e) => setLangFilter(e.target.value)}
-                aria-label="Filter by language"
-              >
+              <select className="articles-select" value={langFilter} onChange={e => setLangFilter(e.target.value)} id="articles-lang-filter">
                 <option value="all">All Languages</option>
-                {langs.map((l) => (
-                  <option key={l} value={l}>
-                    {langLabel(l)}
-                  </option>
-                ))}
+                {langs.map(l => <option key={l} value={l}>{langLabel(l)}</option>)}
               </select>
-              <select
-                className="articles-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                aria-label="Sort by"
-              >
+              <select className="articles-select" value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} id="articles-sort">
                 <option value="date">Newest First</option>
                 <option value="words">Most Words</option>
                 <option value="views">Most Viewed</option>
@@ -306,24 +416,13 @@ export default function ArticlesPage() {
           </div>
         )}
 
-        {/* Results count */}
-        {search && (
-          <p className="articles-results-count">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "{search}"
-          </p>
-        )}
+        {search && <p className="articles-results-count">{filtered.length} result{filtered.length !== 1 ? "s" : ""} for "{search}"</p>}
 
-        {/* Grid or empty state */}
         {!loaded ? (
-          <div className="articles-loading">
-            <div className="articles-loading-spinner" />
-            <p>Loading articles…</p>
-          </div>
+          <div className="articles-loading"><div className="articles-loading-spinner" /><p>Loading articles…</p></div>
         ) : videos && videos.length > 0 ? (
           <div className="articles-grid">
-            {filtered.map((v, i) => (
-              <ArticleCard key={v.id} v={v} index={i} />
-            ))}
+            {filtered.map((v, i) => <ArticleCard key={v.id} v={v} index={i} onOpen={setOpenArticle} />)}
           </div>
         ) : (
           <EmptyState />

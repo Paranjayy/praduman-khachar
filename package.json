@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "scrape:videos": "node scripts/scrape-videos.mjs",
     "scrape:videos:test": "node scripts/scrape-videos.mjs --limit 5",
-    "scrape:playlist": "node scripts/scrape-videos.mjs --playlist"
+    "scrape:playlist": "node scripts/scrape-videos.mjs --playlist",
+    "scrape:playlists": "node scripts/scrape-playlists.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
