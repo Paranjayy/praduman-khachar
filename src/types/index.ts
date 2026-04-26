@@ -58,3 +58,13 @@ export interface SiteConfig {
   institution: string;
   url: string;
 }
+
+export interface Playlist {
+  title: string;       // Gujarati/original title
+  titleEn: string;     // English translation
+  count: number;       // video count
+  emoji: string;
+  category: string;    // thematic grouping
+  // id only available for some — links to channel playlists page if missing
+  id?: string;
+}

@@ -3,6 +3,7 @@ import { ThemeProvider } from "./hooks/useTheme";
 import ScrollProgress from "./components/ScrollProgress";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/about" element={<AboutPage />} />
       </Routes>
       <Footer />
+      <BackToTop />
     </ThemeProvider>
   );
 }

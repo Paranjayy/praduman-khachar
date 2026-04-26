@@ -1,43 +1,10 @@
 import { useState, useEffect } from "react";
-import { SOCIALS, MEDIA_STATS } from "../data/content";
+import { SOCIALS, PLAYLISTS, PLAYLIST_CATEGORIES } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+import type { Playlist } from "../types";
 
-const CHANNEL_ID = "UCcxf3xuzjb9exyfzdrjdxo";
 const CHANNEL_URL = "https://www.youtube.com/@PradumanKhachar";
-// Uploads playlist = UU + channel_id without UC prefix
 const UPLOADS_PLAYLIST = "UUcxf3xuzjb9exyfzdrjdxo";
-
-// Real playlists visible on the channel (from channel page)
-const REAL_PLAYLISTS = [
-  {
-    id: "PLsHLBcqZLyE-5wkq5wqeJMqNnmqBHw3gh",
-    title: "ગિરનારનો ઈતિહાસ",
-    titleEn: "History of Girnar",
-    count: 16,
-    emoji: "⛰️",
-  },
-  {
-    id: "PLsHLBcqZLyE-1FsHicQZoD1GZyY1t-2A_",
-    title: "ભારતનો સ્વાતંત્ર સંગ્રામ",
-    titleEn: "India's Freedom Struggle",
-    count: 20,
-    emoji: "🏳️",
-  },
-  {
-    id: "PLsHLBcqZLyE-KwdJKCBBbgixjFBmqKm7E",
-    title: "લોકકળાની વાતો",
-    titleEn: "Folk Art Stories",
-    count: 31,
-    emoji: "🎨",
-  },
-  {
-    id: "PLsHLBcqZLyE-jPSq4KFi5kEnQF0MJQVR7",
-    title: "ભારતના રાજ્ય સંગ્રહ",
-    titleEn: "Indian State Archives",
-    count: 59,
-    emoji: "🏛️",
-  },
-];
 
 interface VideoEntry {
   id: string;
@@ -61,16 +28,20 @@ export default function MediaPage() {
   const [videos, setVideos] = useState<VideoEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"videos" | "playlists">("videos");
+  const [activeCat, setActiveCat] = useState<string>("all");
 
   useEffect(() => {
     fetch("/api/youtube")
       .then((r) => r.json())
-      .then((data) => {
-        setVideos(data.videos || []);
-        setLoading(false);
-      })
+      .then((data) => { setVideos(data.videos || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
+
+  const filtered = activeCat === "all"
+    ? PLAYLISTS
+    : PLAYLISTS.filter((p) => p.category === activeCat);
+
+  const totalVideos = PLAYLISTS.reduce((a, p) => a + p.count, 0);
 
   return (
     <main className="page-content">
@@ -78,25 +49,17 @@ export default function MediaPage() {
       <section className="media-page-hero">
         <div className="media-page-hero-inner">
           <div ref={ref} className={`reveal${visible ? " visible" : ""}`}>
-            <p className="section-label" style={{ color: "var(--c-amber-light)" }}>
-              Media &amp; Digital Presence
-            </p>
+            <p className="section-label" style={{ color: "var(--c-amber-light)" }}>Media &amp; Digital Presence</p>
             <h1 className="section-title" style={{ color: "var(--c-parchment)" }}>
               575 Videos.<br />History, Narrated.
             </h1>
             <div className="section-divider" style={{ background: "var(--c-amber)" }} />
             <p className="media-page-subtitle">
-              42,600+ subscribers. 575 historical videos. Dr. Khachar brings
-              Gujarat's forgotten stories to life — on YouTube, radio, television,
-              and print.
+              42,600+ subscribers · 575 videos · 33 playlists. Dr. Khachar
+              brings Gujarat's forgotten stories to life — on YouTube, radio, television, and print.
             </p>
-            <a
-              href={CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="yt-channel-btn"
-              style={{ marginTop: "var(--space-lg)", display: "inline-flex" }}
-            >
+            <a href={CHANNEL_URL} target="_blank" rel="noopener noreferrer"
+              className="yt-channel-btn" style={{ marginTop: "var(--space-lg)", display: "inline-flex" }}>
               <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
@@ -106,14 +69,16 @@ export default function MediaPage() {
         </div>
       </section>
 
-      {/* Stats strip */}
+      {/* Stats */}
       <div className="media-page-stats">
-        <MediaStatCard number="42.6K+" label="YouTube Subscribers" index={0} />
-        <MediaStatCard number="575" label="Videos Published" index={1} />
-        <MediaStatCard number="15+" label="Research Articles" index={2} />
-        <MediaStatCard number="12" label="All India Radio Appearances" index={3} />
-        <MediaStatCard number="6" label="Doordarshan Broadcasts" index={4} />
-        <MediaStatCard number="5+" label="Years Newspaper Columnist" index={5} />
+        {[
+          { number: "42.6K+", label: "Subscribers" },
+          { number: "575", label: "Videos" },
+          { number: `${totalVideos}+`, label: "Playlist Videos" },
+          { number: "33", label: "Playlists" },
+          { number: "12", label: "AIR Appearances" },
+          { number: "6", label: "Doordarshan" },
+        ].map((s, i) => <MediaStatCard key={i} {...s} index={i} />)}
       </div>
 
       {/* YouTube section */}
@@ -121,51 +86,31 @@ export default function MediaPage() {
         <h2 className="section-title">YouTube Channel</h2>
         <div className="section-divider" />
 
-        {/* Tab switcher */}
         <div className="yt-tabs">
-          <button
-            className={`yt-tab${activeTab === "videos" ? " active" : ""}`}
-            onClick={() => setActiveTab("videos")}
-          >
+          <button className={`yt-tab${activeTab === "videos" ? " active" : ""}`} onClick={() => setActiveTab("videos")}>
             Latest Videos
           </button>
-          <button
-            className={`yt-tab${activeTab === "playlists" ? " active" : ""}`}
-            onClick={() => setActiveTab("playlists")}
-          >
-            Playlists &amp; Series
+          <button className={`yt-tab${activeTab === "playlists" ? " active" : ""}`} onClick={() => setActiveTab("playlists")}>
+            All Playlists ({PLAYLISTS.length})
           </button>
         </div>
 
         {activeTab === "videos" && (
           <>
             {loading ? (
-              <div className="yt-loading">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="yt-skeleton" />
-                ))}
-              </div>
+              <div className="yt-loading">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="yt-skeleton" />)}</div>
             ) : videos.length > 0 ? (
               <div className="yt-video-grid">
-                {videos.map((v) => (
-                  <VideoCard key={v.id} {...v} />
-                ))}
+                {videos.map((v) => <VideoCard key={v.id} {...v} />)}
               </div>
             ) : (
-              // Fallback: embed uploads playlist
               <div className="yt-embed-fallback">
-                <iframe
-                  src={`https://www.youtube.com/embed/videoseries?list=${UPLOADS_PLAYLIST}&rel=0`}
+                <iframe src={`https://www.youtube.com/embed/videoseries?list=${UPLOADS_PLAYLIST}&rel=0`}
                   title="Praduman Khachar YouTube Channel"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                />
+                  allowFullScreen loading="lazy" />
                 <p className="yt-fallback-note">
-                  Browse all 575+ videos on{" "}
-                  <a href={CHANNEL_URL} target="_blank" rel="noopener noreferrer">
-                    YouTube →
-                  </a>
+                  Browse all 575+ videos on <a href={CHANNEL_URL} target="_blank" rel="noopener noreferrer">YouTube →</a>
                 </p>
               </div>
             )}
@@ -173,23 +118,35 @@ export default function MediaPage() {
         )}
 
         {activeTab === "playlists" && (
-          <div className="playlists-grid">
-            {REAL_PLAYLISTS.map((pl, i) => (
-              <PlaylistFullCard key={i} {...pl} index={i} />
-            ))}
-            <a
-              href={`${CHANNEL_URL}/playlists`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="playlist-view-all"
-            >
+          <>
+            {/* Category filter pills */}
+            <div className="playlist-cat-filter">
+              <button className={`pl-cat-pill${activeCat === "all" ? " active" : ""}`} onClick={() => setActiveCat("all")}>
+                All ({PLAYLISTS.length})
+              </button>
+              {Object.entries(PLAYLIST_CATEGORIES).map(([key, label]) => {
+                const cnt = PLAYLISTS.filter((p) => p.category === key).length;
+                if (cnt === 0) return null;
+                return (
+                  <button key={key} className={`pl-cat-pill${activeCat === key ? " active" : ""}`} onClick={() => setActiveCat(key)}>
+                    {label} ({cnt})
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="playlists-grid">
+              {filtered.map((pl, i) => <PlaylistCard key={i} pl={pl} index={i} />)}
+            </div>
+
+            <a href={`${CHANNEL_URL}/playlists`} target="_blank" rel="noopener noreferrer" className="playlist-view-all">
               View All Playlists on YouTube →
             </a>
-          </div>
+          </>
         )}
       </section>
 
-      {/* Podcast / Radio / Print */}
+      {/* Other media */}
       <section className="section">
         <h2 className="section-title">Other Media</h2>
         <div className="section-divider" />
@@ -210,7 +167,7 @@ export default function MediaPage() {
         </div>
       </section>
 
-      {/* Social grid */}
+      {/* Social */}
       <section className="section">
         <h2 className="section-title">Find Dr. Khachar Online</h2>
         <div className="section-divider" />
@@ -225,15 +182,12 @@ export default function MediaPage() {
         </div>
       </section>
 
-      {/* Coming soon: video → articles */}
+      {/* Coming soon */}
       <section className="section">
         <div className="coming-soon-banner">
           <span className="cs-badge">Coming Soon</span>
           <h3>Video → Article Conversion</h3>
-          <p>
-            Converting all 575+ historical video lectures into searchable, readable
-            articles — making Dr. Khachar's knowledge accessible in every format.
-          </p>
+          <p>Converting all 575+ historical video lectures into searchable, readable articles — making Dr. Khachar's knowledge accessible in every format.</p>
         </div>
       </section>
     </main>
@@ -245,26 +199,13 @@ function VideoCard({ id, title, thumbnail, url, published }: VideoEntry) {
   const date = published
     ? new Date(published).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })
     : "";
-
   return (
-    <a
-      ref={ref}
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="yt-video-card"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: "all 0.4s ease",
-      }}
-    >
+    <a ref={ref} href={url} target="_blank" rel="noopener noreferrer" className="yt-video-card"
+      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition: "all 0.4s ease" }}>
       <div className="yt-thumb-wrap">
         <img src={thumbnail} alt={title} loading="lazy" />
         <div className="yt-play-btn">
-          <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
         </div>
       </div>
       <div className="yt-video-info">
@@ -275,28 +216,21 @@ function VideoCard({ id, title, thumbnail, url, published }: VideoEntry) {
   );
 }
 
-function PlaylistFullCard({ id, title, titleEn, count, emoji, index }: typeof REAL_PLAYLISTS[0] & { index: number }) {
-  const [ref, visible] = useReveal(0.1);
+function PlaylistCard({ pl, index }: { pl: Playlist; index: number }) {
+  const [ref, visible] = useReveal(0.05);
+  const href = pl.id
+    ? `https://www.youtube.com/playlist?list=${pl.id}`
+    : `https://www.youtube.com/@PradumanKhachar/playlists`;
   return (
-    <a
-      ref={ref}
-      href={`https://www.youtube.com/playlist?list=${id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="playlist-full-card"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(16px)",
-        transition: `all 0.5s ${index * 0.1}s ease`,
-      }}
-    >
-      <span className="playlist-full-emoji">{emoji}</span>
+    <a ref={ref} href={href} target="_blank" rel="noopener noreferrer" className="playlist-full-card"
+      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(16px)", transition: `all 0.4s ${(index % 8) * 0.05}s ease` }}>
+      <span className="playlist-full-emoji">{pl.emoji}</span>
       <div className="playlist-full-body">
-        <div className="playlist-full-gu">{title}</div>
-        <div className="playlist-full-en">{titleEn}</div>
+        <div className="playlist-full-gu">{pl.title.startsWith("‌") ? pl.titleEn : pl.title}</div>
+        <div className="playlist-full-en">{pl.titleEn}</div>
       </div>
       <div className="playlist-full-count">
-        <span>{count}</span>
+        <span>{pl.count}</span>
         <span className="playlist-full-vids">videos</span>
       </div>
     </a>
@@ -306,15 +240,8 @@ function PlaylistFullCard({ id, title, titleEn, count, emoji, index }: typeof RE
 function MediaStatCard({ number, label, index }: { number: string; label: string; index: number }) {
   const [ref, visible] = useReveal(0.1);
   return (
-    <div
-      ref={ref}
-      className="media-page-stat-card"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: `all 0.5s ${index * 0.07}s ease`,
-      }}
-    >
+    <div ref={ref} className="media-page-stat-card"
+      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition: `all 0.5s ${index * 0.07}s ease` }}>
       <div className="media-page-stat-num">{number}</div>
       <div className="media-page-stat-label">{label}</div>
     </div>

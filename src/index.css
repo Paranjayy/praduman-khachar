@@ -662,3 +662,71 @@ body {
 @media (max-width: 480px) {
   .yt-video-grid { grid-template-columns: 1fr; }
 }
+
+/* ── BACK TO TOP ── */
+.back-to-top {
+  position: fixed; bottom: var(--space-lg); right: var(--space-lg); z-index: 100;
+  width: 42px; height: 42px;
+  background: var(--c-terracotta); color: var(--c-parchment);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transform: translateY(8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px oklch(0.3 0.1 30 / 0.25);
+}
+.back-to-top.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+.back-to-top:hover { background: var(--c-terracotta-light); transform: translateY(-2px); }
+
+/* ── PLAYLIST CATEGORY FILTER ── */
+.playlist-cat-filter {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  margin-bottom: var(--space-lg);
+}
+.pl-cat-pill {
+  padding: 0.35rem 0.9rem; font-size: 0.75rem; letter-spacing: 0.05em;
+  text-transform: uppercase; font-family: var(--font-body);
+  background: var(--c-parchment-deep); color: var(--c-ink-muted);
+  border: 1px solid var(--c-border-light); cursor: pointer;
+  transition: all 0.2s ease; border-radius: 0;
+}
+.pl-cat-pill:hover { color: var(--c-ink); border-color: var(--c-border); }
+.pl-cat-pill.active { background: var(--c-terracotta); color: var(--c-parchment); border-color: var(--c-terracotta); }
+
+/* ── GRAIN TEXTURE OVERLAY (chanhdai-inspired editorial feel) ── */
+.hero, .media-page-hero {
+  position: relative; isolation: isolate;
+}
+.hero::after, .media-page-hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat; z-index: 1; opacity: 0.6; mix-blend-mode: overlay;
+}
+
+/* ── SELECTION COLOR ── */
+::selection { background: var(--c-terracotta); color: var(--c-parchment); }
+::-moz-selection { background: var(--c-terracotta); color: var(--c-parchment); }
+
+/* ── FOCUS RING ── */
+:focus-visible { outline: 2px solid var(--c-terracotta); outline-offset: 3px; }
+
+/* ── LINK HOVER UNDERLINE ANIMATION ── */
+.section a:not([class]) {
+  color: var(--c-terracotta);
+  text-decoration: underline; text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.25s ease;
+}
+.section a:not([class]):hover { text-decoration-color: var(--c-terracotta); }
+
+/* ── CARD HOVER GLOW (terracotta ambient) ── */
+.achievement-item:hover, .career-item:hover, .testimonial-card:hover {
+  box-shadow: 0 0 0 1px var(--c-terracotta), 0 8px 32px oklch(0.5 0.15 30 / 0.06);
+}
+
+/* ── RESPONSIVE FILTER PILLS ── */
+@media (max-width: 600px) {
+  .playlist-cat-filter { gap: 0.3rem; }
+  .pl-cat-pill { padding: 0.3rem 0.65rem; font-size: 0.7rem; }
+  .back-to-top { bottom: 1rem; right: 1rem; width: 36px; height: 36px; }
+}

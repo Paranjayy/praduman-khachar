@@ -8,6 +8,7 @@ import type {
   Social,
   Book,
   BookCategory,
+  Playlist,
 } from "../types";
 
 export const SITE: SiteConfig = {
@@ -202,3 +203,68 @@ export const BOOK_CATEGORIES: BookCategory = {
   society: "Social History",
   institutional: "Institutional History",
 };
+
+// All playlists from @PradumanKhachar YouTube channel
+// Playlist IDs to be added when available — currently links go to /playlists page
+export const PLAYLISTS: Playlist[] = [
+  // ── Royal Dynasties & States ──────────────────────
+  { title: "જૂનાગઢ રાજ્ય", titleEn: "Junagadh State", count: 43, emoji: "🏰", category: "states" },
+  { title: "ભાવનગર રાજ્ય સંગ્રહ", titleEn: "Bhavnagar State Archives", count: 59, emoji: "📜", category: "states" },
+  { title: "ગોહેલ રાજ્ય", titleEn: "Gohel Dynasty", count: 26, emoji: "⚔️", category: "states" },
+  { title: "જોડેજ રાજ્ય", titleEn: "Jodej State", count: 14, emoji: "🏯", category: "states" },
+  { title: "પોરબંદર રાજ્ય — જેઠવા સ્ટેટ", titleEn: "Porbandar – Jethva State", count: 12, emoji: "🌊", category: "states" },
+  { title: "ઝાલા રાજ્ય", titleEn: "Zala State", count: 5, emoji: "⚜️", category: "states" },
+  { title: "પાળિતાણા", titleEn: "Palitana", count: 2, emoji: "🕌", category: "states" },
+  { title: "માળાવ‌દ‌ર સ્ટેટ", titleEn: "Manavadar State", count: 7, emoji: "🏛️", category: "states" },
+  { title: "વળવાળ વિશે", titleEn: "About Valval", count: 6, emoji: "🏘️", category: "states" },
+
+  // ── Kathi History ──────────────────────────────────
+  { title: "કાઠી દરબારો", titleEn: "Kathi Darbars", count: 73, emoji: "🛡️", category: "kathi" },
+  { title: "કઠિ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ — અ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ સ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Kathiyavad Na Raj Satta", count: 7, emoji: "👑", category: "kathi" },
+
+  // ── Sacred Sites & Heritage ────────────────────────
+  { title: "ગિરનારનો ઈતિહાસ", titleEn: "History of Girnar", count: 16, emoji: "⛰️", category: "heritage" },
+  { title: "ચૂ‌‌‌‌‌‌ ચૂ‌‌‌‌‌‌ ‌‌ સ‌‌‌‌‌‌ — ‌‌‌‌‌‌‌‌‌‌‌ સ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Yug Yugin Somnath", count: 14, emoji: "🕉️", category: "heritage" },
+  { title: "ધ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ સ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Dharm Sthano (Religion)", count: 21, emoji: "🙏", category: "heritage" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ (Jadeshwar Mahadev)", titleEn: "Jadeshwar Mahadev", count: 27, emoji: "📿", category: "heritage" },
+
+  // ── Freedom Movement ───────────────────────────────
+  { title: "ભ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ — ‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "India's Freedom Struggle", count: 20, emoji: "🏳️", category: "freedom" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Maha Gujarat Aandolan", count: 2, emoji: "✊", category: "freedom" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Non-Cooperation Movement", count: 20, emoji: "🕊️", category: "freedom" },
+
+  // ── Social & Regional History ──────────────────────
+  { title: "ગ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Gam Namno Itihas (Village Histories)", count: 14, emoji: "🏡", category: "regional" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ — ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "125 Varsh Pahelanu Rajkot", count: 87, emoji: "🏙️", category: "regional" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Aitihasik Kafodio (Historical Anecdotes)", count: 10, emoji: "📖", category: "regional" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌ ‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Vaar Ramvada – Vavda", count: 6, emoji: "🎶", category: "regional" },
+
+  // ── Research & Academia ────────────────────────────
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Itihas na Mavar se (History Beyond)", count: 16, emoji: "🔬", category: "academic" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Ph.D. Resources", count: 12, emoji: "🎓", category: "academic" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Pustik Parichay (Book Reviews)", count: 6, emoji: "📚", category: "academic" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Itihas nu Parichay Historian", count: 6, emoji: "🧑‍🏫", category: "academic" },
+
+  // ── Folk Culture & Media ───────────────────────────
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Lokkalani Vato – Mumbai Samachar", count: 31, emoji: "🎨", category: "folk" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Interview by Praduman Khachar", count: 7, emoji: "🎤", category: "folk" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Mamami ane Korona (Society & COVID)", count: 4, emoji: "🦠", category: "folk" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Maro Parichay / My Information", count: 5, emoji: "👤", category: "folk" },
+
+  // ── Special ────────────────────────────────────────
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Kanda Bhu — Major Historical Series", count: 38, emoji: "🗺️", category: "special" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Sardar Patel's Jamnagar Pravachan", count: 9, emoji: "🎙️", category: "special" },
+  { title: "‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌‌", titleEn: "Prashashtak Pramasho", count: 6, emoji: "📜", category: "special" },
+];
+
+export const PLAYLIST_CATEGORIES: Record<string, string> = {
+  states: "Royal States & Dynasties",
+  kathi: "Kathi History",
+  heritage: "Sacred Sites & Heritage",
+  freedom: "Freedom Movement",
+  regional: "Regional & Social History",
+  academic: "Research & Academia",
+  folk: "Folk Culture & Media",
+  special: "Special Series",
+};
+
