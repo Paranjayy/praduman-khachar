@@ -22,6 +22,7 @@ interface VideoArticle {
   publishedAt: string;
   views: string | null;
   likes: string | null;
+  comments: string | null;
   tags: string[];
   category: string | null;
   transcriptLang: string | null;
@@ -96,7 +97,7 @@ function formatTranscript(raw: string): string[] {
  * Build TOC: every Nth paragraph becomes a section with an anchor
  */
 function buildTOC(paras: string[]) {
-  const SECTION_SIZE = 4; // paragraphs per section
+  const SECTION_SIZE = 4;
   return paras
     .filter((_, i) => i % SECTION_SIZE === 0)
     .map((p, i) => ({
@@ -106,10 +107,31 @@ function buildTOC(paras: string[]) {
     }));
 }
 
+/**
+ * Sentence analytics — word count per sentence for sparkline
+ */
+function computeSentenceStats(text: string) {
+  if (!text) return null;
+  // Split into sentences (handles Gujarati ।, Hindi ॥, English .!?)
+  const sentences = text
+    .split(/(?<=[.!?।॥])\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 2);
+  if (!sentences.length) return null;
+  const lengths = sentences.map(s => s.split(/\s+/).length);
+  const avg = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
+  const min = Math.min(...lengths);
+  const max = Math.max(...lengths);
+  // Sample up to 80 sentences for sparkline
+  const sample = lengths.length > 80 ? lengths.filter((_, i) => i % Math.ceil(lengths.length / 80) === 0) : lengths;
+  return { avg, min, max, total: sentences.length, sample };
+}
+
 // ─── Article Reader (full-screen panel) ──────────────────────────────────────
 function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void }) {
   const paras = useMemo(() => formatTranscript(v.transcript), [v.transcript]);
   const toc = useMemo(() => buildTOC(paras), [paras]);
+  const sentenceStats = useMemo(() => computeSentenceStats(v.transcript), [v.transcript]);
   const SECTION_SIZE = 4;
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -178,6 +200,7 @@ function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void })
             <span className="reader-read-time">~{v.readMinutes} min read</span>
             {v.views && <span className="reader-stat">👁 {v.views}</span>}
             {v.likes && <span className="reader-stat">👍 {v.likes}</span>}
+            {v.comments && <span className="reader-stat">💬 {v.comments}</span>}
           </div>
 
           {/* Title */}
@@ -189,6 +212,47 @@ function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void })
           {v.tags.length > 0 && (
             <div className="reader-tags">
               {v.tags.map(t => <span key={t} className="article-tag">{t}</span>)}
+            </div>
+          )}
+
+          {/* Sentence Analytics */}
+          {sentenceStats && (
+            <div className="sentence-stats" title="Sentence length analysis">
+              <div className="sentence-stat">
+                <span className="sentence-stat-val">{sentenceStats.avg}</span>
+                <span className="sentence-stat-label">avg words</span>
+              </div>
+              <div className="sentence-stat-sep" />
+              <div className="sentence-stat">
+                <span className="sentence-stat-val">{sentenceStats.min}</span>
+                <span className="sentence-stat-label">shortest</span>
+              </div>
+              <div className="sentence-stat-sep" />
+              <div className="sentence-stat">
+                <span className="sentence-stat-val">{sentenceStats.max}</span>
+                <span className="sentence-stat-label">longest</span>
+              </div>
+              <div className="sentence-stat-sep" />
+              <div className="sentence-stat">
+                <span className="sentence-stat-val">{sentenceStats.total}</span>
+                <span className="sentence-stat-label">sentences</span>
+              </div>
+              <div className="sentence-stat-sep" />
+              {/* Sparkline */}
+              <div className="sentence-sparkline" title="Sentence length rhythm">
+                {sentenceStats.sample.map((len, i) => {
+                  const pct = Math.min(100, Math.round((len / Math.max(...sentenceStats.sample)) * 100));
+                  const cls = len > sentenceStats.avg * 1.5 ? " long" : len < sentenceStats.avg * 0.5 ? " short" : "";
+                  return (
+                    <div
+                      key={i}
+                      className={`sentence-spark-bar${cls}`}
+                      style={{ height: `${Math.max(10, pct)}%` }}
+                      title={`${len} words`}
+                    />
+                  );
+                })}
+              </div>
             </div>
           )}
 
