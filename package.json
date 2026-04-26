@@ -8,10 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "scrape:channel": "node scripts/scrape-channel.mjs",
+    "scrape:channel:test": "node scripts/scrape-channel.mjs --limit 5",
+    "scrape:channel:fresh": "node scripts/scrape-channel.mjs --fresh",
     "scrape:videos": "node scripts/scrape-videos.mjs",
-    "scrape:videos:test": "node scripts/scrape-videos.mjs --limit 5",
-    "scrape:playlist": "node scripts/scrape-videos.mjs --playlist",
-    "scrape:playlists": "node scripts/scrape-playlists.mjs"
+    "scrape:playlists": "node scripts/scrape-playlists.mjs",
+    "scrape:all": "node scripts/scrape-playlists.mjs && node scripts/scrape-channel.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

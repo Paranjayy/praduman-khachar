@@ -1290,3 +1290,32 @@ body {
 .playlist-search-results { font-size: .8rem; color: var(--c-ink-muted); margin-bottom: var(--space-md); }
 [data-theme="dark"] .playlist-search-input { background: oklch(.14 .02 60); border-color: oklch(.26 .02 60); }
 [data-theme="dark"] .playlist-search-input:focus { border-color: var(--c-terracotta); }
+
+/* ══ READER ACTION BUTTONS (cite, share, print) ══════════════════════════════ */
+.reader-action-btn { background: var(--c-parchment-deep); border: 1px solid var(--c-border); color: var(--c-ink-soft); font-size: .78rem; padding: .4rem .75rem; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; transition: all .15s; white-space: nowrap; }
+.reader-action-btn:hover { background: var(--c-terracotta); border-color: var(--c-terracotta); color: white; }
+[data-theme="dark"] .reader-action-btn { background: oklch(.18 .02 60); border-color: oklch(.28 .02 60); color: var(--c-ink-soft); }
+[data-theme="dark"] .reader-action-btn:hover { background: var(--c-terracotta); border-color: var(--c-terracotta); color: white; }
+
+/* ══ READER RELATED ARTICLES ═════════════════════════════════════════════════ */
+.reader-related { margin-top: var(--space-2xl); padding-top: var(--space-lg); border-top: 1px solid var(--c-border); }
+.reader-related-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--c-ink-muted); margin-bottom: var(--space-md); }
+.reader-related-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-sm); }
+.reader-related-item { background: var(--c-parchment-deep); border: 1px solid var(--c-border); padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 0; overflow: hidden; transition: all .2s; }
+.reader-related-item:hover { border-color: var(--c-terracotta); transform: translateY(-2px); box-shadow: 0 4px 12px oklch(.2 .04 60 / .1); }
+.reader-related-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.reader-related-title { font-size: .75rem; line-height: 1.4; color: var(--c-ink); padding: .4rem .6rem; font-family: var(--font-body); }
+[data-theme="dark"] .reader-related-item { background: oklch(.18 .02 60); border-color: oklch(.26 .02 60); }
+[data-theme="dark"] .reader-related-title { color: var(--c-ink); }
+
+/* ══ PRINT STYLES ════════════════════════════════════════════════════════════ */
+@media print {
+  .site-nav, .reader-toc, .reader-close, .reader-footer, .reader-related,
+  .sentence-stats, .reader-tags, .scroll-progress, .back-to-top { display: none !important; }
+  .reader-overlay { position: static !important; background: white !important; }
+  .reader-panel { grid-template-columns: 1fr !important; box-shadow: none !important; max-height: none !important; height: auto !important; }
+  .reader-content { overflow: visible !important; height: auto !important; }
+  .reader-title { font-size: 1.6rem; }
+  .reader-body { max-width: 100%; }
+  .reader-hero-img { max-height: 300px; }
+}

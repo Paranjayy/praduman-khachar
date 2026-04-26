@@ -25,6 +25,7 @@ function AppInner() {
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/articles" element={<ArticlesPage />} />
+        <Route path="/articles/:slug" element={<ArticlesPage />} />
         <Route path="/writings" element={<WritingsPage />} />
         <Route path="/writings/:slug" element={<WritingsPage />} />
       </Routes>

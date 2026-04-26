@@ -1,11 +1,12 @@
 /**
  * src/pages/Articles.tsx
  *
- * Video Articles page — inline transcript reader (NOT opening YouTube)
- * Click card → open full transcript reader with TOC, metadata, YouTube link
+ * Video Articles page — inline transcript reader
+ * Supports /articles/:slug deep-links, share, citation copy, print.
  */
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { track } from "@vercel/analytics";
 import { useReveal } from "../hooks/useAnimations";
 import PageHeader from "../components/PageHeader";
@@ -128,12 +129,27 @@ function computeSentenceStats(text: string) {
 }
 
 // ─── Article Reader (full-screen panel) ──────────────────────────────────────
-function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void }) {
+function ArticleReader({
+  v, onClose, allVideos, onRelated
+}: {
+  v: VideoArticle;
+  onClose: () => void;
+  allVideos?: VideoArticle[];
+  onRelated: (v: VideoArticle) => void;
+}) {
   const paras = useMemo(() => formatTranscript(v.transcript), [v.transcript]);
   const toc = useMemo(() => buildTOC(paras), [paras]);
   const sentenceStats = useMemo(() => computeSentenceStats(v.transcript), [v.transcript]);
   const SECTION_SIZE = 4;
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Related articles — share ≥1 tag
+  const relatedVideos = useMemo(() => {
+    if (!allVideos || !v.tags?.length) return [];
+    return allVideos
+      .filter(r => r.id !== v.id && r.tags?.some(t => v.tags.includes(t)))
+      .slice(0, 3);
+  }, [allVideos, v]);
 
   // Lock body scroll
   useEffect(() => {
@@ -283,20 +299,48 @@ function ArticleReader({ v, onClose }: { v: VideoArticle; onClose: () => void })
             </p>
           )}
 
+          {/* Related articles */}
+          {relatedVideos && relatedVideos.length > 0 && (
+            <div className="reader-related">
+              <div className="reader-related-label">Related Articles</div>
+              <div className="reader-related-list">
+                {relatedVideos.map(r => (
+                  <button key={r.id} className="reader-related-item" onClick={() => onRelated(r)}>
+                    <img src={r.thumbnailMq} alt={r.title} className="reader-related-thumb" onError={e => { (e.currentTarget as HTMLImageElement).src = r.thumbnail; }} />
+                    <span className="reader-related-title">{r.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Footer */}
           <div className="reader-footer">
-            <a
-              href={v.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="reader-yt-btn"
-              onClick={() => track("article_watch", { videoId: v.id })}
-            >
+            <a href={v.url} target="_blank" rel="noopener noreferrer" className="reader-yt-btn"
+              onClick={() => track("article_watch", { videoId: v.id })}>
               ▶ Watch on YouTube
             </a>
-            <span className="reader-word-count">
-              {v.transcriptWordCount.toLocaleString()} words
-            </span>
+            <button className="reader-action-btn" onClick={() => {
+              const text = `${v.title} — Dr. Praduman Khachar. ${new Date(v.publishedAt).getFullYear()}. YouTube. ${v.url}`;
+              navigator.clipboard.writeText(text);
+              track("article_cite", { videoId: v.id });
+            }} title="Copy citation">
+              📋 Cite
+            </button>
+            <button className="reader-action-btn" onClick={() => {
+              if (navigator.share) {
+                navigator.share({ title: v.title, text: `Read: ${v.title}`, url: `${window.location.origin}/articles/${v.slug}` });
+              } else {
+                navigator.clipboard.writeText(`${window.location.origin}/articles/${v.slug}`);
+              }
+              track("article_share", { videoId: v.id });
+            }} title="Share article">
+              🔗 Share
+            </button>
+            <button className="reader-action-btn" onClick={() => window.print()} title="Print / Save as PDF">
+              🖨 Print
+            </button>
+            <span className="reader-word-count">{v.transcriptWordCount.toLocaleString()} words</span>
           </div>
         </div>
       </div>
@@ -380,9 +424,9 @@ function EmptyState() {
     <div className="articles-empty">
       <div className="articles-empty-icon">📜</div>
       <h2>Articles Not Yet Generated</h2>
-      <p>Run the scraper to pull videos and transcripts from YouTube, then this page will populate automatically.</p>
-      <div className="articles-empty-code"><code>npm run scrape:videos:test</code><span>— test with 5 videos first</span></div>
-      <div className="articles-empty-code"><code>npm run scrape:videos</code><span>— full channel scrape</span></div>
+      <p>Run the scraper to pull all 575+ videos and transcripts from YouTube. Fully resumable.</p>
+      <div className="articles-empty-code"><code>npm run scrape:channel:test</code><span>— trial with 5 videos</span></div>
+      <div className="articles-empty-code"><code>npm run scrape:channel</code><span>— full channel (575 videos, yt-dlp)</span></div>
     </div>
   );
 }
@@ -390,6 +434,8 @@ function EmptyState() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ArticlesPage() {
   usePageTitle("Video Articles");
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [videos, setVideos] = useState<VideoArticle[] | null>(null);
   const [meta, setMeta] = useState<Omit<VideosJson, "videos"> | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -403,10 +449,26 @@ export default function ArticlesPage() {
       if (data) {
         setVideos(data.videos);
         setMeta({ scraped_at: data.scraped_at, total: data.total, transcript_ok: data.transcript_ok, transcript_fail: data.transcript_fail });
+        // Deep-link: /articles/:slug → auto-open matching article
+        if (slug) {
+          const match = data.videos.find(v => v.slug === slug || v.id === slug);
+          if (match) setOpenArticle(match);
+        }
       }
       setLoaded(true);
     });
-  }, []);
+  }, [slug]);
+
+  const openWithNav = useCallback((v: VideoArticle) => {
+    setOpenArticle(v);
+    navigate(`/articles/${v.slug}`, { replace: false });
+    track("article_open", { videoId: v.id, title: v.title.slice(0, 50) });
+  }, [navigate]);
+
+  const closeWithNav = useCallback(() => {
+    setOpenArticle(null);
+    navigate("/articles", { replace: false });
+  }, [navigate]);
 
   const langs = useMemo(() => {
     if (!videos) return [];
@@ -434,7 +496,12 @@ export default function ArticlesPage() {
   return (
     <>
       {openArticle && (
-        <ArticleReader v={openArticle} onClose={() => setOpenArticle(null)} />
+        <ArticleReader
+          v={openArticle}
+          onClose={closeWithNav}
+          allVideos={videos || []}
+          onRelated={openWithNav}
+        />
       )}
 
       <PageHeader
@@ -486,7 +553,7 @@ export default function ArticlesPage() {
           <div className="articles-loading"><div className="articles-loading-spinner" /><p>Loading articles…</p></div>
         ) : videos && videos.length > 0 ? (
           <div className="articles-grid">
-            {filtered.map((v, i) => <ArticleCard key={v.id} v={v} index={i} onOpen={setOpenArticle} />)}
+            {filtered.map((v, i) => <ArticleCard key={v.id} v={v} index={i} onOpen={openWithNav} />)}
           </div>
         ) : (
           <EmptyState />
