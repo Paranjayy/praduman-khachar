@@ -60,11 +60,11 @@ export interface SiteConfig {
 }
 
 export interface Playlist {
-  title: string;       // Gujarati/original title
-  titleEn: string;     // English translation
-  count: number;       // video count
+  title: string;
+  titleEn: string;
+  count: number;
   emoji: string;
-  category: string;    // thematic grouping
-  // id only available for some — links to channel playlists page if missing
-  id?: string;
+  category: string;
+  id?: string;           // YouTube playlist ID (PLxxxxxxxx)
+  thumbVideoId?: string; // Video ID for thumbnail (i.ytimg.com/vi/{id}/mqdefault.jpg)
 }

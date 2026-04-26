@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+import PageHeader from "../components/PageHeader";
 
 const ALL_CATEGORIES = ["all", ...new Set(BOOKS.map((b) => b.category))];
 
 export default function BooksPage() {
-  const [ref, visible] = useReveal();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
@@ -20,25 +20,12 @@ export default function BooksPage() {
 
   return (
     <main className="page-content">
-      <section className="section" style={{ paddingTop: "8rem" }}>
-        <div ref={ref} className={`reveal${visible ? " visible" : ""}`}>
-          <p className="section-label">Complete Bibliography</p>
-          <h1 className="section-title">
-            33 Books on History,
-            <br />
-            Heritage &amp; Culture
-          </h1>
-          <div className="section-divider" />
-        </div>
-
-        <div className="books-page-intro">
-          <p>
-            Over three decades of meticulous research into Saurashtra and Gujarat's
-            history — from Kathi clan chronicles and Nawabi court records to temple
-            inscriptions and freedom movement narratives. 23 of these works have been
-            selected by the <strong>Library of Congress, USA</strong>.
-          </p>
-        </div>
+      <PageHeader
+        label="Complete Bibliography"
+        title={`33 Books on History, Heritage & Culture`}
+        subtitle="Over three decades of meticulous research into Saurashtra and Gujarat's history — 23 works selected by the Library of Congress, USA."
+      />
+      <section className="section">
 
         {/* Search */}
         <div className="books-search-row">

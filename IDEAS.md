@@ -94,3 +94,11 @@
 **PhD Guide:** 4 completed, 3 in progress  
 **UGC Project:** Minor Research Project completed Feb 2013  
 **YouTube:** 485+ historical videos  
+
+# my ideas
+- maybe add stats accross from all the things too like fb/insta and things too 
+# my father's ideas
+- Add a dedicated "Press & Media" section to showcase newspaper clippings, articles, and public recognitions.
+- Integrate a simple Contact/Consultation form for students and event organizers to easily reach out.
+- Highlight the impact of the 485+ YouTube videos with a "Featured Talks" or "Popular Lectures" carousel.
+- Include a gallery or timeline of academic milestones and awards received over the 33+ years of teaching.

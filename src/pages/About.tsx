@@ -1,19 +1,16 @@
 import { SITE, EDUCATION, CAREER, ACHIEVEMENTS, BOOKS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+import PageHeader from "../components/PageHeader";
 
 export default function AboutPage() {
-  const [ref, visible] = useReveal();
-
   return (
     <main className="page-content">
-      <section className="section" style={{ paddingTop: "8rem" }}>
-        <div ref={ref} className={`reveal${visible ? " visible" : ""}`}>
-          <p className="section-label">About</p>
-          <h1 className="section-title">
-            Dr. Pradumankumar B. Khachar
-          </h1>
-          <div className="section-divider" />
-        </div>
+      <PageHeader
+        label="About"
+        title="Dr. Pradumankumar B. Khachar"
+        subtitle="Historian · Author · Researcher · PhD Guide"
+      />
+      <section className="section">
 
         <div className="about-page-grid">
           <div className="about-page-main">
