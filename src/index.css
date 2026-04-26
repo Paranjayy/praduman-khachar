@@ -392,11 +392,18 @@ img { max-width: 100%; display: block; }
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   font-weight: 500;
 }
-.channel-link:hover { background: oklch(0.25 0.04 60); color: var(--c-parchment); }
-.channel-link svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; flex-shrink: 0; }
+/* Brand colors on hover instead of generic accent */
+.channel-link:hover { background: oklch(0.22 0.04 60); }
+.channel-link[data-icon="youtube"]:hover  { color: #ff4444; }
+.channel-link[data-icon="instagram"]:hover { color: #e1306c; }
+.channel-link[data-icon="facebook"]:hover  { color: #4a90d9; }
+.channel-link[data-icon="twitter"]:hover   { color: #94a3b8; }
+.channel-link[data-icon="spotify"]:hover   { color: #1db954; }
+.channel-link[data-icon="blog"]:hover      { color: var(--c-amber-light); }
+.channel-link svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.65; flex-shrink: 0; transition: opacity 0.25s; }
 .channel-link:hover svg { opacity: 1; }
 .channel-link span { margin-left: auto; font-size: 0.75rem; opacity: 0; transition: opacity 0.3s ease; }
-.channel-link:hover span { opacity: 0.5; }
+.channel-link:hover span { opacity: 0.45; }
 
 /* ── CONTACT ── */
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); }
@@ -447,7 +454,28 @@ img { max-width: 100%; display: block; }
 [data-theme="dark"] .hero-bg img { filter: brightness(0.25) sepia(0.2); }
 [data-theme="dark"] .media-banner { background: #0f0d0a; }
 [data-theme="dark"] .channel-link { background: #0f0d0a; }
-[data-theme="dark"] .channel-link:hover { background: #1a1612; }
+[data-theme="dark"] .channel-link:hover { background: #161210; }
+/* Dark mode: ensure body text readable */
+[data-theme="dark"] .section-title { color: var(--c-ink); }
+[data-theme="dark"] .section-label { color: var(--c-amber); }
+[data-theme="dark"] .about-lead { color: var(--c-ink-soft); }
+[data-theme="dark"] .contact-quote { color: var(--c-ink); }
+/* Dark mode: page-header light variant text */
+[data-theme="dark"] .page-header:not(.page-header--dark) {
+  background: var(--c-parchment-deep);
+}
+[data-theme="dark"] .page-header:not(.page-header--dark) .page-header-title { color: var(--c-ink); }
+[data-theme="dark"] .page-header:not(.page-header--dark) .page-header-subtitle { color: var(--c-ink-soft); }
+/* Dark mode: books/cards */
+[data-theme="dark"] .book-card { border-color: var(--c-border); }
+[data-theme="dark"] .edu-card { border-color: var(--c-border); }
+[data-theme="dark"] .stat-item { background: var(--c-parchment); }
+[data-theme="dark"] .podcast-card { background: var(--c-parchment-deep); border-color: var(--c-border); }
+/* Dark mode: links — not terracotta, softer */
+[data-theme="dark"] a { color: var(--c-terracotta-light); }
+[data-theme="dark"] a:hover { color: var(--c-amber-light); }
+[data-theme="dark"] .nav-links a { color: var(--c-ink-soft); }
+[data-theme="dark"] .nav-links a:hover { color: var(--c-ink); }
 
 /* ── THEME TOGGLE ── */
 .nav-actions { display: flex; align-items: center; gap: var(--space-sm); }
