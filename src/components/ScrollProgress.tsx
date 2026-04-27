@@ -23,7 +23,7 @@ export default function ScrollProgress() {
         width: `${progress}%`,
         height: "2px",
         background: "var(--c-terracotta)",
-        zIndex: 200,
+        zIndex: 10000,
         transition: "width 0.1s linear",
         transformOrigin: "left",
       }}

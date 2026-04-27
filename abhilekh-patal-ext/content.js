@@ -6,11 +6,23 @@ function init() {
   // 1. Inline PDF Viewer
   // Look for any links or buttons that open the PDF/Document
   // In the new UI, there is a "Read more" or "Page on Demand" or a thumbnail link.
-  const previewButtons = document.querySelectorAll('a[href*="readcontent"], button[class*="preview"], a[onclick*="openViewer"]');
+  // Find buttons or links that might open the viewer
+  const possibleBtns = Array.from(document.querySelectorAll('a, button'));
+  const previewButtons = possibleBtns.filter(el => {
+    const text = (el.innerText || '').toLowerCase();
+    const href = (el.href || '').toLowerCase();
+    return (
+      href.includes('itemdetails') || 
+      href.includes('readcontent') ||
+      text.includes('preview') || 
+      text.includes('read more') ||
+      text.includes('page on demand')
+    );
+  });
   
   previewButtons.forEach(btn => {
-    // If it's not already modified
-    if (!btn.hasAttribute('data-inline-viewer-added')) {
+    // If it's not already modified and it's a visible button/link
+    if (!btn.hasAttribute('data-inline-viewer-added') && btn.offsetHeight > 0) {
       btn.setAttribute('data-inline-viewer-added', 'true');
       
       const inlineBtn = document.createElement('button');
@@ -55,12 +67,14 @@ function disableInfiniteScroll() {
   if (window._classicPaginationApplied) return;
   
   // Abhilekh typically attaches scroll listeners to window or document
-  // Overriding scroll behavior naive approach:
+  // Override window scrolling and fetch interceptors
   const oldScroll = window.onscroll;
-  window.onscroll = null;
+  window.addEventListener('scroll', (e) => {
+    e.stopImmediatePropagation();
+  }, true);
   
-  // Add a "Load More" manual button at the bottom instead of auto-loading
-  const loaderEl = document.querySelector('.loader, .loading-spinner, #loadMore');
+  // Find load more triggers
+  const loaderEl = document.querySelector('.loader, .loading-spinner, #loadMore, [class*="infinite-scroll"]');
   if (loaderEl && !document.getElementById('classic-load-more')) {
     const manualLoadBtn = document.createElement('button');
     manualLoadBtn.id = "classic-load-more";

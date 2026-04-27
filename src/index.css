@@ -1817,15 +1817,13 @@ body::after { bottom: 0; left: 0; right: 0; height: 4px; }
 .classic-frame-left { top: 0; bottom: 0; left: 0; width: 4px; }
 .classic-frame-right { top: 0; bottom: 0; right: 0; width: 4px; }
 
-/* Grid overlay for a subtle classic feel */
+/* Dotted overlay for a solid tech/classic feel like the examples */
 .classic-grid-bg {
   position: fixed;
   inset: 0;
-  background-image: 
-    linear-gradient(to right, var(--c-border-light) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--c-border-light) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.4;
+  background-image: radial-gradient(var(--c-border-light) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.5;
   z-index: -1;
   pointer-events: none;
 }
