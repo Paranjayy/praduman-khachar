@@ -1780,7 +1780,7 @@ body {
 .view-toggle:hover { color: var(--c-ink); background: oklch(0 0 0 / 0.05); }
 .view-toggle.active { background: var(--c-terracotta); color: white; }
 
-.explore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
+.explore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-lg); }
 .explore-card { display: flex; flex-direction: column; border: 1px solid var(--c-border); background: var(--c-parchment); text-decoration: none; color: inherit; transition: all 0.2s; overflow: hidden; }
 .explore-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: var(--c-terracotta); }
 .explore-card-thumb { aspect-ratio: 16/9; overflow: hidden; background: var(--c-parchment-deep); }
@@ -1798,6 +1798,21 @@ body {
 .explore-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: var(--space-sm); border-top: 1px solid var(--c-border); }
 .explore-stat { font-size: 0.75rem; color: var(--c-ink-muted); }
 
+/* Compact list view */
+.explore-compact-list { display: flex; flex-direction: column; border: 1px solid var(--c-border); }
+.explore-compact-item {
+  display: flex; align-items: flex-start; gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--c-border);
+  text-decoration: none; color: inherit;
+  transition: background 0.15s;
+}
+.explore-compact-item:hover { background: var(--c-parchment-deep); }
+.explore-compact-item:hover .explore-compact-title { color: var(--c-terracotta); }
+.explore-compact-body { flex: 1; min-width: 0; }
+.explore-compact-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; color: var(--c-ink); transition: color 0.15s; }
+.explore-compact-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.75rem; color: var(--c-ink-muted); white-space: nowrap; flex-shrink: 0; }
+
 /* Table View */
 .explore-table-wrap { overflow-x: auto; border: 1px solid var(--c-border); background: var(--c-parchment); }
 .explore-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
@@ -1805,11 +1820,17 @@ body {
 .explore-table td { padding: var(--space-md); border-bottom: 1px solid var(--c-border); color: var(--c-ink-soft); }
 .explore-table-row { cursor: pointer; transition: background 0.15s; }
 .explore-table-row:hover { background: oklch(0 0 0 / 0.03); }
-.explore-table-title { font-weight: 600; color: var(--c-ink); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.explore-table-title { font-weight: 600; color: var(--c-ink); max-width: 300px; }
 .explore-table-tags { display: flex; gap: 4px; flex-wrap: wrap; }
 .explore-tag { font-size: 0.7rem; background: var(--c-parchment-deep); padding: 2px 6px; border: 1px solid var(--c-border); color: var(--c-ink-muted); }
 
-[data-theme="dark"] .explore-card, [data-theme="dark"] .explore-table-wrap { background: oklch(0.16 0.02 60); border-color: oklch(0.28 0.02 60); }
+/* View toggle buttons */
+.explore-view-toggles { display: flex; gap: 4px; }
+.view-toggle { padding: 6px 10px; border: 1px solid var(--c-border); background: var(--c-parchment); cursor: pointer; font-size: 0.9rem; color: var(--c-ink-muted); transition: all 0.15s; }
+.view-toggle:hover, .view-toggle.active { background: var(--c-terracotta); color: white; border-color: var(--c-terracotta); }
+
+[data-theme="dark"] .explore-card, [data-theme="dark"] .explore-table-wrap, [data-theme="dark"] .explore-compact-list { background: oklch(0.16 0.02 60); border-color: oklch(0.28 0.02 60); }
+[data-theme="dark"] .explore-compact-item:hover { background: oklch(0.2 0.02 60); }
 [data-theme="dark"] .explore-table th { background: oklch(0.14 0.02 60); }
 [data-theme="dark"] .explore-table-row:hover { background: oklch(1 0 0 / 0.05); }
 
@@ -1828,20 +1849,145 @@ body {
 [data-theme="dark"] .classic-grid-bg { opacity: 0.15; }
 
 /* ══ MICRO-INTERACTIONS ═══════════════════════════════════════════════════ */
-.btn, button, a {
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 .btn:active, button:active {
   transform: scale(0.96);
 }
 
 .book-card, .article-card, .featured-talk-card {
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease !important;
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.35s ease !important;
 }
 .book-card:hover, .article-card:hover, .featured-talk-card:hover {
-  transform: translateY(-8px) scale(1.02) !important;
-  box-shadow: 0 20px 40px oklch(0.1 0.05 60 / 0.15);
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 32px oklch(0.1 0.05 60 / 0.12);
 }
 [data-theme="dark"] .book-card:hover, [data-theme="dark"] .article-card:hover, [data-theme="dark"] .featured-talk-card:hover {
-  box-shadow: 0 20px 40px oklch(0 0 0 / 0.4);
+  box-shadow: 0 16px 32px oklch(0 0 0 / 0.35);
+}
+
+/* ══ CHANHDAI-STYLE SECTION BORDERS & BOXES ════════════════════════════════ */
+/* Outline boxes on sections for a scholarly, gridded look */
+.section {
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Card boxes with strong borders — Chanhdai-inspired */
+.yt-video-card {
+  border: 1px solid var(--c-border);
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s !important;
+}
+.yt-video-card:hover {
+  border-color: var(--c-terracotta) !important;
+  box-shadow: 0 4px 16px oklch(0.1 0.05 60 / 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+.yt-thumb-wrap {
+  border-bottom: 1px solid var(--c-border);
+}
+
+.article-card {
+  border: 1px solid var(--c-border) !important;
+}
+.article-card:hover {
+  border-color: var(--c-terracotta) !important;
+  box-shadow: 0 6px 20px oklch(0.1 0.05 60 / 0.1) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* Playlist cards — stronger border styling */
+.playlist-card {
+  border: 1px solid var(--c-border) !important;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s !important;
+}
+.playlist-card:hover {
+  border-color: var(--c-terracotta) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px oklch(0.2 0.04 60 / 0.1) !important;
+}
+
+/* Section label markers — Chanhdai-style corner dots */
+.section-eyebrow::before {
+  content: "·";
+  margin-right: 6px;
+  color: var(--c-terracotta);
+  font-weight: 900;
+}
+
+/* Scholarly corner notch on stat cards */
+.media-page-stat-card {
+  position: relative;
+  border: 1px solid var(--c-border) !important;
+  transition: border-color 0.2s !important;
+}
+.media-page-stat-card::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
+  background: var(--c-terracotta);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* Nav border indicator — stronger underline on active */
+.nav-link.active::after {
+  height: 3px !important;
+  bottom: -4px !important;
+}
+
+/* Transcript search highlight */
+.transcript-match {
+  background: oklch(0.9 0.15 80 / 0.5);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+[data-theme="dark"] .transcript-match {
+  background: oklch(0.6 0.15 80 / 0.3);
+}
+
+/* ══ FULL-TEXT SEARCH ENHANCEMENTS ════════════════════════════════════════ */
+.explore-search-wrap {
+  position: relative;
+  margin-bottom: var(--space-xl);
+}
+.explore-search-meta {
+  font-size: 0.8rem;
+  color: var(--c-ink-muted);
+  margin-top: 6px;
+  letter-spacing: 0.03em;
+}
+.explore-search-meta strong { color: var(--c-terracotta); }
+
+.transcript-snippet {
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  line-height: 1.6;
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  border-left: 2px solid var(--c-terracotta);
+  padding-left: 8px;
+  font-style: italic;
+}
+
+/* ══ VIDEO GRID — ALWAYS 4 COLUMNS ON DESKTOP ═══════════════════════════ */
+@media (min-width: 1024px) {
+  .yt-video-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .playlists-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .articles-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .yt-video-grid,
+  .playlists-grid,
+  .articles-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
 }
