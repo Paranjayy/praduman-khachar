@@ -85,8 +85,6 @@ function TalkCard({
         <span className="featured-talk-play">▶</span>
         {v.durationSec ? (
           <span className="featured-talk-duration">{fmtDuration(v.durationSec)}</span>
-        ) : v.readMinutes > 0 ? (
-          <span className="featured-talk-duration">{v.readMinutes} min read</span>
         ) : null}
       </div>
       <div className="featured-talk-info">

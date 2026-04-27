@@ -713,7 +713,7 @@ body {
 
 /* ── YOUTUBE VIDEO GRID ── */
 .yt-video-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--space-md);
 }
 .yt-video-card {
@@ -1159,7 +1159,7 @@ body {
 .reader-toc-preview { font-size: .78rem; color: var(--c-ink-muted); line-height: 1.4; }
 
 /* Main content */
-.reader-content { flex: 1; overflow-y: auto; padding: var(--space-2xl) clamp(var(--space-lg), 6vw, var(--space-3xl)); position: relative; max-width: 760px; }
+.reader-content { flex: 1; overflow-y: auto; padding: var(--space-2xl) clamp(var(--space-lg), 6vw, var(--space-3xl)); position: relative; max-width: 900px; margin: 0 auto; }
 .reader-close { position: sticky; top: 0; float: right; background: var(--c-parchment-deep); border: 1px solid var(--c-border); color: var(--c-ink); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; z-index: 10; margin: 0 0 var(--space-md) var(--space-md); transition: background .2s; }
 .reader-close:hover { background: var(--c-terracotta); color: white; border-color: transparent; }
 .reader-hero-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; margin-bottom: var(--space-lg); }
@@ -1262,11 +1262,19 @@ body {
 [data-theme="dark"] .sentence-spark-bar:hover { opacity: 1; }
 
 /* ══ PLAYLISTS PAGE ══════════════════════════════════════════════════════════ */
-.playlists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
+}
 .playlist-card { background: var(--c-parchment-deep); border: 1px solid var(--c-border); display: flex; flex-direction: column; overflow: hidden; transition: all .2s; cursor: pointer; }
 .playlist-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px oklch(0.2 0.04 60 / 0.12); border-color: var(--c-terracotta); }
 .playlist-thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; }
-.playlist-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.playlist-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.4s ease;
+  border-radius: 4px;
+}
 .playlist-card:hover .playlist-thumb img { transform: scale(1.04); }
 .playlist-thumb-count { position: absolute; bottom: 0; right: 0; background: oklch(0 0 0 / .75); color: white; font-size: .72rem; font-weight: 700; padding: 4px 8px; letter-spacing: .04em; }
 .playlist-stack { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(to right, var(--c-terracotta), oklch(.55 .15 40)); }

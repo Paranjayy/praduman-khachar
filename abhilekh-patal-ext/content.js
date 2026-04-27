@@ -7,56 +7,47 @@ function init() {
   // Look for any links or buttons that open the PDF/Document
   // In the new UI, there is a "Read more" or "Page on Demand" or a thumbnail link.
   // Find buttons or links that might open the viewer
-  const possibleBtns = Array.from(document.querySelectorAll('a, button'));
-  const previewButtons = possibleBtns.filter(el => {
-    const text = (el.innerText || '').toLowerCase();
-    const href = (el.href || '').toLowerCase();
-    return (
-      href.includes('itemdetails') || 
-      href.includes('readcontent') ||
-      text.includes('preview') || 
-      text.includes('read more') ||
-      text.includes('page on demand')
-    );
-  });
+  // Find item containers instead of individual links to avoid duplication
+  const itemCards = document.querySelectorAll('.item-box, .col-md-12.ng-scope, .result-item, li[ng-repeat]');
   
-  previewButtons.forEach(btn => {
-    // If it's not already modified and it's a visible button/link
-    if (!btn.hasAttribute('data-inline-viewer-added') && btn.offsetHeight > 0) {
-      btn.setAttribute('data-inline-viewer-added', 'true');
-      
-      const inlineBtn = document.createElement('button');
-      inlineBtn.innerText = "📄 Quick View (Classic)";
-      inlineBtn.className = "classic-inline-btn";
-      
-      const downloadBtn = document.createElement('a');
-      downloadBtn.innerText = "⬇️ Download PDF";
-      downloadBtn.className = "classic-inline-btn classic-dl-btn";
-      downloadBtn.style.backgroundColor = "#2d5a27"; // scholarly green
-      
-      let targetUrl = btn.href || btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
-      
-      if (targetUrl) {
-        downloadBtn.href = targetUrl;
-        downloadBtn.download = "Abhilekh_Document.pdf";
-        downloadBtn.target = "_blank";
-        
-        inlineBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          showInlineViewer(targetUrl, btn);
-        };
-        
-        // Wrap buttons in a container
-        const btnGroup = document.createElement('div');
-        btnGroup.style.display = "inline-flex";
-        btnGroup.style.gap = "8px";
-        btnGroup.appendChild(inlineBtn);
-        btnGroup.appendChild(downloadBtn);
-        
-        btn.parentNode.insertBefore(btnGroup, btn.nextSibling);
-      }
-    }
+  itemCards.forEach(card => {
+    // Check if we already injected in this card
+    if (card.hasAttribute('data-classic-injected')) return;
+    
+    // Find a link to the document within this card
+    const targetLink = card.querySelector('a[href*="itemdetails"], a[href*="readcontent"]');
+    if (!targetLink) return;
+    
+    const targetUrl = targetLink.href;
+    card.setAttribute('data-classic-injected', 'true');
+    
+    const inlineBtn = document.createElement('button');
+    inlineBtn.innerText = "📄 Quick View (Classic)";
+    inlineBtn.className = "classic-inline-btn";
+    
+    const downloadBtn = document.createElement('a');
+    downloadBtn.innerText = "⬇️ Download PDF";
+    downloadBtn.className = "classic-inline-btn classic-dl-btn";
+    downloadBtn.style.backgroundColor = "#2d5a27";
+    downloadBtn.href = targetUrl;
+    downloadBtn.target = "_blank";
+    
+    inlineBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showInlineViewer(targetUrl, card);
+    };
+    
+    const btnGroup = document.createElement('div');
+    btnGroup.style.display = "block";
+    btnGroup.style.marginTop = "10px";
+    btnGroup.style.padding = "10px";
+    btnGroup.style.background = "#f1f1f1";
+    btnGroup.style.borderRadius = "4px";
+    btnGroup.appendChild(inlineBtn);
+    btnGroup.appendChild(downloadBtn);
+    
+    card.appendChild(btnGroup);
   });
 
   // 2. Disable infinite scroll and add pagination

@@ -186,9 +186,9 @@ function ArticleReader({
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const dateStr = v.publishedAt
+  const dateStr = v.publishedAt && !v.publishedAt.startsWith("NA")
     ? new Date(v.publishedAt).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })
-    : "";
+    : "Unknown Date";
 
   return (
     <div className="reader-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -441,7 +441,7 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
       {/* Content */}
       <div className="article-content">
         <div className="article-meta">
-          {v.publishedAt && <time className="article-date">{relativeDate(v.publishedAt)}</time>}
+          {v.publishedAt && !v.publishedAt.startsWith("NA") && <time className="article-date">{relativeDate(v.publishedAt)}</time>}
           {v.transcriptWordCount > 0 && (
             <span className="article-transcript-badge" title="Transcript available">
               📝 {langLabel(v.transcriptLang)}
@@ -509,23 +509,26 @@ export default function ArticlesPage() {
       if (data) {
         setVideos(data.videos);
         setMeta({ scraped_at: data.scraped_at, total: data.total, transcript_ok: data.transcript_ok, transcript_fail: data.transcript_fail });
-        // Deep-link: /articles/:slug → auto-open matching article
-        if (slug) {
-          const match = data.videos.find(v => v.slug === slug || v.id === slug);
-          if (match) setOpenArticle(match);
-        }
       }
       setLoaded(true);
     });
-  }, [slug]);
+  }, []);
 
-  const openWithNav = useCallback((v: VideoArticle) => {
+  useEffect(() => {
+    if (slug && slug !== "-" && videos && videos.length > 0) {
+      const match = videos.find(v => v.slug === slug || v.id === slug);
+      if (match) setOpenArticle(match);
+    }
+  }, [slug, videos]);
+
+  const handleOpen = useCallback((v: VideoArticle) => {
     setOpenArticle(v);
-    navigate(`/articles/${v.slug}`, { replace: false });
+    const validSlug = v.slug && v.slug !== "-" ? v.slug : v.id;
+    navigate(`/articles/${validSlug}`, { replace: false });
     track("article_open", { videoId: v.id, title: v.title.slice(0, 50) });
   }, [navigate]);
 
-  const closeWithNav = useCallback(() => {
+  const handleClose = useCallback(() => {
     setOpenArticle(null);
     navigate("/articles", { replace: false });
   }, [navigate]);
@@ -558,9 +561,9 @@ export default function ArticlesPage() {
       {openArticle && (
         <ArticleReader
           v={openArticle}
-          onClose={closeWithNav}
+          onClose={handleClose}
           allVideos={videos || []}
-          onRelated={openWithNav}
+          onRelated={handleOpen}
         />
       )}
 
@@ -613,7 +616,7 @@ export default function ArticlesPage() {
           <div className="articles-loading"><div className="articles-loading-spinner" /><p>Loading articles…</p></div>
         ) : videos && videos.length > 0 ? (
           <div className="articles-grid">
-            {filtered.map((v, i) => <ArticleCard key={v.id} v={v} index={i} onOpen={openWithNav} />)}
+                {filtered.map((v, i) => <ArticleCard key={v.id} v={v} index={i} onOpen={handleOpen} />)}
           </div>
         ) : (
           <EmptyState />
