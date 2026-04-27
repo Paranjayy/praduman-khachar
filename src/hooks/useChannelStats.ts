@@ -21,10 +21,12 @@ export function useChannelStats(): { stats: ChannelStats; loading: boolean } {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/channel", { signal: AbortSignal.timeout(5000) })
+    fetch("/data/stats.json", { signal: AbortSignal.timeout(3000) })
       .then((r) => r.json())
-      .then((data: ChannelStats) => {
-        if (data.subscribers) setStats(data);
+      .then((data: any) => {
+        if (data.videos) {
+          setStats(prev => ({ ...prev, videoCount: `${data.videos}+` }));
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));

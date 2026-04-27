@@ -57,8 +57,10 @@ async function loadVideos(): Promise<VideosJson | null> {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function relativeDate(iso: string) {
+  if (!iso || iso.startsWith("NA")) return "Unknown Date";
   const d = new Date(iso);
   const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
+  if (isNaN(days) || days < 0) return "Unknown Date";
   if (days < 1) return "Today";
   if (days < 7) return `${days}d ago`;
   if (days < 30) return `${Math.floor(days / 7)}w ago`;
@@ -113,7 +115,6 @@ function buildTOC(paras: string[]) {
  */
 function computeSentenceStats(text: string) {
   if (!text) return null;
-  // Split into sentences (handles Gujarati ।, Hindi ॥, English .!?)
   const sentences = text
     .split(/(?<=[.!?।॥])\s+/)
     .map(s => s.trim())
@@ -123,9 +124,11 @@ function computeSentenceStats(text: string) {
   const avg = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
   const min = Math.min(...lengths);
   const max = Math.max(...lengths);
-  // Sample up to 80 sentences for sparkline
   const sample = lengths.length > 80 ? lengths.filter((_, i) => i % Math.ceil(lengths.length / 80) === 0) : lengths;
-  return { avg, min, max, total: sentences.length, sample };
+  const words = text.split(/\s+/).filter(Boolean);
+  const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^\w]/g, ''))).size;
+  const vocabRichness = Math.round((uniqueWords / words.length) * 100);
+  return { avg, min, max, total: sentences.length, sample, uniqueWords, vocabRichness };
 }
 
 // ─── Article Reader (full-screen panel) ──────────────────────────────────────
@@ -157,12 +160,26 @@ function ArticleReader({
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // Close on ESC
+  // Full keyboard nav: Escape=close, j=next section, k=prev section, [=prev related, ]=next related
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Escape') { onClose(); return; }
+      const content = contentRef.current;
+      if (!content) return;
+      if (e.key === 'j') {
+        content.scrollBy({ top: 300, behavior: 'smooth' });
+      } else if (e.key === 'k') {
+        content.scrollBy({ top: -300, behavior: 'smooth' });
+      } else if (e.key === ']' && relatedVideos[0]) {
+        onRelated(relatedVideos[0]);
+      } else if (e.key === '[' && relatedVideos[relatedVideos.length - 1]) {
+        onRelated(relatedVideos[relatedVideos.length - 1]);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose, onRelated, relatedVideos]);
 
   const scrollTo = (id: string) => {
     const el = contentRef.current?.querySelector(`#${id}`);
@@ -269,6 +286,33 @@ function ArticleReader({
                   );
                 })}
               </div>
+              <div className="sentence-stat-sep" />
+              <div className="sentence-stat">
+                <span className="sentence-stat-val">{sentenceStats.vocabRichness}%</span>
+                <span className="sentence-stat-label">vocab rich</span>
+              </div>
+              <div className="sentence-stat-sep" />
+              {/* Sparkline */}
+              <div className="sentence-sparkline" title="Sentence length rhythm">
+                {sentenceStats.sample.map((len, i) => {
+                  const pct = Math.min(100, Math.round((len / Math.max(...sentenceStats.sample)) * 100));
+                  const cls = len > sentenceStats.avg * 1.5 ? " long" : len < sentenceStats.avg * 0.5 ? " short" : "";
+                  return (
+                    <div
+                      key={i}
+                      className={`sentence-spark-bar${cls}`}
+                      style={{ height: `${Math.max(10, pct)}%` }}
+                      title={`${len} words`}
+                    />
+                  );
+                })}
+              </div>
+              {/* Keyboard hint */}
+              <div className="reader-kbd-hint" title="Keyboard shortcuts">
+                <span className="reader-kbd">j/k</span> scroll
+                <span className="reader-kbd">[/]</span> related
+                <span className="reader-kbd">Esc</span> close
+              </div>
             </div>
           )}
 
@@ -348,9 +392,20 @@ function ArticleReader({
   );
 }
 
+// ─── Reading difficulty ───────────────────────────────────────────────────────
+function difficultyLabel(transcript: string): { label: string; cls: string } | null {
+  if (!transcript || transcript.length < 50) return null;
+  const words = transcript.split(/\s+/).filter(Boolean);
+  const avgLen = words.reduce((s, w) => s + w.replace(/[^\w]/g, '').length, 0) / words.length;
+  if (avgLen < 4.5) return { label: 'Accessible', cls: 'diff-easy' };
+  if (avgLen < 5.5) return { label: 'Standard', cls: 'diff-mid' };
+  return { label: 'Scholarly', cls: 'diff-hard' };
+}
+
 // ─── Article Card ─────────────────────────────────────────────────────────────
 function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onOpen: (v: VideoArticle) => void }) {
   const [ref, visible] = useReveal();
+  const difficulty = difficultyLabel(v.transcript);
 
   return (
     <article
@@ -390,6 +445,11 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
           {v.transcriptWordCount > 0 && (
             <span className="article-transcript-badge" title="Transcript available">
               📝 {langLabel(v.transcriptLang)}
+            </span>
+          )}
+          {difficulty && (
+            <span className={`article-difficulty ${difficulty.cls}`} title="Reading difficulty">
+              {difficulty.label}
             </span>
           )}
           {v.views && <span className="article-views">👁 {v.views}</span>}

@@ -19,6 +19,7 @@ interface VideoItem {
   views: string | null;
   likes: string | null;
   readMinutes: number;
+  durationSec?: number;
   transcriptWordCount: number;
   publishedAt: string;
   url: string;
@@ -39,6 +40,15 @@ function fmtNum(s: string | null): string {
   const n = parseInt(s.replace(/[^0-9]/g, ""));
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
   return s;
+}
+
+function fmtDuration(sec?: number | null): string {
+  if (!sec) return "";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 function TalkCard({
@@ -73,9 +83,11 @@ function TalkCard({
           }}
         />
         <span className="featured-talk-play">▶</span>
-        {v.readMinutes > 0 && (
-          <span className="featured-talk-duration">{v.readMinutes} min</span>
-        )}
+        {v.durationSec ? (
+          <span className="featured-talk-duration">{fmtDuration(v.durationSec)}</span>
+        ) : v.readMinutes > 0 ? (
+          <span className="featured-talk-duration">{v.readMinutes} min read</span>
+        ) : null}
       </div>
       <div className="featured-talk-info">
         <h3 className="featured-talk-title">{v.title}</h3>

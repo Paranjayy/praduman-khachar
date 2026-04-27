@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
@@ -9,6 +9,18 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { pathname } = useLocation();
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (windowHeight <= 0) return;
+      setScrollProgress((totalScroll / windowHeight) * 100);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const links = [
     ["Home", "/"],
@@ -17,10 +29,19 @@ export default function Nav() {
     ["Media", "/media"],
     ["Articles", "/articles"],
     ["Writings", "/writings"],
+    ["Explore", "/explore"],
   ];
 
   return (
     <nav className={`site-nav${scrolled ? " scrolled" : ""}`}>
+      <div 
+        className="scroll-progress-bar" 
+        style={{ 
+          position: "absolute", top: 0, left: 0, height: "2px", 
+          background: "var(--c-terracotta)", width: `${scrollProgress}%`,
+          transition: "width 0.1s ease-out", zIndex: 1000 
+        }} 
+      />
       <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
         {SITE.name}
       </Link>

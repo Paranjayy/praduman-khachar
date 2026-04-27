@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Abhilekh Patal Classic Restorer",
+  "version": "1.0",
+  "description": "Restores classic features to Abhilekh Patal: inline PDF viewer, pagination, and UI fixes.",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.abhilekh-patal.in/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"]
+    }
+  ]
+}

@@ -129,7 +129,7 @@ export const SOCIALS: Social[] = [
   },
   {
     name: "Facebook",
-    url: "https://www.facebook.com/Praduman.Khachar62/",
+    url: "https://www.facebook.com/praduman.khachar.7",
     icon: "facebook",
   },
   {

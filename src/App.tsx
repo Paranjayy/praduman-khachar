@@ -12,6 +12,7 @@ import MediaPage from "./pages/Media";
 import AboutPage from "./pages/About";
 import ArticlesPage from "./pages/Articles";
 import WritingsPage from "./pages/Writings";
+import ExplorePage from "./pages/Explore";
 import AdminPage from "./pages/Admin";
 
 function AppInner() {
@@ -29,6 +30,7 @@ function AppInner() {
         <Route path="/articles/:slug" element={<ArticlesPage />} />
         <Route path="/writings" element={<WritingsPage />} />
         <Route path="/writings/:slug" element={<WritingsPage />} />
+        <Route path="/explore" element={<ExplorePage />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
       <Footer />
@@ -42,6 +44,9 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
+      <div className="classic-frame-left" />
+      <div className="classic-frame-right" />
+      <div className="classic-grid-bg" />
       <AppInner />
     </ThemeProvider>
   );

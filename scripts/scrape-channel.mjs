@@ -161,8 +161,8 @@ function parseVideoList(raw) {
       return {
         id: id?.trim(),
         title: cleanText(title),
-        // uploadDate: "20240821" → ISO
-        publishedAt: uploadDate ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
+        // uploadDate: "20240821" → ISO, handle "NA" from yt-dlp
+        publishedAt: (uploadDate && uploadDate !== "NA") ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
         views: views ? parseInt(views).toLocaleString("en-IN") : null,
         durationSec: duration ? parseInt(duration) : null,
       };

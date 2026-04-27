@@ -44,8 +44,10 @@ const ICONS: Record<string, JSX.Element> = {
 };
 
 function relativeDate(iso: string): string {
+  if (!iso || iso.startsWith("NA")) return "Unknown Date";
   const diff = Date.now() - new Date(iso).getTime();
   const d = Math.floor(diff / 86400000);
+  if (isNaN(d) || d < 0) return "Unknown Date";
   if (d === 0) return "Today";
   if (d === 1) return "Yesterday";
   if (d < 7) return `${d} days ago`;
