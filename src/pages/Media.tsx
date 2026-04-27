@@ -14,6 +14,11 @@ interface VideoEntry {
   thumbnail: string;
   url: string;
   published: string;
+  views?: string;
+  likes?: string;
+  comments?: string;
+  readMinutes?: number;
+  hasTranscript?: boolean;
 }
 
 interface PlaylistEntry {
@@ -57,14 +62,24 @@ function relativeDate(iso: string): string {
 }
 
 async function fetchVideos(): Promise<VideoEntry[]> {
-  // 1. Try our scraped videos.json
+  // 1. Try our scraped videos.json (primary — 575 videos with full metadata)
   try {
     const res = await fetch("/data/videos.json", { signal: AbortSignal.timeout(4000) });
     if (res.ok) {
-      const data = await res.json() as { videos?: { id: string; title: string; thumbnailMq: string; url: string; publishedAt: string }[] };
+      const data = await res.json() as {
+        videos?: {
+          id: string; title: string; thumbnailMq: string; url: string;
+          publishedAt: string; views?: string; likes?: string;
+          comments?: string; readMinutes?: number; transcriptWordCount?: number;
+        }[]
+      };
       if (data.videos?.length) {
-        return data.videos.slice(0, 15).map(v => ({
-          id: v.id, title: v.title, thumbnail: v.thumbnailMq, url: v.url, published: v.publishedAt,
+        return data.videos.slice(0, 16).map(v => ({
+          id: v.id, title: v.title, thumbnail: v.thumbnailMq, url: v.url,
+          published: v.publishedAt, views: v.views || undefined,
+          likes: v.likes || undefined, comments: v.comments || undefined,
+          readMinutes: v.readMinutes || undefined,
+          hasTranscript: !!(v.transcriptWordCount && v.transcriptWordCount > 100),
         }));
       }
     }
@@ -74,7 +89,7 @@ async function fetchVideos(): Promise<VideoEntry[]> {
   try {
     const CHANNEL_ID = "UCcxFZ3XuZjB9eXyFZdrjDXQ";
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-    const r2jUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=15`;
+    const r2jUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=16`;
     const res = await fetch(r2jUrl, { signal: AbortSignal.timeout(6000) });
     if (res.ok) {
       const data = await res.json() as { status: string; items?: { link: string; title: string; pubDate: string; guid: string }[] };
@@ -303,7 +318,7 @@ export default function MediaPage() {
 }
 
 // ── Video Card ────────────────────────────────────────────────────────────────
-function VideoCard({ id, title, thumbnail, url, published }: VideoEntry) {
+function VideoCard({ id, title, thumbnail, url, published, views, likes, readMinutes, hasTranscript }: VideoEntry) {
   const [ref, visible] = useReveal(0.02);
   const [copied, setCopied] = useState(false);
 
@@ -322,6 +337,9 @@ function VideoCard({ id, title, thumbnail, url, published }: VideoEntry) {
         <div className="yt-play-btn">
           <svg viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
         </div>
+        {readMinutes && readMinutes > 0 && (
+          <div className="yt-duration-badge">{readMinutes} min read</div>
+        )}
         <button className={`yt-copy-btn${copied ? " copied" : ""}`} onClick={handleCopy} title="Copy link" aria-label="Copy video link">
           {copied
             ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
@@ -331,6 +349,11 @@ function VideoCard({ id, title, thumbnail, url, published }: VideoEntry) {
       </div>
       <div className="yt-video-info">
         <p className="yt-video-title">{title}</p>
+        <div className="yt-video-stats">
+          {views && <span className="yt-stat">👁 {views}</span>}
+          {likes && <span className="yt-stat">👍 {likes}</span>}
+          {hasTranscript && <span className="yt-stat yt-transcript-badge">📄 Transcript</span>}
+        </div>
         {ago && <p className="yt-video-date">{ago}</p>}
       </div>
     </a>
