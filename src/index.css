@@ -2064,3 +2064,9 @@ body {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
+
+/* ── GOOGLE TRANSLATE OVERRIDES ── */
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+body { top: 0px !important; }
+.skiptranslate { display: none !important; }
+#goog-gt-tt { display: none !important; }

@@ -312,10 +312,10 @@ export default function MediaPage() {
              </div>
 
              {/* Mock Gallery Grid */}
-             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '1.5rem', flex: 1 }}>
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '1.5rem' }}>
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} style={{ aspectRatio: '1/1', background: `linear-gradient(45deg, #1a1a1a, #2a2a2a)`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
-                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <div key={i} style={{ paddingBottom: '100%', position: 'relative', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                     <svg style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.3, color: 'var(--c-ink)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </div>
                 ))}
              </div>
@@ -334,23 +334,23 @@ export default function MediaPage() {
              </div>
              
              {/* Mock Stats */}
-             <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '8px' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1.5rem', background: 'rgba(128, 128, 128, 0.05)', padding: '0.8rem', borderRadius: '8px' }}>
                 <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.facebook.followers}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Followers</span></div>
                 <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.facebook.likes}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Likes</span></div>
              </div>
 
              {/* Mock Feed Items */}
-             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
                {[1,2].map(i => (
-                 <div key={i} style={{ background: 'rgba(255,255,255,0.02)', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                 <div key={i} style={{ background: 'rgba(128, 128, 128, 0.03)', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(128, 128, 128, 0.1)' }}>
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#333' }}></div>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(128, 128, 128, 0.2)' }}></div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, justifyContent: 'center' }}>
-                        <div style={{ height: '6px', width: '60%', background: '#444', borderRadius: '4px' }}></div>
-                        <div style={{ height: '4px', width: '30%', background: '#333', borderRadius: '4px' }}></div>
+                        <div style={{ height: '6px', width: '60%', background: 'rgba(128, 128, 128, 0.3)', borderRadius: '4px' }}></div>
+                        <div style={{ height: '4px', width: '30%', background: 'rgba(128, 128, 128, 0.15)', borderRadius: '4px' }}></div>
                       </div>
                     </div>
-                    <div style={{ height: '60px', width: '100%', background: '#222', borderRadius: '4px' }}></div>
+                    <div style={{ height: '40px', width: '100%', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px' }}></div>
                  </div>
                ))}
              </div>

@@ -62,6 +62,31 @@ export default function Nav() {
       </ul>
 
       <div className="nav-actions">
+        <select 
+          className="lang-select"
+          onChange={(e) => {
+            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+            if (select) {
+              select.value = e.target.value;
+              select.dispatchEvent(new Event('change'));
+            }
+          }}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--c-border)',
+            color: 'var(--c-ink-soft)',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '0.8rem',
+            fontFamily: 'var(--font-body)',
+            cursor: 'pointer',
+            marginRight: '0.5rem'
+          }}
+        >
+          <option value="en">English</option>
+          <option value="gu">ગુજરાતી (Gujarati)</option>
+          <option value="hi">हिंदी (Hindi)</option>
+        </select>
         <button
           className="theme-toggle"
           onClick={toggle}
