@@ -144,14 +144,18 @@ async function fetchVideoPage(videoId) {
     const descMatch = html.match(/"shortDescription":"((?:[^"\\]|\\.)*)"/);
     const tagsMatch = html.match(/"keywords":\[(.*?)\]/s);
     const commentsMatch = html.match(/"commentCount":"(\d+)"/);
+    const publishDateMatch = html.match(/"publishDate":"([^"]+)"/);
+    const lengthSecondsMatch = html.match(/"lengthSeconds":"(\d+)"/);
     return {
       likes: likesMatch ? likesMatch[1].replace(/,/g, "") : null,
       comments: commentsMatch ? parseInt(commentsMatch[1]).toLocaleString("en-IN") : null,
       description: descMatch ? (() => { try { return cleanText(JSON.parse(`"${descMatch[1]}"`)); } catch { return null; } })() : null,
       tags: tagsMatch ? tagsMatch[1].split(",").map(t => t.replace(/"/g, "").trim()).filter(Boolean).slice(0, 8) : [],
+      publishDate: publishDateMatch ? publishDateMatch[1] : null,
+      durationSeconds: lengthSecondsMatch ? parseInt(lengthSecondsMatch[1], 10) : null,
     };
   } catch {
-    return { likes: null, comments: null, description: null, tags: [] };
+    return { likes: null, comments: null, description: null, tags: [], publishDate: null, durationSeconds: null };
   }
 }
 
@@ -234,7 +238,8 @@ async function main() {
       description: desc.slice(0, 800),
       thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
       thumbnailMq: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-      publishedAt: item.published,
+      publishedAt: page.publishDate || item.published,
+      durationSeconds: page.durationSeconds,
       views: item.views,
       likes: page.likes,
       comments: page.comments,

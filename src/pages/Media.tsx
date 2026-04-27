@@ -18,6 +18,7 @@ interface VideoEntry {
   likes?: string;
   comments?: string;
   readMinutes?: number;
+  durationSeconds?: number;
   hasTranscript?: boolean;
 }
 
@@ -61,6 +62,15 @@ function relativeDate(iso: string): string {
   return `${Math.floor(d / 365)} years ago`;
 }
 
+function formatDuration(seconds?: number): string {
+  if (!seconds) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 async function fetchVideos(): Promise<VideoEntry[]> {
   // 1. Try our scraped videos.json (primary — 575 videos with full metadata)
   try {
@@ -79,6 +89,7 @@ async function fetchVideos(): Promise<VideoEntry[]> {
           published: v.publishedAt, views: v.views || undefined,
           likes: v.likes || undefined, comments: v.comments || undefined,
           readMinutes: v.readMinutes || undefined,
+          durationSeconds: v.durationSeconds,
           hasTranscript: !!(v.transcriptWordCount && v.transcriptWordCount > 100),
         }));
       }
@@ -408,7 +419,7 @@ export default function MediaPage() {
 }
 
 // ── Video Card ────────────────────────────────────────────────────────────────
-function VideoCard({ id, title, thumbnail, url, published, views, likes, readMinutes, hasTranscript }: VideoEntry) {
+function VideoCard({ id, title, thumbnail, url, published, views, likes, readMinutes, durationSeconds, hasTranscript }: VideoEntry) {
   const [ref, visible] = useReveal(0.02);
   const [copied, setCopied] = useState(false);
 
@@ -427,9 +438,11 @@ function VideoCard({ id, title, thumbnail, url, published, views, likes, readMin
         <div className="yt-play-btn">
           <svg viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
         </div>
-        {readMinutes && readMinutes > 0 && (
+        {durationSeconds ? (
+          <div className="yt-duration-badge">{formatDuration(durationSeconds)}</div>
+        ) : (readMinutes && readMinutes > 0 ? (
           <div className="yt-duration-badge">{readMinutes} min read</div>
-        )}
+        ) : null)}
         <button className={`yt-copy-btn${copied ? " copied" : ""}`} onClick={handleCopy} title="Copy link" aria-label="Copy video link">
           {copied
             ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
