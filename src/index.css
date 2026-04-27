@@ -120,9 +120,11 @@ img { max-width: 100%; display: block; }
   opacity: 0; animation: fadeUp 0.8s 0.3s ease forwards;
 }
 .hero-title {
-  font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 5rem);
-  font-weight: 700; line-height: 1.05; letter-spacing: -0.02em;
+  font-family: var(--font-display); font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
   margin-bottom: var(--space-md); opacity: 0; animation: fadeUp 0.8s 0.5s ease forwards;
+  word-break: keep-all; /* Prevent breaking Pradumankumar awkwardly */
+  hyphens: auto;
 }
 .hero-subtitle {
   font-family: var(--font-body); font-size: clamp(1rem, 1.4vw, 1.2rem);
@@ -1049,7 +1051,7 @@ body {
 .articles-select { padding: .6rem .9rem; border: 1px solid var(--c-border); background: var(--c-parchment); color: var(--c-ink); font-family: var(--font-body); font-size: .85rem; cursor: pointer; outline: none; }
 .articles-select:focus { border-color: var(--c-terracotta); }
 .articles-results-count { font-size: .85rem; color: var(--c-ink-muted); margin-bottom: var(--space-md); }
-.articles-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(320px,1fr)); gap: var(--space-lg); }
+.articles-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: var(--space-lg); }
 .article-card { display: flex; flex-direction: column; border: 1px solid var(--c-border); background: var(--c-parchment); transition: box-shadow .3s ease,transform .3s ease; overflow: hidden; }
 .article-card:hover { box-shadow: 0 8px 30px oklch(0 0 0/.08); transform: translateY(-3px); }
 .article-thumb-link { display: block; overflow: hidden; }
@@ -1812,19 +1814,6 @@ body {
 [data-theme="dark"] .explore-table-row:hover { background: oklch(1 0 0 / 0.05); }
 
 /* ══ CLASSIC FRAME & GRIDS ═══════════════════════════════════════════════════ */
-body::before, body::after, .classic-frame-left, .classic-frame-right {
-  content: "";
-  position: fixed;
-  background: var(--c-terracotta);
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.8;
-}
-body::before { top: 0; left: 0; right: 0; height: 4px; }
-body::after { bottom: 0; left: 0; right: 0; height: 4px; }
-.classic-frame-left { top: 0; bottom: 0; left: 0; width: 4px; }
-.classic-frame-right { top: 0; bottom: 0; right: 0; width: 4px; }
-
 /* Dotted overlay for a solid tech/classic feel like the examples */
 .classic-grid-bg {
   position: fixed;

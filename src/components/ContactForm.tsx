@@ -40,6 +40,16 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (FORMSPREE_ID === "xbljonpz") {
+      // Fallback to mailto if formspree ID is not updated
+      const body = `Name: ${form.name}%0D%0AEmail: ${form.email}%0D%0A%0D%0A${form.message}`;
+      window.location.href = `mailto:pkhachar@gmail.com?subject=${encodeURIComponent(form.subject)}&body=${body}`;
+      setStatus("success");
+      setForm({ name: "", email: "", subject: SUBJECTS[0], message: "" });
+      track("contact_submit_mailto", { subject: form.subject });
+      return;
+    }
+
     setStatus("sending");
     try {
       const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {

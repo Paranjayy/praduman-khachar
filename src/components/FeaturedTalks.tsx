@@ -131,10 +131,10 @@ export default function FeaturedTalks() {
     <section className="featured-talks section-pad" id="featured-talks">
       <div className="section-header-row">
         <div>
-          <span className="section-eyebrow">Featured Talks</span>
-          <h2 className="section-title">Most Celebrated Lectures</h2>
+          <span className="section-eyebrow">Featured Videos</span>
+          <h2 className="section-title">Most Celebrated Videos</h2>
           <p className="section-sub">
-            Dr. Khachar's most-watched historical talks — on YouTube, transcribed and searchable.
+            Dr. Khachar's most-watched historical videos — on YouTube, transcribed and searchable.
           </p>
         </div>
         <div className="featured-talks-nav">

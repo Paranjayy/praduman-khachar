@@ -441,7 +441,11 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
       {/* Content */}
       <div className="article-content">
         <div className="article-meta">
-          {v.publishedAt && !v.publishedAt.startsWith("NA") && <time className="article-date">{relativeDate(v.publishedAt)}</time>}
+          {v.publishedAt && (
+            <time className="article-date">
+              {!v.publishedAt.startsWith("NA") ? relativeDate(v.publishedAt) : "Unknown Date"}
+            </time>
+          )}
           {v.transcriptWordCount > 0 && (
             <span className="article-transcript-badge" title="Transcript available">
               📝 {langLabel(v.transcriptLang)}

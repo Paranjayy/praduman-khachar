@@ -26,7 +26,7 @@ function init() {
     inlineBtn.className = "classic-inline-btn";
     
     const downloadBtn = document.createElement('a');
-    downloadBtn.innerText = "⬇️ Download PDF";
+    downloadBtn.innerText = "⬇️ Open Document";
     downloadBtn.className = "classic-inline-btn classic-dl-btn";
     downloadBtn.style.backgroundColor = "#2d5a27";
     downloadBtn.href = targetUrl;

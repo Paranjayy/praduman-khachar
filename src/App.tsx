@@ -44,8 +44,6 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
-      <div className="classic-frame-left" />
-      <div className="classic-frame-right" />
       <div className="classic-grid-bg" />
       <AppInner />
     </ThemeProvider>
