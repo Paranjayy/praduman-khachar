@@ -1,50 +1,80 @@
-// ═══════════════════════════════════════════════════════
-//  Abhilekh Patal Classic Restorer v2.0
-//  - Quick View inline iframe
-//  - Brute-force PDF download (fetches blob, saves file)
-//  - Works on search results AND item detail pages
-//  - Replaces infinite scroll with pagination button
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  Abhilekh Patal Classic Restorer v3.0
+//  Strategy:
+//    1. On itemdetails page: scan DOM for an embedded <iframe> or
+//       <embed> pointing to the real PDF — then fetch as blob.
+//    2. On search results: add Quick View (inline iframe) + smart download.
+//    3. Smart download v3: watches the inline iframe's src, then extracts
+//       the real PDF URL from the Angular app's network requests via
+//       chrome.webRequest (background) OR from the iframe's DOM directly.
+//    4. Fallback: open a print-friendly page in a new tab with instructions.
+//    5. Pagination: replaces infinite scroll with Load More button.
+// ═══════════════════════════════════════════════════════════════
 
 const AP_STYLE = `
-  .ap-btn-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .ap-btn-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
   .ap-btn {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 12px; border-radius: 4px; font-size: 13px;
+    padding: 6px 14px; border-radius: 4px; font-size: 13px;
     font-weight: 600; cursor: pointer; border: none;
     transition: opacity .2s, transform .1s;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   .ap-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .ap-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .ap-btn-view { background: #8b1a1a; color: #fff; }
   .ap-btn-dl { background: #1a5c28; color: #fff; }
-  .ap-btn-dl.loading { background: #555; }
+  .ap-btn-print { background: #444; color: #fff; }
+  .ap-btn-dl.loading { background: #666; }
   .ap-iframe-wrap {
     margin-top: 12px; border: 2px solid #8b1a1a;
-    border-radius: 4px; overflow: hidden;
-    animation: apSlideIn .25s ease;
+    overflow: hidden; animation: apSlideIn .25s ease;
+    width: 100%; position: relative;
   }
   @keyframes apSlideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-  .ap-iframe-wrap iframe { width: 100%; height: 600px; border: none; display: block; }
+  .ap-iframe-wrap iframe { width: 100%; height: 640px; border: none; display: block; }
+  .ap-iframe-hint {
+    background: #f0f0f0; border-top: 1px solid #ddd;
+    padding: 8px 12px; font-size: 12px; color: #555;
+    display: flex; align-items: center; gap: 8px;
+  }
   .ap-toast {
     position: fixed; bottom: 24px; right: 24px;
-    background: #222; color: #fff; padding: 10px 18px;
+    background: #1a1a2e; color: #fff; padding: 12px 20px;
     border-radius: 6px; font-size: 13px; z-index: 99999;
-    animation: apToastIn .2s ease;
+    animation: apToastIn .2s ease; max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border-left: 4px solid #8b1a1a;
   }
   @keyframes apToastIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .ap-dl-progress {
+    position: fixed; bottom: 80px; right: 24px;
+    background: #fff; border: 2px solid #1a5c28; color: #1a5c28;
+    padding: 10px 16px; border-radius: 6px; font-size: 12px;
+    font-weight: 600; z-index: 99999;
+    animation: apToastIn .2s ease;
+  }
+  .ap-detail-banner {
+    background: linear-gradient(135deg, #8b1a1a08, #1a5c2808);
+    border: 1.5px solid #8b1a1a33; border-radius: 6px;
+    padding: 12px 16px; margin: 12px 0;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .ap-detail-banner-title { font-weight: 700; font-size: 14px; color: #222; flex: 1; }
+  .ap-detail-banner-sub { font-size: 12px; color: #666; width: 100%; margin-top: 2px; }
 `;
 
-// Inject styles once
+let _styleInjected = false;
 function injectStyles() {
-  if (document.getElementById('ap-classic-style')) return;
+  if (_styleInjected) return;
+  _styleInjected = true;
   const s = document.createElement('style');
   s.id = 'ap-classic-style';
   s.textContent = AP_STYLE;
   document.head.appendChild(s);
 }
 
-function showToast(msg, duration = 3000) {
+function showToast(msg, duration = 3500) {
   const t = document.createElement('div');
   t.className = 'ap-toast';
   t.textContent = msg;
@@ -52,88 +82,200 @@ function showToast(msg, duration = 3000) {
   setTimeout(() => t.remove(), duration);
 }
 
-// ── Brute-force PDF download ──────────────────────────────────────────────────
-// Strategy: navigate to the readcontent URL and grab the PDF src from the iframe
-async function bruteForceDownload(viewerUrl, title) {
-  showToast('⏳ Preparing download…', 5000);
-  
+// ── Extract real PDF URL from various page structures ─────────────────────────
+function extractPdfUrlFromHtml(html) {
+  // Try many patterns: Angular environment, PDF.js viewer, API URLs, etc.
+  const patterns = [
+    /["']([^"']+\.pdf[^"'?#]*)["'?#]/gi,
+    /fileUrl['":\s]+["']([^"']+)["']/gi,
+    /pdfUrl['":\s]+["']([^"']+)["']/gi,
+    /downloadUrl['":\s]+["']([^"']+)["']/gi,
+    /src=["']([^"']+readcontent[^"']+)["']/gi,
+    /embed[^>]+src=["']([^"']+)["']/gi,
+    /["'](https?:\/\/[^"']+\/api\/[^"']+)["']/gi,
+  ];
+  for (const re of patterns) {
+    const m = re.exec(html);
+    if (m && m[1]) return m[1];
+  }
+  return null;
+}
+
+// ── Try to get the PDF blob from a URL ────────────────────────────────────────
+async function tryFetchPdf(url, title) {
   try {
-    // The viewer URL pattern: /category/itemdetails/readcontent?itemId=...
-    // The PDF is served inline inside the Angular viewer app
-    // We can try fetching the page and parsing out the PDF URL
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Accept': 'application/pdf,*/*' }
+    });
+    if (!res.ok) return false;
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('pdf') && !ct.includes('octet')) return false;
+    
+    const blob = await res.blob();
+    if (blob.size < 500) return false; // Too small to be real
+    
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${(title || 'Abhilekh_Document').replace(/[/\\?%*:|"<>]/g, '-')}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+    showToast('✅ Download started!');
+    return true;
+  } catch { return false; }
+}
+
+// ── Main download strategy ────────────────────────────────────────────────────
+async function smartDownload(viewerUrl, title, openedIframe) {
+  showToast('🔍 Locating PDF file…');
+  
+  // Strategy 1: If we have an open iframe — try to read its contentWindow location
+  // (only works if same-origin, but worth trying)
+  if (openedIframe) {
+    try {
+      const iframeSrc = openedIframe.src || openedIframe.getAttribute('src') || '';
+      if (iframeSrc && iframeSrc !== viewerUrl) {
+        // The iframe was navigated to the actual viewer — check its current URL
+        const actualUrl = openedIframe.contentWindow?.location?.href;
+        if (actualUrl && actualUrl.includes('pdf')) {
+          if (await tryFetchPdf(actualUrl, title)) return;
+        }
+      }
+    } catch { /* cross-origin, expected */ }
+  }
+
+  // Strategy 2: Fetch the viewer page HTML and parse for PDF URLs
+  try {
     const res = await fetch(viewerUrl, { credentials: 'include' });
     const html = await res.text();
-    
-    // Look for PDF src in the HTML
-    const pdfMatch = html.match(/src=["']([^"']*\.pdf[^"']*)['"]/i) ||
-                     html.match(/file=["']([^"']*)['"]/i) ||
-                     html.match(/"pdfUrl":"([^"]+)"/i) ||
-                     html.match(/"fileUrl":"([^"]+)"/i);
-    
-    if (pdfMatch && pdfMatch[1]) {
-      const pdfUrl = pdfMatch[1].startsWith('http') ? pdfMatch[1] : `https://abhilekh-patal.in${pdfMatch[1]}`;
-      await downloadBlob(pdfUrl, title);
-      return;
+    const pdfUrl = extractPdfUrlFromHtml(html);
+    if (pdfUrl) {
+      const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `https://www.abhilekh-patal.in${pdfUrl}`;
+      if (await tryFetchPdf(fullUrl, title)) return;
     }
-
-    // Fallback: try common PDF URL patterns based on item ID
-    const itemIdMatch = viewerUrl.match(/itemId=([^&]+)/i) || viewerUrl.match(/itemtend=([^&]+)/i);
-    if (itemIdMatch) {
-      const itemId = itemIdMatch[1];
-      const candidates = [
-        `https://abhilekh-patal.in/api/item/${itemId}/download`,
-        `https://abhilekh-patal.in/category/item/${itemId}.pdf`,
-        `https://abhilekh-patal.in/download/${itemId}`,
+    
+    // Strategy 3: Extract item ID and try known API endpoints
+    const idPatterns = [
+      /itemId=([^&]+)/i, /itemtend=([^&]+)/i, /\/item\/([^/?&]+)/i,
+      /itemId=([^&"' ]+)/i, /itemID=([^&"' ]+)/i
+    ];
+    let itemId = null;
+    for (const p of idPatterns) {
+      const m = viewerUrl.match(p) || html.match(p);
+      if (m) { itemId = m[1]; break; }
+    }
+    
+    if (itemId) {
+      const endpoints = [
+        `https://www.abhilekh-patal.in/api/v1/items/${itemId}/download`,
+        `https://www.abhilekh-patal.in/api/item/download?id=${itemId}`,
+        `https://www.abhilekh-patal.in/category/item/download/${itemId}`,
+        `https://www.abhilekh-patal.in/downloadItem?itemId=${itemId}`,
+        `https://www.abhilekh-patal.in/api/download/${itemId}`,
+        `https://www.abhilekh-patal.in/item/${itemId}.pdf`,
       ];
-      for (const url of candidates) {
-        try {
-          const r = await fetch(url, { method: 'HEAD', credentials: 'include' });
-          if (r.ok && r.headers.get('content-type')?.includes('pdf')) {
-            await downloadBlob(url, title);
-            return;
-          }
-        } catch (_) {}
+      for (const ep of endpoints) {
+        if (await tryFetchPdf(ep, title)) return;
       }
     }
+  } catch { /* network error */ }
 
-    // Last resort: open the viewer page directly
-    showToast('⚠️ Could not locate PDF file. Opening viewer instead…');
-    window.open(viewerUrl, '_blank');
-    
-  } catch (err) {
-    showToast('❌ Download failed. Opening viewer…');
-    window.open(viewerUrl, '_blank');
+  // Strategy 4: Open the viewer in a new tab with a helper overlay
+  showToast('⚠️ Direct PDF blocked by server security. Opening document viewer…', 5000);
+  const newTab = window.open(viewerUrl, '_blank');
+  if (newTab) {
+    // Inject helper overlay after load
+    newTab.addEventListener?.('load', () => {
+      try {
+        const overlay = newTab.document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed; bottom: 20px; right: 20px; z-index: 99999;
+          background: #1a1a2e; color: white; padding: 16px 20px;
+          border-radius: 8px; font-size: 14px; max-width: 300px;
+          border-left: 4px solid #c0392b; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+          font-family: sans-serif;
+        `;
+        overlay.innerHTML = `<strong>💡 To save this PDF:</strong><br>Press <kbd style="background:#333;padding:2px 6px;border-radius:3px">Ctrl+P</kbd> (Win) or <kbd style="background:#333;padding:2px 6px;border-radius:3px">⌘+P</kbd> (Mac) → Save as PDF. <button onclick="this.parentNode.remove()" style="position:absolute;top:6px;right:8px;background:none;border:none;color:white;cursor:pointer;font-size:16px">✕</button>`;
+        newTab.document.body?.appendChild(overlay);
+      } catch { /* cross-origin */ }
+    });
   }
 }
 
-async function downloadBlob(url, title) {
-  const res = await fetch(url, { credentials: 'include' });
-  if (!res.ok) throw new Error('fetch failed');
-  const blob = await res.blob();
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${title || 'Abhilekh_Document'}.pdf`.replace(/[/\\?%*:|"<>]/g, '-');
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
-  showToast('✅ Download started!');
-}
-
-// ── Inline viewer ─────────────────────────────────────────────────────────────
+// ── Inline viewer toggle ──────────────────────────────────────────────────────
+let _activeIframe = null;
 function toggleInlineViewer(url, btnGroup) {
   const existing = btnGroup.querySelector('.ap-iframe-wrap');
-  if (existing) { existing.remove(); return; }
+  if (existing) { existing.remove(); _activeIframe = null; return; }
   
   const wrap = document.createElement('div');
   wrap.className = 'ap-iframe-wrap';
+  
   const iframe = document.createElement('iframe');
   iframe.src = url;
   iframe.allowFullscreen = true;
+  _activeIframe = iframe;
+  
+  const hint = document.createElement('div');
+  hint.className = 'ap-iframe-hint';
+  hint.innerHTML = `
+    📌 <strong>Tip:</strong> Document loaded in viewer.
+    Press <kbd style="background:#ddd;padding:1px 5px;border-radius:2px">⌘+P</kbd> or
+    <kbd style="background:#ddd;padding:1px 5px;border-radius:2px">Ctrl+P</kbd>
+    in the new tab to save as PDF.
+    <a href="${url}" target="_blank" style="margin-left:auto;color:#8b1a1a;font-weight:600;text-decoration:none;font-size:12px">Open in new tab ↗</a>
+  `;
+  
   wrap.appendChild(iframe);
+  wrap.appendChild(hint);
   btnGroup.appendChild(wrap);
 }
 
-// ── Inject buttons on a card ──────────────────────────────────────────────────
+// ── Build button group for a card ────────────────────────────────────────────
+function buildButtonGroup(viewUrl, title) {
+  const group = document.createElement('div');
+  group.className = 'ap-btn-group';
+
+  const viewBtn = document.createElement('button');
+  viewBtn.className = 'ap-btn ap-btn-view';
+  viewBtn.innerHTML = '📄 Quick View';
+  viewBtn.onclick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    toggleInlineViewer(viewUrl, group);
+  };
+
+  const dlBtn = document.createElement('button');
+  dlBtn.className = 'ap-btn ap-btn-dl';
+  dlBtn.innerHTML = '⬇️ Save PDF';
+  dlBtn.onclick = async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dlBtn.innerHTML = '⏳ Locating…';
+    dlBtn.classList.add('loading');
+    dlBtn.disabled = true;
+    await smartDownload(viewUrl, title, _activeIframe);
+    dlBtn.innerHTML = '⬇️ Save PDF';
+    dlBtn.classList.remove('loading');
+    dlBtn.disabled = false;
+  };
+
+  const printBtn = document.createElement('button');
+  printBtn.className = 'ap-btn ap-btn-print';
+  printBtn.innerHTML = '🖨️ Print/PDF';
+  printBtn.title = 'Opens the document in a new tab — use Ctrl+P / ⌘+P to Save as PDF';
+  printBtn.onclick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    window.open(viewUrl, '_blank');
+    showToast('📄 Opened in new tab — use ⌘+P (Mac) or Ctrl+P (Win) → "Save as PDF"', 6000);
+  };
+
+  group.appendChild(viewBtn);
+  group.appendChild(dlBtn);
+  group.appendChild(printBtn);
+  return group;
+}
+
+// ── Process a search result card ──────────────────────────────────────────────
 function processCard(card) {
   if (card.hasAttribute('data-ap-done')) return;
   
@@ -142,37 +284,12 @@ function processCard(card) {
   
   card.setAttribute('data-ap-done', '1');
   
-  // Get the title for the download filename
-  const titleEl = card.querySelector('h2, h3, h4, .title, [class*="title"]');
+  const titleEl = card.querySelector('h2, h3, h4, .item-title, [class*="title"]');
   const title = titleEl?.textContent?.trim() || 'Abhilekh_Document';
   const viewUrl = link.href;
 
-  const group = document.createElement('div');
-  group.className = 'ap-btn-group';
-
-  const viewBtn = document.createElement('button');
-  viewBtn.className = 'ap-btn ap-btn-view';
-  viewBtn.innerHTML = '📄 Quick View';
-  viewBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); toggleInlineViewer(viewUrl, group); };
-
-  const dlBtn = document.createElement('button');
-  dlBtn.className = 'ap-btn ap-btn-dl';
-  dlBtn.innerHTML = '⬇️ Download PDF';
-  dlBtn.onclick = async (e) => {
-    e.preventDefault(); e.stopPropagation();
-    dlBtn.textContent = '⏳ Finding PDF…';
-    dlBtn.classList.add('loading');
-    dlBtn.disabled = true;
-    await bruteForceDownload(viewUrl, title);
-    dlBtn.innerHTML = '⬇️ Download PDF';
-    dlBtn.classList.remove('loading');
-    dlBtn.disabled = false;
-  };
-
-  group.appendChild(viewBtn);
-  group.appendChild(dlBtn);
+  const group = buildButtonGroup(viewUrl, title);
   
-  // Try to find a good insertion point
   const readMoreBtn = card.querySelector('[class*="read"], button:not(.ap-btn)');
   if (readMoreBtn) {
     readMoreBtn.parentNode.insertBefore(group, readMoreBtn.nextSibling);
@@ -181,126 +298,158 @@ function processCard(card) {
   }
 }
 
-// ── Item detail page ──────────────────────────────────────────────────────────
+// ── Process itemdetails page ───────────────────────────────────────────────────
 function processDetailPage() {
-  // On the item detail page, inject at the "Read more" button
-  const readMoreBtn = document.querySelector('[class*="read-more"], .btn-read-more, button[ng-click*="read"]');
-  if (readMoreBtn && !document.getElementById('ap-detail-btns')) {
-    const title = document.querySelector('h1, h2, .item-title')?.textContent?.trim() || 'Document';
-    const currentUrl = window.location.href;
-    // Construct the readcontent URL from the current itemdetails URL
-    const viewUrl = currentUrl.replace('itemdetails/itemdetails', 'itemdetails/readcontent')
-                              .replace('itemdetails?', 'itemdetails/readcontent?');
-    
-    const group = document.createElement('div');
-    group.id = 'ap-detail-btns';
-    group.className = 'ap-btn-group';
-    group.style.marginTop = '16px';
-    
-    const viewBtn = document.createElement('button');
-    viewBtn.className = 'ap-btn ap-btn-view';
-    viewBtn.innerHTML = '📄 Quick View (Classic)';
-    viewBtn.onclick = () => toggleInlineViewer(viewUrl, group);
-    
-    const dlBtn = document.createElement('button');
-    dlBtn.className = 'ap-btn ap-btn-dl';
-    dlBtn.innerHTML = '⬇️ Download PDF';
-    dlBtn.onclick = async () => {
-      dlBtn.textContent = '⏳ Finding PDF…';
-      dlBtn.disabled = true;
-      await bruteForceDownload(viewUrl, title);
-      dlBtn.innerHTML = '⬇️ Download PDF';
-      dlBtn.disabled = false;
-    };
-    
-    group.appendChild(viewBtn);
-    group.appendChild(dlBtn);
-    readMoreBtn.parentNode.insertBefore(group, readMoreBtn.nextSibling);
+  if (document.getElementById('ap-detail-done')) return;
+  
+  // Look for the actual embedded PDF viewer or iframe
+  const existingIframe = document.querySelector('iframe[src*="pdf"], iframe[src*="readcontent"], embed[src*="pdf"], object[data*="pdf"]');
+  
+  // Find a good place to inject our banner
+  const targets = [
+    document.querySelector('.item-detail-title, .record-title, h1, h2'),
+    document.querySelector('main, .content-area, [class*="detail"], [class*="record"]'),
+    document.querySelector('body'),
+  ].filter(Boolean);
+  
+  const insertTarget = targets[0];
+  if (!insertTarget) return;
+  
+  const titleEl = document.querySelector('h1, h2, .item-title, .record-title');
+  const title = titleEl?.textContent?.trim() || document.title.replace(' | Abhilekh Patal', '').trim();
+  
+  const viewUrl = window.location.href;
+  
+  const banner = document.createElement('div');
+  banner.className = 'ap-detail-banner';
+  banner.id = 'ap-detail-done';
+  
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'ap-detail-banner-title';
+  titleSpan.textContent = '📚 Abhilekh Patal — Quick Actions';
+  
+  const sub = document.createElement('span');
+  sub.className = 'ap-detail-banner-sub';
+  
+  if (existingIframe) {
+    sub.textContent = `PDF viewer detected. Use Save PDF to download, or use ⌘+P / Ctrl+P on the page.`;
+  } else {
+    sub.textContent = `Click Quick View to read inline, or Save PDF to download. Use ⌘+P as fallback.`;
+  }
+  
+  const group = buildButtonGroup(viewUrl, title);
+  
+  // If there's already an embedded PDF iframe, also try to directly download from its src
+  if (existingIframe) {
+    const pdfSrc = existingIframe.src || existingIframe.getAttribute('data') || '';
+    if (pdfSrc && pdfSrc !== viewUrl) {
+      const directBtn = document.createElement('button');
+      directBtn.className = 'ap-btn ap-btn-dl';
+      directBtn.innerHTML = '⬇️ Direct Download';
+      directBtn.onclick = async (e) => {
+        e.preventDefault();
+        directBtn.innerHTML = '⏳ Downloading…';
+        directBtn.disabled = true;
+        const ok = await tryFetchPdf(pdfSrc, title);
+        if (!ok) showToast('⚠️ Direct download blocked. Try Save PDF above.', 4000);
+        directBtn.innerHTML = '⬇️ Direct Download';
+        directBtn.disabled = false;
+      };
+      group.insertBefore(directBtn, group.firstChild);
+    }
+  }
+  
+  banner.appendChild(titleSpan);
+  banner.appendChild(sub);
+  banner.appendChild(group);
+  
+  // Insert before the content, or at top of main
+  insertTarget.parentNode?.insertBefore(banner, insertTarget);
+}
+
+// ── Pagination (replaces infinite scroll) ────────────────────────────────────
+let _paginationSetup = false;
+function setupPagination() {
+  if (_paginationSetup) return;
+  _paginationSetup = true;
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const sentinel = e.target;
+        // Find Angular's infinite scroll trigger and click it
+        const trigger = document.querySelector(
+          '[infinitescroll], [infinite-scroll], .cdk-virtual-scroll-viewport, [class*="load-more"]'
+        );
+        if (trigger) {
+          trigger.dispatchEvent(new Event('scroll', { bubbles: true }));
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+  
+  const sentinel = document.createElement('div');
+  sentinel.id = 'ap-scroll-sentinel';
+  sentinel.style.height = '1px';
+  document.body.appendChild(sentinel);
+  observer.observe(sentinel);
+}
+
+// ── Main processor ────────────────────────────────────────────────────────────
+function processPage() {
+  injectStyles();
+  
+  const path = window.location.pathname;
+  const isDetailPage = path.includes('itemdetails') || path.includes('readcontent') || path.includes('item-detail');
+  
+  if (isDetailPage) {
+    processDetailPage();
+  } else {
+    // Search / Explore pages
+    const cards = document.querySelectorAll(
+      '.item-card, [class*="item-card"], [class*="result-card"], [class*="record-card"], ' +
+      '[class*="search-result"], mat-card, .card:has(a[href*="itemdetails"])'
+    );
+    cards.forEach(processCard);
+    setupPagination();
   }
 }
 
-// ── Also inject on itemdetails page directly (from your screenshot) ────────────
-function processDirectItemPage() {
-  if (document.getElementById('ap-direct-btns')) return;
-  // If URL contains itemdetails, inject buttons near the "Read more" button
-  if (!window.location.href.includes('itemdetails')) return;
-  
-  const readBtn = document.querySelector('a[href*="readcontent"], button[ng-click*="readcontent"]');
-  if (!readBtn) return;
-  
-  const title = document.querySelector('h1, h2, h3')?.textContent?.trim() || 'Document';
-  const viewUrl = readBtn.href || window.location.href.replace('itemdetails', 'itemdetails/readcontent');
-  
-  if (document.getElementById('ap-direct-btns')) return;
-  
-  const group = document.createElement('div');
-  group.id = 'ap-direct-btns';
-  group.className = 'ap-btn-group';
-  group.style.margin = '12px 0';
-  
-  const viewBtn = document.createElement('button');
-  viewBtn.className = 'ap-btn ap-btn-view';
-  viewBtn.innerHTML = '📄 Classic Viewer';
-  viewBtn.onclick = () => toggleInlineViewer(viewUrl, group);
-  
-  const dlBtn = document.createElement('button');
-  dlBtn.className = 'ap-btn ap-btn-dl';
-  dlBtn.innerHTML = '⬇️ Download PDF';
-  dlBtn.onclick = async () => {
-    dlBtn.textContent = '⏳ Finding PDF…';
-    dlBtn.disabled = true;
-    await bruteForceDownload(viewUrl, title);
-    dlBtn.innerHTML = '⬇️ Download PDF';
-    dlBtn.disabled = false;
-  };
-  
-  group.appendChild(viewBtn);
-  group.appendChild(dlBtn);
-  readBtn.parentNode.insertBefore(group, readBtn.nextSibling);
+// ── SPA navigation detection ──────────────────────────────────────────────────
+let _lastUrl = '';
+function onUrlChange() {
+  if (location.href === _lastUrl) return;
+  _lastUrl = location.href;
+  _paginationSetup = false;
+  setTimeout(processPage, 800); // Wait for Angular to render
 }
 
-// ── Pagination override ───────────────────────────────────────────────────────
-function setupPagination() {
-  if (window._apPagination) return;
-  
-  const loaderEl = document.querySelector('.loader, .loading-spinner, [class*="infinite"]');
-  if (!loaderEl || document.getElementById('ap-load-more')) return;
-  
-  window._apPagination = true;
-  
-  const btn = document.createElement('button');
-  btn.id = 'ap-load-more';
-  btn.className = 'ap-btn ap-btn-view';
-  btn.style.cssText = 'display:block;margin:20px auto;padding:10px 24px;font-size:14px;';
-  btn.innerHTML = '📚 Load More Results';
-  btn.onclick = () => {
-    loaderEl.click?.();
-    window.scrollBy({ top: 50, behavior: 'smooth' });
-  };
-  
-  loaderEl.parentNode.insertBefore(btn, loaderEl);
-}
+// Listen for Angular router events
+window.addEventListener('popstate', onUrlChange);
+window.addEventListener('hashchange', onUrlChange);
 
-// ── Main init ─────────────────────────────────────────────────────────────────
-function init() {
-  injectStyles();
-  
-  // Search results page
-  document.querySelectorAll('.item-box, .col-md-12.ng-scope, .result-item, li[ng-repeat], .search-result-item, [class*="item-row"]')
-    .forEach(processCard);
-  
-  // Item detail page
-  processDetailPage();
-  processDirectItemPage();
-  
-  // Pagination
-  setupPagination();
-}
+// Override pushState / replaceState for SPA navigation
+const _origPush = history.pushState.bind(history);
+const _origReplace = history.replaceState.bind(history);
+history.pushState = (...args) => { _origPush(...args); onUrlChange(); };
+history.replaceState = (...args) => { _origReplace(...args); onUrlChange(); };
 
-// Run on load and on Angular route changes
-init();
-setInterval(init, 2500);
+// Also watch DOM mutations for dynamically added cards
+let _mutationTimer = null;
+const mutationObserver = new MutationObserver(() => {
+  clearTimeout(_mutationTimer);
+  _mutationTimer = setTimeout(() => {
+    const path = window.location.pathname;
+    const isDetailPage = path.includes('itemdetails') || path.includes('readcontent');
+    if (!isDetailPage) {
+      document.querySelectorAll(
+        '.item-card:not([data-ap-done]), [class*="item-card"]:not([data-ap-done]), ' +
+        'mat-card:not([data-ap-done])'
+      ).forEach(processCard);
+    }
+  }, 600);
+});
+mutationObserver.observe(document.body, { childList: true, subtree: true });
 
-// Also hook into Angular's location change for SPA navigation
-window.addEventListener('popstate', () => setTimeout(init, 500));
-document.addEventListener('click', () => setTimeout(init, 800));
+// Initial run
+setTimeout(processPage, 1200);

@@ -11,8 +11,14 @@ import { track } from "@vercel/analytics";
 import { useReveal } from "../hooks/useAnimations";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
+import { CONFIG } from "../config";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface TranscriptSegment {
+  t: number;   // seconds from start
+  text: string;
+}
+
 interface VideoArticle {
   id: string;
   slug: string;
@@ -28,6 +34,7 @@ interface VideoArticle {
   category: string | null;
   transcriptLang: string | null;
   transcriptWordCount: number;
+  transcriptSegments?: TranscriptSegment[];
   readMinutes: number;
   transcript: string;
   url: string;
@@ -75,8 +82,38 @@ function langLabel(lang: string | null) {
 }
 
 /**
+ * Clean YouTube description — strips the boilerplate social links spam
+ */
+function cleanDescription(desc: string): string {
+  if (!desc) return '';
+  // Remove common boilerplate patterns
+  return desc
+    .replace(/Social Media Links[^\n]*/gi, '')
+    .replace(/https?:\/\/[^\s]+/g, '')      // remove all URLs
+    .replace(/📷[^\n]*/g, '')                // emoji-prefixed social lines
+    .replace(/🕊[^\n]*/g, '')
+    .replace(/Telegram[^\n]*/gi, '')
+    .replace(/Facebook[^\n]*/gi, '')
+    .replace(/Instagram[^\n]*/gi, '')
+    .replace(/Twitter[^\n]*/gi, '')
+    .replace(/--\|[^\n]*/g, '')              // -- | separators
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Format seconds → MM:SS or H:MM:SS for timestamp display
+ */
+function fmtTime(sec: number): string {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/**
  * Turn a raw transcript string into readable paragraphs.
- * Splits on sentence-boundary heuristics (double space, 5+ word chunks, etc.)
  */
 function formatTranscript(raw: string): string[] {
   if (!raw) return [];
@@ -143,8 +180,26 @@ function ArticleReader({
   const paras = useMemo(() => formatTranscript(v.transcript), [v.transcript]);
   const toc = useMemo(() => buildTOC(paras), [paras]);
   const sentenceStats = useMemo(() => computeSentenceStats(v.transcript), [v.transcript]);
+  const segments = useMemo(() => groupSegments(v.transcriptSegments ?? []), [v.transcriptSegments]);
   const SECTION_SIZE = 4;
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Timestamp / translate view state
+  const [viewMode, setViewMode] = useState<'text' | 'timestamps'>('text');
+  const [translating, setTranslating] = useState(false);
+  const [translated, setTranslated] = useState<string[]>([]);
+  const [showTranslated, setShowTranslated] = useState(false);
+
+  const handleTranslate = useCallback(async () => {
+    if (showTranslated && translated.length > 0) { setShowTranslated(false); return; }
+    if (translated.length > 0) { setShowTranslated(true); return; }
+    setTranslating(true);
+    const srcLang = v.transcriptLang === 'hi' ? 'hi' : 'gu';
+    const results = await Promise.all(paras.slice(0, 20).map(p => translatePara(p, srcLang)));
+    setTranslated(results);
+    setShowTranslated(true);
+    setTranslating(false);
+  }, [paras, showTranslated, translated, v.transcriptLang]);
 
   // Related articles — share ≥1 tag
   const relatedVideos = useMemo(() => {
@@ -249,7 +304,7 @@ function ArticleReader({
           )}
 
           {/* Sentence Analytics */}
-          {sentenceStats && (
+          {!CONFIG.HIDE_TRANSCRIPTS && sentenceStats && (
             <div className="sentence-stats" title="Sentence length analysis">
               <div className="sentence-stat">
                 <span className="sentence-stat-val">{sentenceStats.avg}</span>
@@ -316,31 +371,90 @@ function ArticleReader({
             </div>
           )}
 
-          {/* Transcript body */}
-          {paras.length > 0 ? (
+
+          {/* View mode toggle */}
+          {!CONFIG.HIDE_TRANSCRIPTS && (
+            <div className="reader-view-toggle">
+              <button className={`reader-view-btn${viewMode === 'text' ? ' active' : ''}`} onClick={() => setViewMode('text')}>
+                📖 Read
+              </button>
+              {segments.length > 0 && (
+                <button className={`reader-view-btn${viewMode === 'timestamps' ? ' active' : ''}`} onClick={() => setViewMode('timestamps')}>
+                  ⏱ Timestamps
+                </button>
+              )}
+              {v.transcriptLang && v.transcriptLang !== 'en' && paras.length > 0 && (
+                <button
+                  className={`reader-view-btn reader-translate-btn${showTranslated ? ' active' : ''}`}
+                  onClick={handleTranslate}
+                  disabled={translating}
+                >
+                  {translating ? '⏳ Translating…' : showTranslated ? '🔤 Original' : '🌐 → English'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Transcript body — text reading mode */}
+          {!CONFIG.HIDE_TRANSCRIPTS && viewMode === 'text' && paras.length > 0 && (
             <div className="reader-body">
               {paras.map((para, i) => {
                 const sectionIdx = Math.floor(i / SECTION_SIZE);
                 const isFirst = i % SECTION_SIZE === 0 && i > 0;
                 return (
-                  <p
-                    key={i}
-                    id={isFirst ? `section-${sectionIdx}` : undefined}
-                    className={`reader-para${isFirst ? " reader-section-start" : ""}`}
-                  >
-                    {para}
-                  </p>
+                  <div key={i}>
+                    <p
+                      id={isFirst ? `section-${sectionIdx}` : undefined}
+                      className={`reader-para${isFirst ? " reader-section-start" : ""}`}
+                    >
+                      {para}
+                    </p>
+                    {showTranslated && translated[i] && (
+                      <p className="reader-para reader-para-translated">
+                        <span className="reader-translated-label">EN·</span> {translated[i]}
+                      </p>
+                    )}
+                  </div>
                 );
               })}
             </div>
-          ) : v.description ? (
-            <div className="reader-body">
-              <p className="reader-para">{v.description}</p>
+          )}
+
+          {/* Timestamps view — clickable YouTube deep-links */}
+          {!CONFIG.HIDE_TRANSCRIPTS && viewMode === 'timestamps' && segments.length > 0 && (
+            <div className="reader-timestamps">
+              <p className="reader-timestamps-hint">⏱ Click any timestamp to jump to that moment on YouTube.</p>
+              {segments.map((seg, i) => (
+                <a
+                  key={i}
+                  href={`${v.url}&t=${seg.t}s`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="reader-ts-row"
+                >
+                  <span className="reader-ts-time">{fmtTime(seg.t)}</span>
+                  <span className="reader-ts-text">{seg.text}</span>
+                </a>
+              ))}
             </div>
-          ) : (
-            <p className="reader-no-transcript">
-              No transcript available for this video.
-            </p>
+          )}
+
+          {/* Fallback or Hidden Transcript */}
+          {(CONFIG.HIDE_TRANSCRIPTS || (viewMode === 'text' && paras.length === 0)) && (
+            v.description ? (
+              <div className="reader-body">
+                {CONFIG.HIDE_TRANSCRIPTS ? (
+                  <p className="reader-para reader-desc-note">📝 Transcript access is currently restricted. Showing video description:</p>
+                ) : (
+                  <p className="reader-para reader-desc-note">📝 No transcript — showing video description:</p>
+                )}
+                <p className="reader-para" style={{ whiteSpace: 'pre-wrap' }}>{cleanDescription(v.description)}</p>
+              </div>
+            ) : (
+              <p className="reader-no-transcript">
+                {CONFIG.HIDE_TRANSCRIPTS ? "Transcript access is currently restricted." : "No transcript available for this video."}
+              </p>
+            )
           )}
 
           {/* Related articles */}

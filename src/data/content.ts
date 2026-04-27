@@ -116,6 +116,17 @@ export const MEDIA_STATS: MediaStatItem[] = [
   { number: "25+", label: "Keynote Speeches Across India" },
 ];
 
+export const SOCIAL_STATS = {
+  instagram: {
+    followers: "14.2K",
+    posts: "1,240"
+  },
+  facebook: {
+    followers: "28.5K",
+    likes: "21.2K"
+  }
+};
+
 export const SOCIALS: Social[] = [
   {
     name: "YouTube",
@@ -128,8 +139,13 @@ export const SOCIALS: Social[] = [
     icon: "instagram",
   },
   {
-    name: "Facebook",
+    name: "Facebook (Personal)",
     url: "https://www.facebook.com/praduman.khachar.7",
+    icon: "facebook",
+  },
+  {
+    name: "Facebook (Page)",
+    url: "https://www.facebook.com/Praduman.Khachar62/",
     icon: "facebook",
   },
   {

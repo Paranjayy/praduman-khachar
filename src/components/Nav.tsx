@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
 import { SITE } from "../data/content";
+import { CONFIG } from "../config";
 
 export default function Nav() {
   const scrolled = useScrolled(40);
@@ -28,7 +29,7 @@ export default function Nav() {
     ["Books", "/books"],
     ["Media", "/media"],
     ["Articles", "/articles"],
-    ["Writings", "/writings"],
+    ...(!CONFIG.HIDE_WRITINGS ? [["Writings", "/writings"]] : []),
     ["Explore", "/explore"],
   ];
 

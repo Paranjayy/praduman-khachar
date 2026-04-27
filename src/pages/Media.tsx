@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { SOCIALS } from "../data/content";
+import { SOCIALS, SOCIAL_STATS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 import { useChannelStats } from "../hooks/useChannelStats";
 import PageHeader from "../components/PageHeader";
@@ -287,6 +287,96 @@ export default function MediaPage() {
               {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" className="podcast-link">{item.linkText}</a>}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Social Media Highlights */}
+      <section className="section">
+        <h2 className="section-title">Social Media Highlights</h2>
+        <div className="section-divider" />
+        <div className="social-highlights-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+           {/* Instagram Card */}
+           <div className="podcast-card" style={{ display: 'flex', flexDirection: 'column', borderTop: '4px solid #E1306C', padding: '1.5rem', height: '100%' }}>
+             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+               <div style={{ color: '#E1306C', width: '40px', height: '40px', marginRight: '1rem' }}>{ICONS.instagram}</div>
+               <div>
+                 <h3 style={{ margin: 0, fontSize: '1.1rem' }}>@praduman_khachar</h3>
+                 <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Instagram Highlights</span>
+               </div>
+             </div>
+             
+             {/* Mock Stats */}
+             <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.instagram.posts}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Posts</span></div>
+                <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.instagram.followers}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Followers</span></div>
+             </div>
+
+             {/* Mock Gallery Grid */}
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '1.5rem', flex: 1 }}>
+                {[1,2,3,4,5,6].map(i => (
+                  <div key={i} style={{ aspectRatio: '1/1', background: `linear-gradient(45deg, #1a1a1a, #2a2a2a)`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  </div>
+                ))}
+             </div>
+
+             <a href="https://www.instagram.com/praduman_khachar/" target="_blank" rel="noopener noreferrer" className="yt-channel-btn" style={{ background: '#E1306C', width: '100%', marginTop: 'auto' }}>Follow on Instagram</a>
+           </div>
+
+           {/* Facebook Page Card */}
+           <div className="podcast-card" style={{ display: 'flex', flexDirection: 'column', borderTop: '4px solid #1877F2', padding: '1.5rem', height: '100%' }}>
+             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+               <div style={{ color: '#1877F2', width: '40px', height: '40px', marginRight: '1rem' }}>{ICONS.facebook}</div>
+               <div>
+                 <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Dr. Praduman Khachar</h3>
+                 <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Official Facebook Page</span>
+               </div>
+             </div>
+             
+             {/* Mock Stats */}
+             <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '8px' }}>
+                <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.facebook.followers}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Followers</span></div>
+                <div style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.1rem' }}>{SOCIAL_STATS.facebook.likes}</strong><span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Likes</span></div>
+             </div>
+
+             {/* Mock Feed Items */}
+             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
+               {[1,2].map(i => (
+                 <div key={i} style={{ background: 'rgba(255,255,255,0.02)', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#333' }}></div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, justifyContent: 'center' }}>
+                        <div style={{ height: '6px', width: '60%', background: '#444', borderRadius: '4px' }}></div>
+                        <div style={{ height: '4px', width: '30%', background: '#333', borderRadius: '4px' }}></div>
+                      </div>
+                    </div>
+                    <div style={{ height: '60px', width: '100%', background: '#222', borderRadius: '4px' }}></div>
+                 </div>
+               ))}
+             </div>
+
+             <a href="https://www.facebook.com/Praduman.Khachar62/" target="_blank" rel="noopener noreferrer" className="yt-channel-btn" style={{ background: '#1877F2', width: '100%', marginTop: 'auto' }}>Visit Facebook Page</a>
+           </div>
+
+           {/* Facebook Personal Card */}
+           <div className="podcast-card" style={{ display: 'flex', flexDirection: 'column', borderTop: '4px solid #4267B2', padding: '1.5rem', height: '100%' }}>
+             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+               <div style={{ color: '#4267B2', width: '40px', height: '40px', marginRight: '1rem' }}>{ICONS.facebook}</div>
+               <div>
+                 <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Personal Updates</h3>
+                 <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Field Research & Travels</span>
+               </div>
+             </div>
+             
+             <p style={{ flex: 1, marginBottom: '1.5rem', opacity: 0.8, lineHeight: 1.6 }}>Connect directly with Dr. Khachar to follow his scholarly travels, on-the-ground field research, and major academic milestones as they happen.</p>
+
+             <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem' }}>
+                <div style={{ flex: 1, height: '80px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>✈️</div>
+                <div style={{ flex: 1, height: '80px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>🎓</div>
+             </div>
+
+             <a href="https://www.facebook.com/praduman.khachar.7" target="_blank" rel="noopener noreferrer" className="yt-channel-btn" style={{ background: '#4267B2', color: 'white', width: '100%', marginTop: 'auto' }}>Connect on Facebook</a>
+           </div>
         </div>
       </section>
 

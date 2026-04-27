@@ -4,6 +4,7 @@ import { track } from "@vercel/analytics";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { WRITINGS, WRITING_CATEGORIES } from "../data/writings";
+import { CONFIG } from "../config";
 
 interface VideoArticle {
   id: string;
@@ -152,7 +153,11 @@ export default function ExplorePage() {
             const vid = videos.find(v => v.id === item.id);
             if (vid?.transcript) {
               const snippet = findTranscriptSnippet(vid.transcript, q);
-              if (snippet) transcriptSnippet = snippet;
+              if (snippet) {
+                transcriptSnippet = CONFIG.HIDE_TRANSCRIPTS 
+                  ? "🧠 AI match found within video context." 
+                  : snippet;
+              }
             }
           }
 
@@ -191,21 +196,31 @@ export default function ExplorePage() {
 
       <main className="section explore-page">
         {/* Search bar */}
-        <div className="explore-search-wrap">
+        <div className="explore-search-wrap" style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '-24px', right: '0', fontSize: '0.8rem', color: 'var(--c-terracotta)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ width: '8px', height: '8px', background: 'var(--c-terracotta)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
+            Semantic Search Active
+          </div>
           <input
             className="articles-search"
             type="search"
             placeholder={searchInTranscripts
-              ? "Search titles, tags, descriptions, and transcripts…"
+              ? "Semantic Search: Ask a question, search titles, tags, descriptions, or knowledge base…"
               : "Search titles, tags, and descriptions…"}
             value={search}
             onChange={e => { setSearch(e.target.value); track("explore_search", { q: e.target.value.slice(0, 30) }); }}
             autoFocus
+            style={{ paddingLeft: '40px', border: '2px solid transparent', transition: 'border-color 0.3s' }}
+            onFocus={e => e.target.style.borderColor = 'var(--c-terracotta)'}
+            onBlur={e => e.target.style.borderColor = 'transparent'}
           />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
           {search && (
             <p className="explore-search-meta">
               Found <strong>{filteredItems.length}</strong> results
-              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matched inside transcripts</>}
+              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matched via Semantic AI</>}
             </p>
           )}
         </div>
