@@ -2357,3 +2357,218 @@ body { top: 0px !important; }
 .labs-step-title { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.2rem; display: block; }
 .labs-step-desc { font-size: 0.85rem; color: var(--c-ink-muted); margin: 0; }
 
+
+/* ── NAV MORE DROPDOWN ────────────────────────────────────────────────────────── */
+.nav-more-item {
+  position: relative;
+  list-style: none;
+}
+.nav-more-trigger {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--c-ink-soft);
+  cursor: pointer;
+  padding: 0 4px;
+  letter-spacing: 0.01em;
+  transition: color 0.2s;
+  user-select: none;
+  white-space: nowrap;
+}
+.nav-more-trigger:hover,
+.nav-more-trigger.active { color: var(--c-terracotta); }
+
+.nav-more-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: -12px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 0.5rem 0;
+  min-width: 130px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  z-index: 200;
+  list-style: none;
+  margin: 0;
+}
+.nav-more-item:hover .nav-more-dropdown { display: block; }
+.nav-more-dropdown li a {
+  display: block;
+  padding: 0.45rem 1.2rem;
+  font-size: 0.82rem;
+  color: var(--c-ink-soft);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.nav-more-dropdown li a:hover,
+.nav-more-dropdown li a.active {
+  color: var(--c-terracotta);
+  background: rgba(var(--c-terracotta-rgb, 185,72,50), 0.06);
+}
+/* Mobile: hide the More item, secondary links show inline */
+@media (max-width: 768px) {
+  .nav-more-item { display: none; }
+}
+.nav-mobile-secondary { display: none; }
+@media (max-width: 768px) {
+  .nav-mobile-secondary { display: list-item; }
+}
+
+/* ── FOOTER UPGRADE ──────────────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface);
+  padding: var(--space-2xl) 0 var(--space-lg);
+  margin-top: auto;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-xl);
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+
+.footer-brand-name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--c-ink);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.footer-tagline {
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 280px;
+}
+
+.footer-nav { }
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1.5rem;
+}
+.footer-links li a {
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links li a:hover { color: var(--c-terracotta); }
+
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.footer-social-link {
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-social-link:hover { color: var(--c-terracotta); }
+
+.footer-bottom {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--c-border);
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--c-ink-muted);
+  flex-wrap: wrap;
+}
+.footer-sep { opacity: 0.4; }
+.footer-copy { font-weight: 500; }
+
+/* ── GLOBAL NOTRANSLATE PROTECTION ────────────────────────────────────────────── */
+/* Prevents Google Translate from mangling proper nouns */
+.notranslate { unicode-bidi: isolate; }
+
+/* ── HERO PORTRAIT UPGRADE ───────────────────────────────────────────────────── */
+.hero-portrait {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+/* Subtle shimmer glow ring around portrait */
+.hero-portrait::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(185,72,50,0.4) 0%, transparent 50%, rgba(185,72,50,0.2) 100%);
+  pointer-events: none;
+  animation: portraitGlow 4s ease-in-out infinite alternate;
+}
+@keyframes portraitGlow {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.8; }
+}
+
+/* ── PRESS CARD HOVER LIFT ───────────────────────────────────────────────────── */
+.press-card { transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease; }
+.press-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.14); }
+
+/* ── ARTICLE CARD MICRO-SHADOW ───────────────────────────────────────────────── */
+.article-card:hover { box-shadow: 0 12px 36px rgba(0,0,0,0.12), 0 0 0 1.5px var(--c-terracotta); }
+
+/* ── EXPLORE CARD REFINED HOVER ─────────────────────────────────────────────── */
+.explore-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 0 1.5px var(--c-terracotta); }
+.explore-card:hover .explore-card-title { color: var(--c-terracotta); }
+
+/* ── TRANSCRIPT SNIPPET STYLING ──────────────────────────────────────────────── */
+.transcript-snippet {
+  background: rgba(185,72,50,0.06);
+  border-left: 2px solid var(--c-terracotta);
+  padding: 4px 8px;
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--c-ink-soft);
+  margin: 4px 0 0;
+}
+
+/* ── STATS RIBBON UPGRADE ────────────────────────────────────────────────────── */
+.stat-item {
+  position: relative;
+  transition: transform 0.25s ease;
+}
+.stat-item:hover { transform: translateY(-3px); }
+.stat-item:hover .stat-number { color: var(--c-terracotta); }
+.stat-number { transition: color 0.25s ease; }
+
+/* ── SCROLLBAR STYLING ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-terracotta); }
+
+/* ── FOCUS VISIBLE UPGRADE ───────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--c-terracotta);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+

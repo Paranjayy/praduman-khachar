@@ -107,8 +107,18 @@ async function main() {
     let transcriptsOk = 0;
     if (fs.existsSync(VIDEOS_PATH)) {
       const vData = JSON.parse(fs.readFileSync(VIDEOS_PATH, 'utf-8'));
-      videosCount = vData.total || 0;
-      transcriptsOk = vData.transcript_ok || 0;
+      // Use actual array length — the 'total' field can get stale
+      videosCount = Array.isArray(vData.videos) ? vData.videos.length : (vData.total || 0);
+      // Count transcripts by checking actual text length
+      transcriptsOk = Array.isArray(vData.videos)
+        ? vData.videos.filter(v => v.transcript && v.transcript.length > 50).length
+        : (vData.transcript_ok || 0);
+      // Keep total field in sync
+      if (Array.isArray(vData.videos) && vData.total !== videosCount) {
+        vData.total = videosCount;
+        vData.transcript_ok = transcriptsOk;
+        fs.writeFileSync(VIDEOS_PATH, JSON.stringify(vData, null, 2));
+      }
     }
 
     let playlistsCount = 0;

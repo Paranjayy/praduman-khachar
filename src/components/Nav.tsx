@@ -23,17 +23,23 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const links = [
+  const primaryLinks = [
     ["Home", "/"],
     ["About", "/about"],
     ["Books", "/books"],
     ["Media", "/media"],
     ["Articles", "/articles"],
-    ...(!CONFIG.HIDE_WRITINGS ? [["Writings", "/writings"]] : []),
     ["Explore", "/explore"],
+  ];
+
+  const secondaryLinks = [
+    ...(!CONFIG.HIDE_WRITINGS ? [["Writings", "/writings"]] : []),
     ["Press", "/press"],
     ["Labs", "/labs"],
   ];
+
+  const allLinks = [...primaryLinks, ...secondaryLinks];
+
 
   return (
     <nav className={`site-nav${scrolled ? " scrolled" : ""}`}>
@@ -45,13 +51,46 @@ export default function Nav() {
           transition: "width 0.1s ease-out", zIndex: 1000 
         }} 
       />
-      <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
+      <Link to="/" className="nav-brand notranslate" translate="no" onClick={() => setOpen(false)}>
         {SITE.name}
       </Link>
 
       <ul className={`nav-links${open ? " open" : ""}`}>
-        {links.map(([label, to]) => (
+        {primaryLinks.map(([label, to]) => (
           <li key={to}>
+            <Link
+              to={to}
+              className={pathname === to ? "active" : ""}
+              onClick={() => setOpen(false)}
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
+        {/* More dropdown for secondary links */}
+        {secondaryLinks.length > 0 && (
+          <li className="nav-more-item">
+            <span className={`nav-more-trigger${secondaryLinks.some(([,to]) => pathname === to) ? " active" : ""}`}>
+              More ▾
+            </span>
+            <ul className="nav-more-dropdown">
+              {secondaryLinks.map(([label, to]) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className={pathname === to ? "active" : ""}
+                    onClick={() => setOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        )}
+        {/* Mobile: show secondary links inline */}
+        {open && secondaryLinks.map(([label, to]) => (
+          <li key={`mob-${to}`} className="nav-mobile-secondary">
             <Link
               to={to}
               className={pathname === to ? "active" : ""}

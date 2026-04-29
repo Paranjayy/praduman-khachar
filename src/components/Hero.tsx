@@ -25,7 +25,7 @@ const MARQUEE_ITEMS = [
 // Split title into words, then chars — Lando-style character animation
 function SplitTitle({ text }: { text: string }) {
   return (
-    <span aria-label={text} className="split-title">
+    <span aria-label={text} className="split-title notranslate" translate="no">
       {text.split(" ").map((word, wi) => (
         <span key={wi} className="split-word">
           {word.split("").map((char, ci) => (
@@ -82,7 +82,7 @@ export default function Hero() {
           <span className="hl-sep"> · </span>
           <span className="hl-word">YouTuber</span>
         </p>
-        <h1 className="hero-title">
+        <h1 className="hero-title notranslate" translate="no">
           <SplitTitle text={SITE.title} />
         </h1>
         <p className="hero-subtitle">{SITE.tagline}</p>
