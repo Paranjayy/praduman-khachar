@@ -102,9 +102,9 @@ img { max-width: 100%; display: block; }
 
 /* ── HERO ── */
 .hero {
-  min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr;
-  align-items: end; padding: var(--space-2xl) var(--space-lg); padding-top: 6rem;
-  position: relative; overflow: hidden;
+  min-height: 100vh; display: grid; grid-template-columns: 1fr auto;
+  align-items: center; padding: var(--space-2xl) var(--space-lg); padding-top: 6rem;
+  position: relative; overflow: hidden; gap: 3rem;
 }
 .hero-bg { position: absolute; inset: 0; z-index: -1; }
 .hero-bg img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) sepia(0.3); }
@@ -132,12 +132,13 @@ img { max-width: 100%; display: block; }
   opacity: 0; animation: fadeUp 0.8s 0.7s ease forwards;
 }
 .hero-portrait {
-  display: flex; justify-content: flex-end; align-items: flex-end;
-  padding-bottom: var(--space-md); opacity: 0; animation: fadeUp 1s 0.9s ease forwards;
+  display: flex; justify-content: flex-end; align-items: center;
+  opacity: 0; animation: fadeUp 1s 0.9s ease forwards;
 }
 .hero-portrait img {
-  width: clamp(260px, 22vw, 380px); border-radius: 2px;
-  box-shadow: 0 20px 60px oklch(0.1 0.05 60 / 0.5); border: 3px solid oklch(0.9 0.02 75 / 0.15);
+  width: clamp(220px, 20vw, 340px); border-radius: 4px;
+  box-shadow: 0 24px 70px oklch(0.1 0.05 60 / 0.6), 0 0 0 3px oklch(0.9 0.02 75 / 0.12);
+  display: block;
 }
 
 /* ── HERO MARQUEE ── */
@@ -2373,30 +2374,40 @@ body { top: 0px !important; }
   transition: color 0.2s;
   user-select: none;
   white-space: nowrap;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  line-height: inherit;
 }
 .nav-more-trigger:hover,
+.nav-more-item.open .nav-more-trigger,
 .nav-more-trigger.active { color: var(--c-terracotta); }
 
 .nav-more-dropdown {
-  display: none;
+  /* Rendered conditionally in React — always block when in DOM */
+  display: block;
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: -12px;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: 10px;
   padding: 0.5rem 0;
-  min-width: 130px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  z-index: 200;
+  min-width: 140px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  z-index: 300;
   list-style: none;
   margin: 0;
+  animation: dropdownIn 0.18s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
-.nav-more-item:hover .nav-more-dropdown { display: block; }
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
 .nav-more-dropdown li a {
   display: block;
-  padding: 0.45rem 1.2rem;
-  font-size: 0.82rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.83rem;
   color: var(--c-ink-soft);
   text-decoration: none;
   transition: color 0.15s, background 0.15s;
@@ -2405,7 +2416,7 @@ body { top: 0px !important; }
 .nav-more-dropdown li a:hover,
 .nav-more-dropdown li a.active {
   color: var(--c-terracotta);
-  background: rgba(var(--c-terracotta-rgb, 185,72,50), 0.06);
+  background: rgba(185, 72, 50, 0.06);
 }
 /* Mobile: hide the More item, secondary links show inline */
 @media (max-width: 768px) {
@@ -2501,30 +2512,30 @@ body { top: 0px !important; }
 /* Prevents Google Translate from mangling proper nouns */
 .notranslate { unicode-bidi: isolate; }
 
-/* ── HERO PORTRAIT UPGRADE ───────────────────────────────────────────────────── */
-.hero-portrait {
+/* ── HERO PORTRAIT SHIMMER ───────────────────────────────────────────────────── */
+/* Shimmer glow ring via pseudo on the img wrapper */
+.hero-portrait img {
   position: relative;
-  width: 200px;
-  height: 200px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.15);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-  flex-shrink: 0;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
-/* Subtle shimmer glow ring around portrait */
+.hero-portrait img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 28px 80px oklch(0.1 0.05 60 / 0.7), 0 0 0 3px rgba(185,72,50,0.3);
+}
+/* Subtle shimmer glow ring around portrait via wrapper */
 .hero-portrait::after {
   content: '';
   position: absolute;
   inset: -1px;
-  border-radius: 13px;
-  background: linear-gradient(135deg, rgba(185,72,50,0.4) 0%, transparent 50%, rgba(185,72,50,0.2) 100%);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(185,72,50,0.35) 0%, transparent 50%, rgba(185,72,50,0.15) 100%);
   pointer-events: none;
   animation: portraitGlow 4s ease-in-out infinite alternate;
+  z-index: 1;
 }
 @keyframes portraitGlow {
   0% { opacity: 0.4; }
-  100% { opacity: 0.8; }
+  100% { opacity: 0.85; }
 }
 
 /* ── PRESS CARD HOVER LIFT ───────────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
@@ -8,9 +8,11 @@ import { CONFIG } from "../config";
 export default function Nav() {
   const scrolled = useScrolled(40);
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { pathname } = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const moreRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +24,23 @@ export default function Nav() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close "More" dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    if (moreOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [moreOpen]);
+
+  // Close everything on route change
+  useEffect(() => {
+    setOpen(false);
+    setMoreOpen(false);
+  }, [pathname]);
 
   const primaryLinks = [
     ["Home", "/"],
@@ -38,18 +57,17 @@ export default function Nav() {
     ["Labs", "/labs"],
   ];
 
-  const allLinks = [...primaryLinks, ...secondaryLinks];
-
+  const isSecondaryActive = secondaryLinks.some(([, to]) => pathname === to);
 
   return (
     <nav className={`site-nav${scrolled ? " scrolled" : ""}`}>
-      <div 
-        className="scroll-progress-bar" 
-        style={{ 
-          position: "absolute", top: 0, left: 0, height: "2px", 
+      <div
+        className="scroll-progress-bar"
+        style={{
+          position: "absolute", top: 0, left: 0, height: "2px",
           background: "var(--c-terracotta)", width: `${scrollProgress}%`,
-          transition: "width 0.1s ease-out", zIndex: 1000 
-        }} 
+          transition: "width 0.1s ease-out", zIndex: 1000
+        }}
       />
       <Link to="/" className="nav-brand notranslate" translate="no" onClick={() => setOpen(false)}>
         {SITE.name}
@@ -67,28 +85,38 @@ export default function Nav() {
             </Link>
           </li>
         ))}
-        {/* More dropdown for secondary links */}
+
+        {/* More dropdown — click-based with React state */}
         {secondaryLinks.length > 0 && (
-          <li className="nav-more-item">
-            <span className={`nav-more-trigger${secondaryLinks.some(([,to]) => pathname === to) ? " active" : ""}`}>
-              More ▾
-            </span>
-            <ul className="nav-more-dropdown">
-              {secondaryLinks.map(([label, to]) => (
-                <li key={to}>
-                  <Link
-                    to={to}
-                    className={pathname === to ? "active" : ""}
-                    onClick={() => setOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <li ref={moreRef} className={`nav-more-item${moreOpen ? " open" : ""}`}>
+            <button
+              className={`nav-more-trigger${isSecondaryActive ? " active" : ""}`}
+              onClick={() => setMoreOpen(prev => !prev)}
+              aria-expanded={moreOpen}
+              aria-haspopup="true"
+            >
+              More {moreOpen ? "▴" : "▾"}
+            </button>
+            {moreOpen && (
+              <ul className="nav-more-dropdown" role="menu">
+                {secondaryLinks.map(([label, to]) => (
+                  <li key={to} role="none">
+                    <Link
+                      to={to}
+                      role="menuitem"
+                      className={pathname === to ? "active" : ""}
+                      onClick={() => { setOpen(false); setMoreOpen(false); }}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         )}
-        {/* Mobile: show secondary links inline */}
+
+        {/* Mobile: secondary links shown inline when hamburger is open */}
         {open && secondaryLinks.map(([label, to]) => (
           <li key={`mob-${to}`} className="nav-mobile-secondary">
             <Link
@@ -103,7 +131,7 @@ export default function Nav() {
       </ul>
 
       <div className="nav-actions">
-        <select 
+        <select
           className="lang-select"
           onChange={(e) => {
             const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
