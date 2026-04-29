@@ -1,6 +1,7 @@
 import { MEDIA_STATS, SOCIALS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 import { useChannelStats } from "../hooks/useChannelStats";
+import GhostFeed from "./GhostFeed";
 
 const ICONS = {
   youtube: (
@@ -69,6 +70,8 @@ export default function Media() {
             </a>
           ))}
         </div>
+
+        <GhostFeed />
       </div>
     </section>
   );

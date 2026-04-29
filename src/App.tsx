@@ -14,6 +14,8 @@ import ArticlesPage from "./pages/Articles";
 import WritingsPage from "./pages/Writings";
 import ExplorePage from "./pages/Explore";
 import AdminPage from "./pages/Admin";
+import PressPage from "./pages/Press";
+import LabsPage from "./pages/Labs";
 
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
@@ -32,6 +34,8 @@ function AppInner() {
         <Route path="/writings/:slug" element={<WritingsPage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/press" element={<PressPage />} />
+        <Route path="/labs" element={<LabsPage />} />
       </Routes>
       <Footer />
       <BackToTop />

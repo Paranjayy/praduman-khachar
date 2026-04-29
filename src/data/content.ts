@@ -119,11 +119,20 @@ export const MEDIA_STATS: MediaStatItem[] = [
 export const SOCIAL_STATS = {
   instagram: {
     followers: "14.2K",
-    posts: "1,240"
+    posts: "1,240",
+    recentPosts: [
+      { id: "1", type: "video", url: "https://www.instagram.com/praduman_khachar/", thumbnail: "https://images.unsplash.com/photo-1598453412537-8cfb8ab20b32?w=500&q=80" },
+      { id: "2", type: "image", url: "https://www.instagram.com/praduman_khachar/", thumbnail: "https://images.unsplash.com/photo-1621213458641-729df9e3d8f3?w=500&q=80" },
+      { id: "3", type: "image", url: "https://www.instagram.com/praduman_khachar/", thumbnail: "https://images.unsplash.com/photo-1622329381656-e9e9846b0a70?w=500&q=80" }
+    ]
   },
   facebook: {
     followers: "28.5K",
-    likes: "21.2K"
+    likes: "21.2K",
+    recentPosts: [
+      { id: "f1", text: "ડૉ. પ્રદ્યુમ્ન ખાચરનું નવું પુસ્તક: 'કાઠી ક્ષત્રિયોનો ઇતિહાસ' અને વઢવાણના ૨૨૨ રજવાડાઓની વાતો...", date: "2 days ago", likes: "1.2K", comments: "124" },
+      { id: "f2", text: "New archival documents discovered regarding the 1881 Vadhvan administrative treaties and their impact on modern history...", date: "5 days ago", likes: "856", comments: "45" }
+    ]
   }
 };
 

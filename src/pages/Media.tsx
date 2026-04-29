@@ -324,8 +324,16 @@ export default function MediaPage() {
 
              {/* Mock Gallery Grid */}
              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '1.5rem' }}>
-                {[1,2,3,4,5,6].map(i => (
-                  <div key={i} style={{ paddingBottom: '100%', position: 'relative', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                {SOCIAL_STATS.instagram.recentPosts.map(post => (
+                  <a href={post.url} target="_blank" rel="noopener noreferrer" key={post.id} style={{ paddingBottom: '100%', position: 'relative', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px', overflow: 'hidden', display: 'block' }}>
+                     <img src={post.thumbnail} alt="Instagram Post" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                     {post.type === 'video' && (
+                       <svg style={{ position: 'absolute', top: '5px', right: '5px', color: 'white', dropShadow: '0 2px 4px rgba(0,0,0,0.5)' }} viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+                     )}
+                  </a>
+                ))}
+                {[1,2,3].map(i => (
+                  <div key={`empty-${i}`} style={{ paddingBottom: '100%', position: 'relative', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
                      <svg style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.3, color: 'var(--c-ink)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </div>
                 ))}
@@ -352,17 +360,23 @@ export default function MediaPage() {
 
              {/* Mock Feed Items */}
              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
-               {[1,2].map(i => (
-                 <div key={i} style={{ background: 'rgba(128, 128, 128, 0.03)', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(128, 128, 128, 0.1)' }}>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(128, 128, 128, 0.2)' }}></div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, justifyContent: 'center' }}>
-                        <div style={{ height: '6px', width: '60%', background: 'rgba(128, 128, 128, 0.3)', borderRadius: '4px' }}></div>
-                        <div style={{ height: '4px', width: '30%', background: 'rgba(128, 128, 128, 0.15)', borderRadius: '4px' }}></div>
+               {SOCIAL_STATS.facebook.recentPosts.map(post => (
+                 <a href="https://www.facebook.com/Praduman.Khachar62/" target="_blank" rel="noopener noreferrer" key={post.id} style={{ background: 'rgba(128, 128, 128, 0.03)', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(128, 128, 128, 0.1)', textDecoration: 'none', color: 'inherit', display: 'block', transition: 'background 0.2s' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Dr. Praduman Khachar</div>
+                        <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{post.date}</div>
                       </div>
                     </div>
-                    <div style={{ height: '40px', width: '100%', background: 'rgba(128, 128, 128, 0.1)', borderRadius: '4px' }}></div>
-                 </div>
+                    <p style={{ fontSize: '0.85rem', lineHeight: 1.4, margin: '0 0 8px 0', opacity: 0.9 }}>{post.text}</p>
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', opacity: 0.6 }}>
+                      <span>👍 {post.likes}</span>
+                      <span>💬 {post.comments}</span>
+                    </div>
+                 </a>
                ))}
              </div>
 

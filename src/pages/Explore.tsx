@@ -69,6 +69,20 @@ function relativeDate(iso: string) {
   return `${Math.floor(days / 365)}y ago`;
 }
 
+// ─── MyMemory Translation (free, no key needed for modest use) ─────────────────
+async function translateQuery(text: string, targetLang: 'gu' | 'hi'): Promise<string> {
+  try {
+    const src = 'en';
+    const res = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${targetLang}`
+    );
+    const data = await res.json();
+    return data.responseData?.translatedText || text;
+  } catch {
+    return text;
+  }
+}
+
 // ─── Full-text transcript snippet extractor ───────────────────────────────────
 function findTranscriptSnippet(transcript: string, query: string, contextChars = 120): string | null {
   if (!transcript || !query.trim()) return null;
@@ -94,6 +108,24 @@ export default function ExplorePage() {
   const [viewMode, setViewMode] = useState<"grid" | "table" | "compact">("grid");
   const [sortBy, setSortBy] = useState<"date" | "title" | "words" | "views">("date");
   const [searchInTranscripts, setSearchInTranscripts] = useState(true);
+  // Translated query for cross-lingual search
+  const [translatedQuery, setTranslatedQuery] = useState<string>("");
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Auto-translate English queries to Gujarati for cross-lingual matching
+  const isLikelyEnglish = (q: string) => /^[a-zA-Z\s]+$/.test(q) && q.trim().length > 2;
+
+  useEffect(() => {
+    if (!search.trim() || !searchInTranscripts) { setTranslatedQuery(""); return; }
+    if (!isLikelyEnglish(search)) { setTranslatedQuery(""); return; }
+    const timer = setTimeout(async () => {
+      setIsTranslating(true);
+      const guQuery = await translateQuery(search.trim(), 'gu');
+      setTranslatedQuery(guQuery !== search.trim() ? guQuery : "");
+      setIsTranslating(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [search, searchInTranscripts]);
 
   useEffect(() => {
     loadVideos().then(v => {
@@ -147,15 +179,21 @@ export default function ExplorePage() {
           const tagMatch = item.tags.some(t => t.toLowerCase().includes(q));
           const descMatch = item.description.toLowerCase().includes(q);
 
-          // Full-text transcript search
+          // Full-text transcript search (with cross-lingual support)
           let transcriptSnippet: string | undefined;
           if (searchInTranscripts && item.type === "video") {
             const vid = videos.find(v => v.id === item.id);
             if (vid?.transcript) {
-              const snippet = findTranscriptSnippet(vid.transcript, q);
+              // Try original query first
+              let snippet = findTranscriptSnippet(vid.transcript, q);
+              // Also try translated Gujarati query if we got one
+              if (!snippet && translatedQuery) {
+                snippet = findTranscriptSnippet(vid.transcript, translatedQuery);
+                if (snippet) snippet = `🌐 Cross-lingual match: ${snippet}`;
+              }
               if (snippet) {
-                transcriptSnippet = CONFIG.HIDE_TRANSCRIPTS 
-                  ? "🧠 AI match found within video context." 
+                transcriptSnippet = CONFIG.HIDE_TRANSCRIPTS
+                  ? "🧠 AI match found within video context."
                   : snippet;
               }
             }
@@ -180,7 +218,7 @@ export default function ExplorePage() {
     });
 
     return list;
-  }, [items, search, typeFilter, sortBy, searchInTranscripts, videos]);
+  }, [items, search, typeFilter, sortBy, searchInTranscripts, videos, translatedQuery]);
 
   const transcriptMatches = filteredItems.filter(i => i.transcriptSnippet).length;
   const totalVideos = items.filter(i => i.type === "video").length;
@@ -205,7 +243,7 @@ export default function ExplorePage() {
             className="articles-search"
             type="search"
             placeholder={searchInTranscripts
-              ? "Semantic Search: Ask a question, search titles, tags, descriptions, or knowledge base…"
+              ? "Cross-lingual search: try Gujarati or English keywords…"
               : "Search titles, tags, and descriptions…"}
             value={search}
             onChange={e => { setSearch(e.target.value); track("explore_search", { q: e.target.value.slice(0, 30) }); }}
@@ -220,7 +258,9 @@ export default function ExplorePage() {
           {search && (
             <p className="explore-search-meta">
               Found <strong>{filteredItems.length}</strong> results
-              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matched via Semantic AI</>}
+              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matched via transcript</>}
+              {isTranslating && <> · <em style={{color:'var(--c-terracotta)'}}>translating…</em></>}
+              {translatedQuery && !isTranslating && <> · also searched: <em>{translatedQuery}</em></>}
             </p>
           )}
         </div>

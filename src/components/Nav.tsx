@@ -31,6 +31,8 @@ export default function Nav() {
     ["Articles", "/articles"],
     ...(!CONFIG.HIDE_WRITINGS ? [["Writings", "/writings"]] : []),
     ["Explore", "/explore"],
+    ["Press", "/press"],
+    ["Labs", "/labs"],
   ];
 
   return (
