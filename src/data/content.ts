@@ -22,7 +22,7 @@ export const SITE: SiteConfig = {
   designation: "Associate Professor",
   institution:
     "Dr. Subhash Mahila Arts, Commerce & Home Science College, Junagadh",
-  url: "https://praduman-khachar.vercel.app",
+  url: "https://www.praduman.com",
 };
 
 export const STATS: StatItem[] = [

@@ -3446,3 +3446,59 @@ body { top: 0px !important; }
 }
 [data-theme="dark"] .cmd-esc-hint { background: var(--c-parchment-deep); }
 
+
+/* ── NAV SEARCH BUTTON ───────────────────────────────────────────────────────── */
+.nav-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--c-parchment-deep);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  color: var(--c-ink-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.nav-search-btn:hover {
+  color: var(--c-ink);
+  border-color: var(--c-terracotta);
+  background: var(--c-surface);
+}
+.nav-search-kbd {
+  font-size: 0.65rem;
+  color: var(--c-ink-muted);
+  letter-spacing: 0;
+}
+[data-theme="dark"] .nav-search-btn {
+  background: var(--c-parchment-deep);
+  border-color: var(--c-border);
+}
+
+/* ── CMD OVERLAY: remove blur (user request) ─────────────────────────────────── */
+.cmd-overlay {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(0,0,0,0.6) !important;
+}
+
+/* ── HERO PORTRAIT: ghost/inversion fix ──────────────────────────────────────── */
+/* 
+  All hero images stack absolutely. The "ghost" appears because the 0-opacity image
+  still captures any CSS mix-blend-mode or filter leaking from the dark hero bg.
+  Fix: ensure pointer-events:none on hidden, overflow:hidden on wrapper,
+  and no mix-blend-mode on portrait images.
+*/
+.hero-portrait {
+  position: relative; /* establish stacking context */
+  overflow: hidden;
+}
+.hero-portrait img {
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+

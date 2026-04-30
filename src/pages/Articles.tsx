@@ -663,7 +663,8 @@ export default function ArticlesPage() {
 
   useEffect(() => {
     if (slug && slug !== "-" && videos && videos.length > 0) {
-      const match = videos.find(v => v.slug === slug || v.id === slug);
+      const q = slug.toLowerCase();
+      const match = videos.find(v => v.slug?.toLowerCase() === q || v.id?.toLowerCase() === q);
       if (match) setOpenArticle(match);
     }
   }, [slug, videos]);

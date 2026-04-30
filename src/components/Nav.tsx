@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
@@ -131,6 +131,18 @@ export default function Nav() {
       </ul>
 
       <div className="nav-actions">
+        {/* Search button — opens ⌘K command palette */}
+        <button
+          className="nav-search-btn"
+          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
+          title="Search (⌘K)"
+          aria-label="Open search"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <span className="nav-search-kbd">⌘K</span>
+        </button>
         <select
           className="lang-select"
           onChange={(e) => {
