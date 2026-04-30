@@ -102,3 +102,4 @@
 - Integrate a simple Contact/Consultation form for students and event organizers to easily reach out.
 - Highlight the impact of the 485+ YouTube videos with a "Featured Talks" or "Popular Lectures" carousel.
 - Include a gallery or timeline of academic milestones and awards received over the 33+ years of teaching.
+- later we can add any language support maybe why not lol but we would only show the primary three languages as english/gujarati and hindi thats all but in that same dropdown there would be more button to show all other languages lol and it would have search in case any1 wanna search their language and same semantic search needs to work too btw 

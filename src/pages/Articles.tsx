@@ -271,13 +271,26 @@ function ArticleReader({
           {/* Close */}
           <button className="reader-close" onClick={onClose} aria-label="Close reader">✕</button>
 
-          {/* Hero image */}
-          <img
-            src={v.thumbnail}
-            alt={v.title}
-            className="reader-hero-img"
-            onError={e => { (e.currentTarget as HTMLImageElement).src = v.thumbnailMq; }}
-          />
+          {/* Hero: YouTube embed (when transcripts hidden) or thumbnail */}
+          {CONFIG.HIDE_TRANSCRIPTS ? (
+            <div className="reader-yt-embed-wrap">
+              <iframe
+                className="reader-yt-embed"
+                src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1`}
+                title={v.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <img
+              src={v.thumbnail}
+              alt={v.title}
+              className="reader-hero-img"
+              onError={e => { (e.currentTarget as HTMLImageElement).src = v.thumbnailMq; }}
+            />
+          )}
 
           {/* Meta */}
           <div className="reader-meta">
@@ -285,7 +298,9 @@ function ArticleReader({
             {v.transcriptLang && (
               <span className="reader-lang-pill">{langLabel(v.transcriptLang)}</span>
             )}
-            <span className="reader-read-time">~{v.readMinutes} min read</span>
+            {v.durationSeconds ? (
+              <span className="reader-stat">⏱ {Math.floor(v.durationSeconds/60)}:{String(v.durationSeconds%60).padStart(2,'0')}</span>
+            ) : null}
             {v.views && <span className="reader-stat">👁 {v.views}</span>}
             {v.likes && <span className="reader-stat">👍 {v.likes}</span>}
             {v.comments && <span className="reader-stat">💬 {v.comments}</span>}
@@ -294,12 +309,26 @@ function ArticleReader({
           {/* Title */}
           <h1 className="reader-title">{v.title}</h1>
 
+          {/* Watch on YouTube CTA */}
+          <a
+            href={v.url || `https://www.youtube.com/watch?v=${v.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="reader-yt-cta"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.7-.8-2.1-.9C16.2 5 12 5 12 5s-4.2 0-6.9.1c-.4.1-1.3.1-2.1.9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.8C6.8 19 12 19 12 19s4.2 0 6.9-.2c.4-.1 1.3-.1 2.1-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9.1l5.7 2.7-5.7 2.7z"/>
+            </svg>
+            Watch on YouTube
+          </a>
+
           <div className="reader-divider" />
 
           {/* Tags */}
           {v.tags.length > 0 && (
             <div className="reader-tags">
               {v.tags.map(t => <span key={t} className="article-tag">{t}</span>)}
+
             </div>
           )}
 

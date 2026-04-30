@@ -8,6 +8,7 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import DesignCustomizer from "./components/DesignCustomizer";
+import CommandPalette from "./components/CommandPalette";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -41,6 +42,7 @@ function AppInner() {
       </Routes>
       <Footer />
       <BackToTop />
+      <CommandPalette />
       <DesignCustomizer />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
