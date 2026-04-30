@@ -1,6 +1,7 @@
 import Hero from "../components/Hero";
 import StatsRibbon from "../components/StatsRibbon";
 import FeaturedTalks from "../components/FeaturedTalks";
+import OnThisDay from "../components/OnThisDay";
 import About from "../components/About";
 import Achievements from "../components/Achievements";
 import Testimonials from "../components/Testimonials";
@@ -15,6 +16,7 @@ export default function HomePage() {
     <>
       <Hero />
       <StatsRibbon />
+      <OnThisDay />
       <FeaturedTalks />
       <About />
       <Achievements />
