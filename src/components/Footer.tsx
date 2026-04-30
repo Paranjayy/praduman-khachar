@@ -17,6 +17,7 @@ const SOCIAL_LABELS: Record<string, string> = {
   instagram: "Instagram",
   twitter: "X / Twitter",
   spotify: "Spotify",
+  facebook: "Facebook",
 };
 
 export default function Footer() {
@@ -44,7 +45,7 @@ export default function Footer() {
 
         {/* Social links */}
         <div className="footer-socials">
-          {SOCIALS.filter(s => ["youtube", "instagram", "twitter", "spotify"].includes(s.icon)).map(s => (
+          {SOCIALS.filter(s => ["youtube", "instagram", "facebook", "twitter", "spotify"].includes(s.icon)).map(s => (
             <a
               key={s.name}
               href={s.url}

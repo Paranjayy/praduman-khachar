@@ -78,7 +78,7 @@ export default function Hero() {
           <span className="hl-sep"> · </span>
           <span className="hl-word">Author</span>
           <span className="hl-sep"> · </span>
-          <span className="hl-word">Researcher</span>
+          <span className="hl-word">Professor</span>
           <span className="hl-sep"> · </span>
           <span className="hl-word">YouTuber</span>
         </p>

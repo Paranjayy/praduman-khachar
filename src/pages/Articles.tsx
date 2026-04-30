@@ -183,8 +183,21 @@ function ArticleReader({
   const segments = useMemo(() => groupSegments(v.transcriptSegments ?? []), [v.transcriptSegments]);
   const SECTION_SIZE = 4;
   const contentRef = useRef<HTMLDivElement>(null);
+  const [readProgress, setReadProgress] = useState(0);
 
-  // Timestamp / translate view state
+  // Track reading progress inside reader panel
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const pct = scrollHeight <= clientHeight ? 100 : Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
+      setReadProgress(pct);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
   const [viewMode, setViewMode] = useState<'text' | 'timestamps'>('text');
   const [translating, setTranslating] = useState(false);
   const [translated, setTranslated] = useState<string[]>([]);
@@ -268,6 +281,18 @@ function ArticleReader({
 
         {/* ── RIGHT: Article content ── */}
         <div className="reader-content" ref={contentRef}>
+          {/* Reading progress bar */}
+          <div className="reader-progress-bar" style={{ width: `${readProgress}%` }} />
+
+          {/* Scroll to top (appears after scrolling) */}
+          {readProgress > 15 && (
+            <button
+              className="reader-scroll-top"
+              onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+              title="Back to top"
+              aria-label="Scroll to top"
+            >↑</button>
+          )}
           {/* Close */}
           <button className="reader-close" onClick={onClose} aria-label="Close reader">✕</button>
 
