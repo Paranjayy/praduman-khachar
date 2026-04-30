@@ -1,11 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./hooks/useTheme";
+import { CustomizerProvider } from "./hooks/useCustomizer";
 import { usePageTitle } from "./hooks/usePageTitle";
 import ScrollProgress from "./components/ScrollProgress";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
+import DesignCustomizer from "./components/DesignCustomizer";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -39,6 +41,7 @@ function AppInner() {
       </Routes>
       <Footer />
       <BackToTop />
+      <DesignCustomizer />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
     </>
@@ -47,9 +50,12 @@ function AppInner() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <div className="classic-grid-bg" />
-      <AppInner />
-    </ThemeProvider>
+    <CustomizerProvider>
+      <ThemeProvider>
+        <div className="classic-grid-bg" />
+        <AppInner />
+      </ThemeProvider>
+    </CustomizerProvider>
   );
 }
+
