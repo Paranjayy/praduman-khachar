@@ -9,6 +9,7 @@ import type {
   Book,
   BookCategory,
   Playlist,
+  ReadingItem,
 } from "../types";
 
 export const SITE: SiteConfig = {
@@ -268,3 +269,39 @@ export const PLAYLIST_CATEGORIES: Record<string, string> = {
   special: "Special Series",
 };
 
+
+export const READING_LIST: ReadingItem[] = [
+  {
+    title: "The History of Kathiawad",
+    author: "Wilberforce-Bell",
+    category: "reference",
+    note: "A foundational text for understanding the administrative history of Saurashtra states.",
+    link: "https://archive.org/details/historyofkathiaw00wilb"
+  },
+  {
+    title: "Ras Mala",
+    author: "Alexander Kinloch Forbes",
+    category: "literature",
+    note: "A masterpiece that captures the folk traditions and royal chronicles of Gujarat.",
+    link: "https://archive.org/details/rasmalahistorica01forb"
+  },
+  {
+    title: "Gazetteer of the Bombay Presidency: Kathiawar",
+    author: "James M. Campbell",
+    category: "reference",
+    note: "Essential data and geographical context for any researcher of the 19th-century Saurashtra.",
+    link: "https://archive.org/details/gazetteerbombay01campgoog"
+  },
+  {
+    title: "Saurashtrani Rasdhar",
+    author: "Zaverchand Meghani",
+    category: "literature",
+    note: "The soul of Saurashtra's oral history and folk bravery.",
+  }
+];
+
+export const READING_CATEGORIES: Record<string, string> = {
+  reference: "Academic & Reference",
+  literature: "Historical Literature",
+  primary: "Primary Sources",
+};

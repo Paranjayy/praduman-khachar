@@ -11,10 +11,24 @@ export default function Nav() {
   const { pathname } = useLocation();
 
   const links = [
+<<<<<<< Updated upstream
     ["Home", "/"],
     ["About", "/about"],
     ["Books", "/books"],
     ["Media", "/media"],
+=======
+    { label: "Home", to: "/" },
+    { label: "About", to: "/about" },
+    { label: "Books", to: "/books" },
+    { label: "Media", to: "/media" },
+    { label: "Articles", to: "/articles" },
+    { label: "Reading", to: "/reading" },
+    { label: "Topics", to: "/topics" },
+    { label: "Explore", to: "/explore" },
+    ...(!CONFIG.HIDE_WRITINGS ? [{ label: "Writings", to: "/writings" }] : []),
+    { label: "Press", to: "/press" },
+    { label: "Labs", to: "/labs" },
+>>>>>>> Stashed changes
   ];
 
   return (

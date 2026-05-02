@@ -68,3 +68,10 @@ export interface Playlist {
   id?: string;           // YouTube playlist ID (PLxxxxxxxx)
   thumbVideoId?: string; // Video ID for thumbnail (i.ytimg.com/vi/{id}/mqdefault.jpg)
 }
+export interface ReadingItem {
+  title: string;
+  author: string;
+  note?: string;      // Personal recommendation note from Dr. Khachar
+  link?: string;      // Link to Archive.org or Google Books
+  category: string;  // e.g. "Primary Sources", "Reference", "Literature"
+}
