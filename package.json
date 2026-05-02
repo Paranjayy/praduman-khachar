@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-stats.mjs && vite build",
+    "build": "node scripts/gen-stats.mjs && node scripts/gen-rss.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "scrape:channel": "node scripts/scrape-channel.mjs",
@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",

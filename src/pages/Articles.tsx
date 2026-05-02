@@ -170,12 +170,13 @@ function computeSentenceStats(text: string) {
 
 // ─── Article Reader (full-screen panel) ──────────────────────────────────────
 function ArticleReader({
-  v, onClose, allVideos, onRelated
+  v, onClose, allVideos, onRelated, startTime = 0
 }: {
   v: VideoArticle;
   onClose: () => void;
   allVideos?: VideoArticle[];
   onRelated: (v: VideoArticle) => void;
+  startTime?: number;
 }) {
   const paras = useMemo(() => formatTranscript(v.transcript), [v.transcript]);
   const toc = useMemo(() => buildTOC(paras), [paras]);
@@ -301,7 +302,7 @@ function ArticleReader({
             <div className="reader-yt-embed-wrap">
               <iframe
                 className="reader-yt-embed"
-                src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1`}
+                src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1${startTime ? `&start=${startTime}` : ''}`}
                 title={v.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -674,7 +675,7 @@ export default function ArticlesPage() {
   const [search, setSearch] = useState("");
   const [langFilter, setLangFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"date" | "words" | "views">("date");
-  const [openArticle, setOpenArticle] = useState<VideoArticle | null>(null);
+  const [openArticle, setOpenArticle] = useState<{ video: VideoArticle; startTime?: number } | null>(null);
 
   useEffect(() => {
     loadVideos().then(data => {
@@ -686,20 +687,25 @@ export default function ArticlesPage() {
     });
   }, []);
 
+  const handleOpen = useCallback((v: VideoArticle, t?: number) => {
+    setOpenArticle({ video: v, startTime: t });
+    const validSlug = v.slug && v.slug !== "-" ? v.slug : v.id;
+    const query = t ? `?t=${t}` : "";
+    navigate(`/articles/${validSlug}${query}`, { replace: false });
+    track("article_open", { videoId: v.id, title: v.title.slice(0, 50), t });
+  }, [navigate]);
+
   useEffect(() => {
     if (slug && slug !== "-" && videos && videos.length > 0) {
       const q = slug.toLowerCase();
       const match = videos.find(v => v.slug?.toLowerCase() === q || v.id?.toLowerCase() === q);
-      if (match) setOpenArticle(match);
+      if (match) {
+        const params = new URLSearchParams(window.location.search);
+        const t = parseInt(params.get("t") || "0");
+        handleOpen(match, t);
+      }
     }
-  }, [slug, videos]);
-
-  const handleOpen = useCallback((v: VideoArticle) => {
-    setOpenArticle(v);
-    const validSlug = v.slug && v.slug !== "-" ? v.slug : v.id;
-    navigate(`/articles/${validSlug}`, { replace: false });
-    track("article_open", { videoId: v.id, title: v.title.slice(0, 50) });
-  }, [navigate]);
+  }, [slug, videos, handleOpen]);
 
   const handleClose = useCallback(() => {
     setOpenArticle(null);
@@ -733,7 +739,8 @@ export default function ArticlesPage() {
     <>
       {openArticle && (
         <ArticleReader
-          v={openArticle}
+          v={openArticle.video}
+          startTime={openArticle.startTime}
           onClose={handleClose}
           allVideos={videos || []}
           onRelated={handleOpen}

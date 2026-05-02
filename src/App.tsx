@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import DesignCustomizer from "./components/DesignCustomizer";
 import CommandPalette from "./components/CommandPalette";
+import SurpriseMe from "./components/SurpriseMe";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -19,6 +20,7 @@ import ExplorePage from "./pages/Explore";
 import AdminPage from "./pages/Admin";
 import PressPage from "./pages/Press";
 import LabsPage from "./pages/Labs";
+import NotFoundPage from "./pages/NotFound";
 
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
@@ -39,10 +41,12 @@ function AppInner() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/labs" element={<LabsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
       <BackToTop />
       <CommandPalette />
+      <SurpriseMe />
       <DesignCustomizer />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Search, Moon, Sun, Globe, Dice5 } from "lucide-react";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
 import { SITE } from "../data/content";
@@ -8,11 +10,9 @@ import { CONFIG } from "../config";
 export default function Nav() {
   const scrolled = useScrolled(40);
   const [open, setOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { pathname } = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
-  const moreRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,177 +25,264 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close "More" dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    if (moreOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [moreOpen]);
-
   // Close everything on route change
   useEffect(() => {
     setOpen(false);
-    setMoreOpen(false);
   }, [pathname]);
 
-  const primaryLinks = [
-    ["Home", "/"],
-    ["About", "/about"],
-    ["Books", "/books"],
-    ["Media", "/media"],
-    ["Articles", "/articles"],
-    ["Explore", "/explore"],
+  // Lock scroll when menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [open]);
+
+  const links = [
+    { label: "Home", to: "/" },
+    { label: "About", to: "/about" },
+    { label: "Books", to: "/books" },
+    { label: "Media", to: "/media" },
+    { label: "Articles", to: "/articles" },
+    { label: "Explore", to: "/explore" },
+    ...(!CONFIG.HIDE_WRITINGS ? [{ label: "Writings", to: "/writings" }] : []),
+    { label: "Press", to: "/press" },
+    { label: "Labs", to: "/labs" },
   ];
 
-  const secondaryLinks = [
-    ...(!CONFIG.HIDE_WRITINGS ? [["Writings", "/writings"]] : []),
-    ["Press", "/press"],
-    ["Labs", "/labs"],
-  ];
-
-  const isSecondaryActive = secondaryLinks.some(([, to]) => pathname === to);
+  const handleSearchClick = () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+  };
 
   return (
     <nav className={`site-nav${scrolled ? " scrolled" : ""}`}>
       <div
         className="scroll-progress-bar"
         style={{
-          position: "absolute", top: 0, left: 0, height: "2px",
+          position: "absolute", top: 0, left: 0, height: "2.5px",
           background: "var(--c-terracotta)", width: `${scrollProgress}%`,
           transition: "width 0.1s ease-out", zIndex: 1000
         }}
       />
-      <Link to="/" className="nav-brand notranslate" translate="no" onClick={() => setOpen(false)}>
-        {SITE.name}
-      </Link>
+      
+      <div className="nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 'var(--max-w)', margin: '0 auto' }}>
+        <Link to="/" className="nav-brand notranslate" translate="no" style={{ zIndex: 1001 }}>
+          {SITE.name}
+        </Link>
 
-      <ul className={`nav-links${open ? " open" : ""}`}>
-        {primaryLinks.map(([label, to]) => (
-          <li key={to}>
-            <Link
-              to={to}
-              className={pathname === to ? "active" : ""}
-              onClick={() => setOpen(false)}
-            >
-              {label}
-            </Link>
-          </li>
-        ))}
-
-        {/* More dropdown — click-based with React state */}
-        {secondaryLinks.length > 0 && (
-          <li ref={moreRef} className={`nav-more-item${moreOpen ? " open" : ""}`}>
-            <button
-              className={`nav-more-trigger${isSecondaryActive ? " active" : ""}`}
-              onClick={() => setMoreOpen(prev => !prev)}
-              aria-expanded={moreOpen}
-              aria-haspopup="true"
-            >
-              More {moreOpen ? "▴" : "▾"}
-            </button>
-            {moreOpen && (
-              <ul className="nav-more-dropdown" role="menu">
-                {secondaryLinks.map(([label, to]) => (
-                  <li key={to} role="none">
-                    <Link
-                      to={to}
-                      role="menuitem"
-                      className={pathname === to ? "active" : ""}
-                      onClick={() => { setOpen(false); setMoreOpen(false); }}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        )}
-
-        {/* Mobile: secondary links shown inline when hamburger is open */}
-        {open && secondaryLinks.map(([label, to]) => (
-          <li key={`mob-${to}`} className="nav-mobile-secondary">
-            <Link
-              to={to}
-              className={pathname === to ? "active" : ""}
-              onClick={() => setOpen(false)}
-            >
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-
-      <div className="nav-actions">
-        {/* Search button — opens ⌘K command palette */}
-        <button
-          className="nav-search-btn"
-          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
-          title="Search (⌘K)"
-          aria-label="Open search"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <span className="nav-search-kbd">⌘K</span>
-        </button>
-        <select
-          className="lang-select"
-          onChange={(e) => {
-            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-            if (select) {
-              select.value = e.target.value;
-              select.dispatchEvent(new Event('change'));
-            }
-          }}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--c-border)',
-            color: 'var(--c-ink-soft)',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            fontFamily: 'var(--font-body)',
-            cursor: 'pointer',
-            marginRight: '0.5rem'
-          }}
-        >
-          <option value="en">English</option>
-          <option value="gu">ગુજરાતી (Gujarati)</option>
-          <option value="hi">हिंदी (Hindi)</option>
-        </select>
-        <button
-          className="theme-toggle"
-          onClick={toggle}
-          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-          title={dark ? "Light mode" : "Dark mode"}
-        >
-          {dark ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="5" />
-              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-            </svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
+        {/* Desktop Links */}
+        <ul className="nav-links desktop-only">
+          {links.slice(0, 6).map((link) => (
+            <li key={link.to}>
+              <Link to={link.to} className={pathname === link.to ? "active" : ""}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
+          {links.length > 6 && (
+             <li className="nav-more-item">
+                <span className="nav-more-trigger">More ▾</span>
+                <ul className="nav-more-dropdown">
+                  {links.slice(6).map(link => (
+                    <li key={link.to}><Link to={link.to} className={pathname === link.to ? "active" : ""}>{link.label}</Link></li>
+                  ))}
+                </ul>
+             </li>
           )}
-        </button>
+        </ul>
 
-        <button
-          className="nav-toggle"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        <div className="nav-actions">
+          <button className="nav-search-btn" onClick={handleSearchClick} aria-label="Search">
+            <Search size={18} />
+            <span className="nav-search-kbd">⌘K</span>
+          </button>
+          
+          <div className="lang-switcher-wrap">
+            <Globe size={16} />
+            <select
+              className="lang-select-premium"
+              onChange={(e) => {
+                const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+                if (select) {
+                  select.value = e.target.value;
+                  select.dispatchEvent(new Event('change'));
+                }
+              }}
+            >
+              <option value="en">EN</option>
+              <option value="gu">ગુજરાતી</option>
+              <option value="hi">हिंदी</option>
+            </select>
+          </div>
+
+          <button className="theme-toggle" onClick={toggle} aria-label="Toggle Theme">
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
+          <button className="nav-toggle-premium" onClick={() => setOpen(!open)} aria-label="Menu">
+            {open ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="mobile-nav-overlay"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          >
+            <div className="mobile-nav-content">
+              <motion.ul 
+                className="mobile-nav-links"
+                initial="closed"
+                animate="open"
+                variants={{
+                  open: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+                  closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
+                }}
+              >
+                {links.map((link) => (
+                  <motion.li
+                    key={link.to}
+                    variants={{
+                      open: { y: 0, opacity: 1 },
+                      closed: { y: 20, opacity: 0 }
+                    }}
+                  >
+                    <Link
+                      to={link.to}
+                      className={pathname === link.to ? "active" : ""}
+                      onClick={() => setOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.li>
+                ))}
+              </motion.ul>
+
+              <motion.div 
+                className="mobile-nav-footer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <p className="mobile-nav-site-info">© {new Date().getFullYear()} {SITE.name}</p>
+                <div className="mobile-nav-socials">
+                  {/* Quick social links could go here */}
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        .nav-container { padding: 0 var(--space-lg); }
+        .desktop-only { display: flex; }
+        .nav-toggle-premium { display: none; background: none; border: none; cursor: pointer; color: var(--c-ink); padding: 5px; }
+        
+        .lang-switcher-wrap {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid var(--c-border);
+          padding: 4px 10px;
+          border-radius: 20px;
+          color: var(--c-ink-soft);
+          margin-right: 0.5rem;
+          transition: all 0.3s ease;
+        }
+        
+        .lang-switcher-wrap:hover {
+          border-color: var(--c-terracotta);
+          color: var(--c-terracotta);
+        }
+        
+        .lang-select-premium {
+          background: none;
+          border: none;
+          color: inherit;
+          font-family: var(--font-body);
+          font-size: 0.75rem;
+          font-weight: 600;
+          cursor: pointer;
+          outline: none;
+        }
+        
+        .mobile-nav-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: color-mix(in oklch, var(--c-parchment) 95%, transparent);
+          backdrop-filter: blur(20px) saturate(1.5);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          padding-top: 6rem;
+        }
+        
+        .mobile-nav-content {
+          padding: 0 var(--space-xl);
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+        
+        .mobile-nav-links {
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        
+        .mobile-nav-links a {
+          font-family: var(--font-display);
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: var(--c-ink-muted);
+          text-decoration: none;
+          transition: color 0.3s ease;
+        }
+        
+        .mobile-nav-links a.active {
+          color: var(--c-terracotta);
+        }
+        
+        .mobile-nav-footer {
+          margin-top: auto;
+          padding-bottom: 3rem;
+          border-top: 1px solid var(--c-border-light);
+          padding-top: 2rem;
+        }
+        
+        .mobile-nav-site-info {
+          font-family: var(--font-body);
+          font-size: 0.8rem;
+          color: var(--c-ink-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 900px) {
+          .desktop-only { display: none; }
+          .nav-toggle-premium { display: block; }
+          .nav-search-kbd { display: none; }
+        }
+        
+        @media (max-width: 600px) {
+           .nav-brand { font-size: 0.9rem; }
+           .lang-switcher-wrap { padding: 4px 6px; }
+           .lang-select-premium { font-size: 0.7rem; }
+           .mobile-nav-links a { font-size: 1.8rem; }
+        }
+      `}</style>
     </nav>
   );
 }

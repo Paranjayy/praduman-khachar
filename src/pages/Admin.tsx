@@ -122,17 +122,18 @@ function EditorForm({
   const [tagInput, setTagInput] = useState(initial.tags.join(", "));
   const [exported, setExported] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [manualSlug, setManualSlug] = useState(!!initial.id);
 
   const update = useCallback(<K extends keyof Writing>(k: K, v: Writing[K]) => {
     setForm((f) => {
       const next = { ...f, [k]: v };
       // Auto-generate id from title if id is empty or was auto-generated
-      if (k === "title") {
+      if (k === "title" && !manualSlug) {
         next.id = slugify(v as string);
       }
       return next;
     });
-  }, []);
+  }, [manualSlug]);
 
   const updatePara = (i: number, val: string) => {
     setForm((f) => {
@@ -172,7 +173,7 @@ function EditorForm({
       <div className="admin-editor-header">
         <button className="admin-back-btn" onClick={onCancel}>← Back</button>
         <div className="admin-editor-title-row">
-          <h2>{form.id ? `Editing: ${form.title || "Untitled"}` : "New Article"}</h2>
+          <h2>{initial.id ? `Editing: ${form.title || "Untitled"}` : "New Article"}</h2>
           <div className="admin-editor-stats">
             <span>{wordCount.toLocaleString()} words</span>
             <span>~{readMin} min read</span>
@@ -240,10 +241,25 @@ function EditorForm({
             />
           </div>
 
-          {/* ID preview */}
-          <div className="admin-field admin-field-inline">
-            <label className="admin-label">Auto URL slug</label>
-            <code className="admin-slug">/writings/{form.id || "..."}</code>
+          {/* ID / Slug */}
+          <div className="admin-field">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label className="admin-label">URL Slug (id)*</label>
+              <label style={{ fontSize: '0.8rem', opacity: 0.7, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input type="checkbox" checked={manualSlug} onChange={e => setManualSlug(e.target.checked)} />
+                Edit manually
+              </label>
+            </div>
+            <div className="admin-slug-wrapper">
+              <span className="admin-slug-prefix">/writings/</span>
+              <input
+                className="admin-input slug-input"
+                value={form.id}
+                onChange={(e) => update("id", slugify(e.target.value))}
+                disabled={!manualSlug}
+                placeholder="slug-here"
+              />
+            </div>
           </div>
 
           {/* Row: Date, Lang, Category */}
@@ -371,7 +387,7 @@ function AdminDashboard({
   onNew: () => void;
   onDelete: (id: string) => void;
 }) {
-  const [activeTab, setActiveTab] = useState<"writings" | "analytics" | "settings">("writings");
+  const [activeTab, setActiveTab] = useState<"writings" | "books" | "design" | "analytics" | "settings">("writings");
   const published = WRITINGS.length;
 
   return (
@@ -390,8 +406,10 @@ function AdminDashboard({
 
       <div className="yt-tabs" style={{ marginBottom: "2rem" }}>
         <button className={`yt-tab ${activeTab === "writings" ? "active" : ""}`} onClick={() => setActiveTab("writings")}>Writings CMS</button>
-        <button className={`yt-tab ${activeTab === "analytics" ? "active" : ""}`} onClick={() => setActiveTab("analytics")}>Vercel Analytics</button>
-        <button className={`yt-tab ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("settings")}>Settings & Flags</button>
+        <button className={`yt-tab ${activeTab === "books" ? "active" : ""}`} onClick={() => setActiveTab("books")}>Books CMS</button>
+        <button className={`yt-tab ${activeTab === "design" ? "active" : ""}`} onClick={() => setActiveTab("design")}>Design & Layout</button>
+        <button className={`yt-tab ${activeTab === "analytics" ? "active" : ""}`} onClick={() => setActiveTab("analytics")}>Analytics</button>
+        <button className={`yt-tab ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("settings")}>Settings</button>
       </div>
 
       {activeTab === "writings" && (
@@ -471,6 +489,78 @@ function AdminDashboard({
             </div>
           )}
         </>
+      )}
+
+      {activeTab === "books" && (
+        <section className="admin-section">
+          <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 className="admin-section-title">Bibliography Manager</h2>
+            <button className="admin-btn-primary">+ Add Missing Book</button>
+          </div>
+          <p style={{ opacity: 0.8, marginBottom: "2rem" }}>
+            Add and manage books in the collection. Currently 33 books are listed in the database.
+          </p>
+          
+          <div className="admin-articles-list">
+            {/* This would ideally map through books and allow editing */}
+            <div className="admin-empty">
+              <div className="admin-empty-icon">📚</div>
+              <p>Books CMS is being prepared. You can soon edit titles, categories, and ISBNs directly.</p>
+              <div className="admin-export-hint" style={{ marginTop: '1rem' }}>
+                Currently 23/33 books are selected by Library of Congress, USA.
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {activeTab === "design" && (
+        <section className="admin-section">
+          <h2 className="admin-section-title">Visual Identity & Layout</h2>
+          <p style={{ opacity: 0.8, marginBottom: "2rem" }}>Organize the visual structure and branding of the portfolio.</p>
+
+          <div className="admin-articles-list">
+            <div className="admin-article-row">
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>Homepage Hero Layout</h3>
+                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Choose between "Scholarly Minimal" and "Media Rich" hero designs.</p>
+              </div>
+              <select className="admin-select" style={{ width: 'auto' }}>
+                <option>Scholarly Minimal (Default)</option>
+                <option>Media Rich</option>
+                <option>Classic Grid</option>
+              </select>
+            </div>
+
+            <div className="admin-article-row">
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>Primary Font Family</h3>
+                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Global typography setting for the entire application.</p>
+              </div>
+              <select className="admin-select" style={{ width: 'auto' }}>
+                <option>Outfit (Modern)</option>
+                <option>Inter (Clean)</option>
+                <option>EB Garamond (Classic)</option>
+              </select>
+            </div>
+
+            <div className="admin-article-row">
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>Color Accents</h3>
+                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Adjust the primary hue used for buttons, pills, and highlights.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#C05621', border: '2px solid white' }} />
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#2B6CB0' }} />
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#2D3748' }} />
+              </div>
+            </div>
+          </div>
+          
+          <div className="admin-export-hint" style={{ marginTop: '2rem' }}>
+            <strong>Coming Soon:</strong> Drag-and-drop homepage section reordering.
+          </div>
+        </section>
       )}
 
       {activeTab === "analytics" && (
