@@ -124,10 +124,12 @@ interface BookCardProps {
   titleGu?: string;
   category: string;
   year?: string;
+  publisher?: string;
+  price?: string;
   index: number;
 }
 
-function BookCard({ title, titleGu, category, year, index }: BookCardProps) {
+function BookCard({ title, titleGu, category, year, publisher, price, index }: BookCardProps) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 
@@ -144,6 +146,14 @@ function BookCard({ title, titleGu, category, year, index }: BookCardProps) {
       <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
       <div className="book-title">{title}</div>
       {titleGu && <div className="book-gujarati">{titleGu}</div>}
+      <div className="book-details" style={{ marginTop: '0.75rem', borderTop: '1px solid var(--c-border-light)', paddingTop: '0.75rem' }}>
+        {publisher && (
+          <div className="book-detail">
+            <span className="book-detail-label">Publisher</span>
+            <span className="book-detail-val">{publisher}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

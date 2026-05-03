@@ -102,7 +102,7 @@ interface BookFullCardProps extends Book {
   index: number;
 }
 
-function BookFullCard({ title, titleGu, category, year, locSelected, index }: BookFullCardProps) {
+function BookFullCard({ title, titleGu, category, year, locSelected, publisher, price, index }: BookFullCardProps) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 
@@ -119,20 +119,39 @@ function BookFullCard({ title, titleGu, category, year, locSelected, index }: Bo
       <div className="book-card-visual">
         <div className="book-spine"></div>
         <div className="book-cover-placeholder">
-          <span>{titleGu ? titleGu[0] : title[0]}</span>
+          <div className="book-cover-inner">
+             <span className="book-cover-letter">{titleGu ? titleGu[0] : title[0]}</span>
+             {year && <span className="book-cover-year">{year}</span>}
+          </div>
         </div>
       </div>
       <div className="book-card-body">
         <div className="book-meta-row">
-          <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
+          <div className="book-number">{categoryLabel}</div>
           {locSelected && (
             <div className="loc-badge" title="Selected by Library of Congress, USA">
               <span className="loc-icon">🏛️</span> LOC
             </div>
           )}
         </div>
-        <div className="book-title">{title}</div>
+        <h3 className="book-title">{title}</h3>
         {titleGu && <div className="book-gujarati">{titleGu}</div>}
+        
+        <div className="book-details">
+          {publisher && (
+            <div className="book-detail">
+              <span className="book-detail-label">Publisher</span>
+              <span className="book-detail-val">{publisher}</span>
+            </div>
+          )}
+          {price && (
+            <div className="book-detail">
+              <span className="book-detail-label">Price</span>
+              <span className="book-detail-val">{price}</span>
+            </div>
+          )}
+        </div>
+
         <div className="book-index-tag">#{String(index + 1).padStart(2, "0")}</div>
       </div>
     </div>

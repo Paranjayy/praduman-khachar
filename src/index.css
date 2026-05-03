@@ -572,21 +572,67 @@ img { max-width: 100%; display: block; }
 }
 .books-search:focus { outline: none; border-color: var(--c-terracotta); }
 .books-result-count { font-size: 0.8rem; color: var(--c-ink-muted); white-space: nowrap; }
-.books-grid-full { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-.book-card-full { display: flex; gap: var(--space-md); align-items: flex-start; }
-.book-card-index {
-  font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
-  color: var(--c-terracotta); min-width: 2rem; opacity: 0.6;
+
+.books-grid-full { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: var(--space-xl); }
+.book-card-full { 
+  display: flex; gap: var(--space-lg); align-items: stretch; 
+  padding: var(--space-md); background: var(--c-parchment);
+  border: 1px solid var(--c-border-light); border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
-.empty-state { text-align: center; padding: var(--space-2xl); color: var(--c-ink-muted); font-style: italic; }
-.books-page-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: var(--c-border); border: 1px solid var(--c-border);
-  margin-top: var(--space-2xl);
+.book-card-full:hover { 
+  border-color: var(--c-terracotta); 
+  transform: translateY(-4px); 
+  box-shadow: var(--shadow-lg); 
 }
-.bps-item { background: var(--c-parchment); padding: var(--space-lg) var(--space-md); text-align: center; }
-.bps-number { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2.2rem); font-weight: 700; color: var(--c-terracotta); display: block; }
-.bps-label { font-size: 0.75rem; color: var(--c-ink-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: var(--space-xs); display: block; }
+
+.book-card-visual { 
+  position: relative; flex-shrink: 0; width: 100px; 
+  height: 140px; background: var(--c-ink); border-radius: 4px 8px 8px 4px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+.book-spine {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+  background: rgba(255,255,255,0.1); border-right: 1px solid rgba(0,0,0,0.2);
+  z-index: 2;
+}
+.book-cover-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--c-ink) 0%, #2a2622 100%);
+  color: var(--c-parchment); position: relative;
+}
+.book-cover-inner {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.book-cover-letter { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; opacity: 0.3; }
+.book-cover-year { font-size: 0.65rem; letter-spacing: 0.1em; opacity: 0.6; }
+
+.book-card-body { flex: 1; display: flex; flex-direction: column; }
+.book-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.book-number { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-terracotta); font-weight: 600; }
+.loc-badge { font-size: 0.65rem; background: var(--c-amber-light); color: #78350f; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: flex; align-items: center; gap: 3px; }
+
+.book-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--c-ink); line-height: 1.3; margin-bottom: 4px; }
+.book-gujarati { font-size: 0.95rem; color: var(--c-ink-soft); margin-bottom: 0.75rem; font-weight: 500; }
+
+.book-details { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+.book-detail { display: flex; flex-direction: column; }
+.book-detail-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-ink-muted); }
+.book-detail-val { font-size: 0.78rem; color: var(--c-ink-soft); font-weight: 500; line-height: 1.2; }
+
+.book-index-tag { 
+  position: absolute; bottom: 8px; right: 12px; 
+  font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; 
+  color: var(--c-ink); opacity: 0.03; pointer-events: none;
+}
+
+[data-theme="dark"] .book-card-full { background: #161210; border-color: #2a2622; }
+[data-theme="dark"] .book-card-visual { background: #000; }
+[data-theme="dark"] .book-cover-placeholder { background: linear-gradient(135deg, #000 0%, #1a1714 100%); }
+[data-theme="dark"] .book-title { color: var(--c-ink); }
+[data-theme="dark"] .book-detail-val { color: var(--c-ink-soft); }
 
 /* ── MEDIA PAGE ── */
 .media-page-hero {
