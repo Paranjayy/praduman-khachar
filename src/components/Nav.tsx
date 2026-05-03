@@ -220,31 +220,35 @@ export default function Nav() {
           width: 100%; 
           max-width: var(--max-w); 
           margin: 0 auto;
-          padding: 0 var(--space-lg); 
+          padding: 0 var(--space-lg);
+          height: 4.5rem; /* Standardized height for perfect centering */
         }
-        .desktop-only { display: flex; list-style: none; gap: var(--space-md); }
+        .desktop-only { display: flex; list-style: none; gap: var(--space-lg); align-items: center; }
         .nav-toggle-premium { display: none; background: none; border: none; cursor: pointer; color: var(--c-ink); padding: 5px; }
         
-        .nav-more-item { position: relative; }
+        .nav-more-item { position: relative; display: flex; align-items: center; }
         .nav-more-trigger {
           background: none;
           border: none;
           color: var(--c-ink-soft);
           font-family: var(--font-body);
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 4px;
-          padding: 8px 12px;
+          padding: 0;
+          height: 100%;
           transition: all 0.3s ease;
         }
         .nav-more-trigger:hover, .nav-more-trigger.active { color: var(--c-terracotta); }
         
         .nav-more-dropdown {
           position: absolute;
-          top: 100%;
+          top: calc(100% + 10px);
           right: 0;
           background: var(--c-parchment);
           border: 1px solid var(--c-border);
@@ -252,7 +256,7 @@ export default function Nav() {
           box-shadow: var(--shadow-lg);
           list-style: none;
           padding: 8px;
-          min-width: 160px;
+          min-width: 180px;
           z-index: 1000;
           display: flex;
           flex-direction: column;
@@ -261,7 +265,7 @@ export default function Nav() {
         
         .nav-more-dropdown a {
           display: block;
-          padding: 8px 16px;
+          padding: 10px 16px;
           color: var(--c-ink-soft);
           text-decoration: none;
           font-size: 0.85rem;
@@ -284,10 +288,10 @@ export default function Nav() {
           align-items: center;
           gap: 6px;
           border: 1px solid var(--c-border);
-          padding: 4px 10px;
+          padding: 0 12px;
+          height: 36px; /* Match theme-toggle height */
           border-radius: 20px;
           color: var(--c-ink-soft);
-          margin-right: 0.5rem;
           transition: all 0.3s ease;
         }
         
@@ -305,6 +309,7 @@ export default function Nav() {
           font-weight: 600;
           cursor: pointer;
           outline: none;
+          padding-right: 4px;
         }
         
         .mobile-nav-overlay {

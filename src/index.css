@@ -67,7 +67,7 @@ img { max-width: 100%; display: block; }
 /* ── NAV ── */
 .site-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: var(--space-sm) var(--space-lg);
+  padding: 0;
   display: flex; justify-content: space-between; align-items: center;
   backdrop-filter: blur(12px) saturate(1.4);
   background: color-mix(in oklch, var(--c-parchment) 85%, transparent);
@@ -78,14 +78,17 @@ img { max-width: 100%; display: block; }
 .nav-brand {
   font-family: var(--font-display); font-size: clamp(0.9rem, 1.2vw, 1.1rem);
   font-weight: 600; color: var(--c-ink); letter-spacing: 0.02em;
+  display: flex; align-items: center; height: 100%;
 }
-.nav-links { display: flex; gap: var(--space-md); list-style: none; }
+.nav-links { display: flex; gap: var(--space-lg); list-style: none; height: 100%; align-items: stretch; }
+.nav-links li { display: flex; align-items: center; }
 .nav-links a {
   font-family: var(--font-body); font-size: 0.85rem; color: var(--c-ink-soft);
-  letter-spacing: 0.04em; text-transform: uppercase; position: relative; padding-bottom: 2px;
+  letter-spacing: 0.04em; text-transform: uppercase; position: relative; 
+  display: flex; align-items: center; height: 100%;
 }
 .nav-links a::after {
-  content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1.5px;
+  content: ''; position: absolute; bottom: 1.2rem; left: 0; width: 0; height: 1.5px;
   background: var(--c-terracotta); transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .nav-links a:hover { color: var(--c-ink); }
@@ -542,7 +545,7 @@ img { max-width: 100%; display: block; }
 [data-theme="dark"] .nav-links a:hover { color: var(--c-ink); }
 
 /* ── THEME TOGGLE ── */
-.nav-actions { display: flex; align-items: center; gap: var(--space-sm); }
+.nav-actions { display: flex; align-items: center; gap: var(--space-md); }
 .theme-toggle {
   background: none; border: 1px solid var(--c-border); cursor: pointer;
   width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
@@ -3556,14 +3559,15 @@ body { top: 0px !important; }
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
+  padding: 0 1rem;
+  height: 36px; /* Match other action buttons */
   background: var(--c-parchment-deep);
   border: 1px solid var(--c-border);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--c-ink-muted);
   cursor: pointer;
   font-family: var(--font-body);
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 .nav-search-btn:hover {
