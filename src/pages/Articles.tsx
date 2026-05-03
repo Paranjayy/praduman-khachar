@@ -526,17 +526,6 @@ function ArticleReader({
           {/* Timestamps view — clickable YouTube deep-links */}
           {!CONFIG.HIDE_TRANSCRIPTS && viewMode === 'timestamps' && segments.length > 0 && (
             <div className="reader-timestamps">
-              <p className="reader-timestamps-hint">⏱ Click any timestamp to jump to that moment in the player.</p>
-              {segments.map((seg, i) => (
-                <button
-                  key={i}
-                  onClick={() => onRelated({...v, startTime: seg.t} as any)}
-                  className="reader-ts-row"
-                  style={{ background: 'none', width: '100%', textAlign: 'left', border: 'none', padding: 'var(--space-sm) var(--space-md)', cursor: 'pointer' }}
-                >
-                  <span className="reader-ts-time">{fmtTime(seg.t)}</span>
-                  <span className="reader-ts-text">{seg.text}</span>
-                </button>
               <p className="reader-timestamps-hint">⏱ Click any timestamp to jump to that moment on YouTube.</p>
               {segments.map((seg, i) => (
                 <a
