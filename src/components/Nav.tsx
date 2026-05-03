@@ -40,10 +40,6 @@ export default function Nav() {
   }, [open]);
 
   const links = [
-    ["Home", "/"],
-    ["About", "/about"],
-    ["Books", "/books"],
-    ["Media", "/media"],
     { label: "Home", to: "/" },
     { label: "About", to: "/about" },
     { label: "Books", to: "/books" },
