@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CustomizerProvider } from "./hooks/useCustomizer";
@@ -23,6 +23,7 @@ import LabsPage from "./pages/Labs";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
+import { CONFIG } from "./data/content";
 
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
@@ -35,10 +36,20 @@ function AppInner() {
         <Route path="/books" element={<BooksPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/articles" element={<ArticlesPage />} />
-        <Route path="/articles/:slug" element={<ArticlesPage />} />
+        
+        {/* Conditional Routes to prevent content theft */}
+        {!CONFIG.HIDE_ARTICLES ? (
+          <>
+            <Route path="/articles" element={<ArticlesPage />} />
+            <Route path="/articles/:slug" element={<ArticlesPage />} />
+          </>
+        ) : (
+          <Route path="/articles/*" element={<Navigate to="/" replace />} />
+        )}
+
         <Route path="/writings" element={<WritingsPage />} />
         <Route path="/writings/:slug" element={<WritingsPage />} />
+        
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/press" element={<PressPage />} />
@@ -68,4 +79,3 @@ export default function App() {
     </CustomizerProvider>
   );
 }
-

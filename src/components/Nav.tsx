@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, Moon, Sun, Globe, Dice5 } from "lucide-react";
+import { Menu, X, Search, Moon, Sun, Globe } from "lucide-react";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
 import { SITE } from "../data/content";
-import { CONFIG } from "../config";
+import { CONFIG } from "../data/content";
 
 export default function Nav() {
   const scrolled = useScrolled(40);
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { pathname } = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const moreRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,9 +30,21 @@ export default function Nav() {
   // Close everything on route change
   useEffect(() => {
     setOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
-  // Lock scroll when menu is open
+  // Handle click outside for 'More' dropdown
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  // Lock scroll when mobile menu is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -44,11 +58,10 @@ export default function Nav() {
     { label: "About", to: "/about" },
     { label: "Books", to: "/books" },
     { label: "Media", to: "/media" },
-    { label: "Articles", to: "/articles" },
+    { label: "Explore", to: "/explore" },
+    ...(!CONFIG.HIDE_ARTICLES ? [{ label: "Articles", to: "/articles" }] : []),
     { label: "Reading", to: "/reading" },
     { label: "Topics", to: "/topics" },
-    { label: "Explore", to: "/explore" },
-    ...(!CONFIG.HIDE_WRITINGS ? [{ label: "Writings", to: "/writings" }] : []),
     { label: "Press", to: "/press" },
     { label: "Labs", to: "/labs" },
   ];
@@ -68,28 +81,47 @@ export default function Nav() {
         }}
       />
       
-      <div className="nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 'var(--max-w)', margin: '0 auto' }}>
+      <div className="nav-container">
         <Link to="/" className="nav-brand notranslate" translate="no" style={{ zIndex: 1001 }}>
           {SITE.name}
         </Link>
 
         {/* Desktop Links */}
         <ul className="nav-links desktop-only">
-          {links.slice(0, 6).map((link) => (
+          {links.slice(0, 5).map((link) => (
             <li key={link.to}>
               <Link to={link.to} className={pathname === link.to ? "active" : ""}>
                 {link.label}
               </Link>
             </li>
           ))}
-          {links.length > 6 && (
-             <li className="nav-more-item">
-                <span className="nav-more-trigger">More ▾</span>
-                <ul className="nav-more-dropdown">
-                  {links.slice(6).map(link => (
-                    <li key={link.to}><Link to={link.to} className={pathname === link.to ? "active" : ""}>{link.label}</Link></li>
-                  ))}
-                </ul>
+          {links.length > 5 && (
+             <li className="nav-more-item" ref={moreRef}>
+                <button 
+                  className={`nav-more-trigger${moreOpen ? ' active' : ''}`}
+                  onClick={() => setMoreOpen(!moreOpen)}
+                >
+                  More ▾
+                </button>
+                <AnimatePresence>
+                  {moreOpen && (
+                    <motion.ul 
+                      className="nav-more-dropdown"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {links.slice(5).map(link => (
+                        <li key={link.to}>
+                          <Link to={link.to} className={pathname === link.to ? "active" : ""}>
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
              </li>
           )}
         </ul>
@@ -174,9 +206,6 @@ export default function Nav() {
                 transition={{ delay: 0.5 }}
               >
                 <p className="mobile-nav-site-info">© {new Date().getFullYear()} {SITE.name}</p>
-                <div className="mobile-nav-socials">
-                  {/* Quick social links could go here */}
-                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -184,10 +213,72 @@ export default function Nav() {
       </AnimatePresence>
 
       <style>{`
-        .nav-container { padding: 0 var(--space-lg); }
-        .desktop-only { display: flex; }
+        .nav-container { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          width: 100%; 
+          max-width: var(--max-w); 
+          margin: 0 auto;
+          padding: 0 var(--space-lg); 
+        }
+        .desktop-only { display: flex; list-style: none; gap: var(--space-md); }
         .nav-toggle-premium { display: none; background: none; border: none; cursor: pointer; color: var(--c-ink); padding: 5px; }
         
+        .nav-more-item { position: relative; }
+        .nav-more-trigger {
+          background: none;
+          border: none;
+          color: var(--c-ink-soft);
+          font-family: var(--font-body);
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 8px 12px;
+          transition: all 0.3s ease;
+        }
+        .nav-more-trigger:hover, .nav-more-trigger.active { color: var(--c-terracotta); }
+        
+        .nav-more-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background: var(--c-parchment);
+          border: 1px solid var(--c-border);
+          border-radius: 12px;
+          box-shadow: var(--shadow-lg);
+          list-style: none;
+          padding: 8px;
+          min-width: 160px;
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        .nav-more-dropdown a {
+          display: block;
+          padding: 8px 16px;
+          color: var(--c-ink-soft);
+          text-decoration: none;
+          font-size: 0.85rem;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+        
+        .nav-more-dropdown a:hover {
+          background: var(--c-border-light);
+          color: var(--c-ink);
+        }
+        
+        .nav-more-dropdown a.active {
+          color: var(--c-terracotta);
+          background: color-mix(in oklch, var(--c-terracotta) 10%, transparent);
+        }
+
         .lang-switcher-wrap {
           display: flex;
           align-items: center;
