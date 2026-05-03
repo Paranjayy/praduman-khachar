@@ -96,25 +96,38 @@ export default function BooksPage() {
   );
 }
 
-function BookFullCard({ title, titleGu, category, year, index }) {
+function BookFullCard({ title, titleGu, category, year, locSelected, index }) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 
   return (
     <div
       ref={ref}
-      className="book-card book-card-full"
+      className={`book-card book-card-full ${locSelected ? "loc-selected" : ""}`}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(16px)",
         transition: `all 0.45s ${Math.min(index * 0.03, 0.4)}s cubic-bezier(0.16, 1, 0.3, 1)`,
       }}
     >
-      <div className="book-card-index">{String(index + 1).padStart(2, "0")}</div>
+      <div className="book-card-visual">
+        <div className="book-spine"></div>
+        <div className="book-cover-placeholder">
+          <span>{titleGu ? titleGu[0] : title[0]}</span>
+        </div>
+      </div>
       <div className="book-card-body">
-        <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
+        <div className="book-meta-row">
+          <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
+          {locSelected && (
+            <div className="loc-badge" title="Selected by Library of Congress, USA">
+              <span className="loc-icon">🏛️</span> LOC
+            </div>
+          )}
+        </div>
         <div className="book-title">{title}</div>
         {titleGu && <div className="book-gujarati">{titleGu}</div>}
+        <div className="book-index-tag">#{String(index + 1).padStart(2, "0")}</div>
       </div>
     </div>
   );

@@ -108,8 +108,17 @@
 - Include a gallery or timeline of academic milestones and awards received over the 33+ years of teaching.
 - later we can add any language support maybe why not lol but we would only show the primary three languages as english/gujarati and hindi thats all but in that same dropdown there would be more button to show all other languages lol and it would have search in case any1 wanna search their language and same semantic search needs to work too btw 
 - maybe add polling and some nice features too ig idk
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 =======
 - later we can add any language support maybe why not lol but we would only show the primary three languages as english/gujarati and hindi thats all but in that same dropdown there would be more button to show all other languages lol and it would have search in case any1 wanna search their language and same semantic search needs to work too btw 
 - maybe add polling and some nice features too ig idk
+>>>>>>> Stashed changes
+=======
+- explore subdomains and use it as shortlink or redirecting (e.g. go.praduman.com/link)
+- create better design of main branch in different branch with a "goated designer model" to see different paths
+- "Inspiration" section for Dr. Khachar to add literature he likes, including photos, metadata, and personal notes.
+- Historical Gallery for exhibition photos and rare document scans.
+- Advanced Admin customizations (toggle sections, reorder layout, change theme accents).
+- Branch-based experimental redesigns to explore different aesthetic directions.
 >>>>>>> Stashed changes
