@@ -1,9 +1,15 @@
 import { Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./hooks/useTheme";
+import { CustomizerProvider } from "./hooks/useCustomizer";
+import { usePageTitle } from "./hooks/usePageTitle";
 import ScrollProgress from "./components/ScrollProgress";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
+import DesignCustomizer from "./components/DesignCustomizer";
+import CommandPalette from "./components/CommandPalette";
+import SurpriseMe from "./components/SurpriseMe";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -18,9 +24,10 @@ import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
 
-export default function App() {
+function AppInner() {
+  usePageTitle(); // Updates document.title on every route change
   return (
-    <ThemeProvider>
+    <>
       <ScrollProgress />
       <Nav />
       <Routes>
@@ -42,6 +49,23 @@ export default function App() {
       </Routes>
       <Footer />
       <BackToTop />
-    </ThemeProvider>
+      <CommandPalette />
+      <SurpriseMe />
+      <DesignCustomizer />
+      {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
+      <Analytics />
+    </>
   );
 }
+
+export default function App() {
+  return (
+    <CustomizerProvider>
+      <ThemeProvider>
+        <div className="classic-grid-bg" />
+        <AppInner />
+      </ThemeProvider>
+    </CustomizerProvider>
+  );
+}
+

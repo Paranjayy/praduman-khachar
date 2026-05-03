@@ -34,7 +34,7 @@ export default function About() {
           </p>
           <p>
             Beyond the written word, he has embraced modern media — uploading
-            485+ educational videos to YouTube, appearing on All India Radio
+            575+ educational videos to YouTube, appearing on All India Radio
             and Doordarshan, and contributing as a columnist to Mumbai Samachar
             and Fulchhab. He serves as Convener of INTACH's Junagadh chapter,
             safeguarding the region's architectural and cultural legacy.

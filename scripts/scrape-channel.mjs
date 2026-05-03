@@ -84,6 +84,36 @@ function parseVTT(content) {
     .trim();
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Parse VTT into timestamped segments: [{t: seconds, text: string}]
+ * VTT format: HH:MM:SS.mmm --> HH:MM:SS.mmm\ntext\n\n
+ */
+function parseVTTWithTimestamps(content) {
+  const segments = [];
+  // Match cues: optional id, timestamp line, text
+  const cueRe = /(?:^[\d]+\n)?(\d{2}:\d{2}:\d{2}[.,]\d{3}) --> (?:\d{2}:\d{2}:\d{2}[.,]\d{3})[^\n]*\n([\s\S]*?)(?=\n(?:[\d]+\n)?\d{2}:\d{2}:\d{2}|$)/gm;
+  let match;
+  let lastT = -1;
+  while ((match = cueRe.exec(content)) !== null) {
+    const [h, m, s] = match[1].split(':').map(Number);
+    const t = h * 3600 + m * 60 + s;
+    const text = match[2]
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/\n/g, ' ').trim();
+    if (!text) continue;
+    // Skip duplicate consecutive timestamps (VTT overlap)
+    if (t === lastT) { if (segments.length) segments[segments.length-1].text += ' ' + text; continue; }
+    lastT = t;
+    segments.push({ t, text });
+  }
+  return segments;
+}
+
+
+>>>>>>> main
 /** Run yt-dlp synchronously with timeout, return stdout */
 function ytdlp(argsList, opts = {}) {
   try {
@@ -161,8 +191,13 @@ function parseVideoList(raw) {
       return {
         id: id?.trim(),
         title: cleanText(title),
+<<<<<<< HEAD
         // uploadDate: "20240821" → ISO
         publishedAt: uploadDate ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
+=======
+        // uploadDate: "20240821" → ISO, handle "NA" from yt-dlp
+        publishedAt: (uploadDate && uploadDate !== "NA") ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
+>>>>>>> main
         views: views ? parseInt(views).toLocaleString("en-IN") : null,
         durationSec: duration ? parseInt(duration) : null,
       };
@@ -249,7 +284,17 @@ async function scrapeVideo(videoId) {
     try {
       const raw = readFileSync(join(TMP_DIR, chosenFile), "utf8");
       transcript = parseVTT(raw);
+<<<<<<< HEAD
       // Clean up
+=======
+      // Parse with timestamps for the reader
+      const segments = parseVTTWithTimestamps(raw);
+      // Store segments in meta (deduplicated, max 500 segments to keep JSON lean)
+      meta.transcriptSegments = segments
+        .filter((s, i, arr) => i === 0 || s.text !== arr[i-1].text)
+        .slice(0, 500);
+      // Clean up temp files
+>>>>>>> main
       subFiles.forEach(f => { try { unlinkSync(join(TMP_DIR, f)); } catch (_) {} });
     } catch (_) {}
   }

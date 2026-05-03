@@ -1,0 +1,60 @@
+name: Scrape YouTube Videos
+
+on:
+  # Run every Sunday at 2am IST (= 20:30 UTC Saturday)
+  schedule:
+    - cron: "30 20 * * 0"
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Number of videos to scrape (default: 100)"
+        required: false
+        default: "100"
+
+jobs:
+  scrape:
+    name: Scrape & Commit Video Data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run video scraper
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '100' }}"
+          echo "Scraping $LIMIT videos..."
+          node scripts/scrape-videos.mjs --limit "$LIMIT"
+
+      - name: Check if data changed
+        id: diff
+        run: |
+          git diff --quiet src/data/videos.json && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push updated data
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          TOTAL=$(node -e "const d=require('./src/data/videos.json'); console.log(d.total)")
+          OK=$(node -e "const d=require('./src/data/videos.json'); console.log(d.transcript_ok)")
+          git add src/data/videos.json
+          git commit -m "data: update videos.json — $TOTAL videos, $OK transcripts [skip ci]"
+          git push
+
+      - name: No changes
+        if: steps.diff.outputs.changed == 'false'
+        run: echo "✅ No changes to videos.json — skipping commit"

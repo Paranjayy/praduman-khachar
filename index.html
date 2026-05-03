@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dr. Praduman Khachar — Historian · Author · Researcher</title>
-    <meta name="description" content="Portfolio of Dr. Pradumankumar B. Khachar — renowned historian, author of 33 books, and Associate Professor from Junagadh, Gujarat. 23 books selected by Library of Congress, USA." />
+    <title>Dr. Praduman Khachar — Historian · Author · Professor · YouTuber</title>
+    <meta name="description" content="Portfolio of Dr. Pradumankumar B. Khachar — renowned historian, author of 33 books, Associate Professor, and YouTuber from Junagadh, Gujarat. 23 books selected by Library of Congress, USA." />
     <meta name="theme-color" content="#2c2418" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
     <!-- Anti-FOUC: set theme before React hydrates -->
     <script>
@@ -19,20 +19,28 @@
     </script>
 
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.praduman.com" />
+
     <!-- Open Graph -->
     <meta property="og:type" content="profile" />
-    <meta property="og:title" content="Dr. Praduman Khachar — Historian, Author, Researcher" />
-    <meta property="og:description" content="Author of 33 books on the history of Saurashtra and Gujarat. 23 selected by Library of Congress, USA. Associate Professor at Junagadh." />
-    <meta property="og:url" content="https://praduman-khachar.vercel.app" />
+    <meta property="og:title" content="Dr. Praduman Khachar — Historian · Author · Professor · YouTuber" />
+    <meta property="og:description" content="Author of 33 books on the history of Saurashtra and Gujarat. 23 selected by Library of Congress, USA. Associate Professor at Junagadh. 42K+ YouTube subscribers." />
+    <meta property="og:url" content="https://www.praduman.com" />
+    <meta property="og:image" content="https://www.praduman.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="800" />
     <meta property="og:locale" content="en_IN" />
     <meta property="profile:first_name" content="Pradumankumar" />
     <meta property="profile:last_name" content="Khachar" />
 
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@KhacharPraduman" />
-    <meta name="twitter:title" content="Dr. Praduman Khachar — Historian · Author · Researcher" />
-    <meta name="twitter:description" content="Author of 33 books on the history of Saurashtra and Gujarat. 23 selected by Library of Congress, USA." />
+    <meta name="twitter:title" content="Dr. Praduman Khachar — Historian · Author · Professor · YouTuber" />
+    <meta name="twitter:description" content="Author of 33 books on Saurashtra & Gujarat history. 23 selected by Library of Congress, USA. 42K+ YouTube subscribers." />
+    <meta name="twitter:image" content="https://www.praduman.com/og-image.jpg" />
 
     <!-- JSON-LD Structured Data for Google Knowledge Panel -->
     <script type="application/ld+json">
@@ -41,8 +49,8 @@
       "@type": "Person",
       "name": "Dr. Pradumankumar B. Khachar",
       "alternateName": ["Praduman Khachar", "ડૉ. પ્રદ્યુમ્ન ખાચર", "Dr. Praduman Khachar"],
-      "url": "https://praduman-khachar.vercel.app",
-      "image": "https://praduman-khachar.vercel.app/portrait.png",
+      "url": "https://www.praduman.com",
+      "image": "https://www.praduman.com/portrait.png",
       "description": "Indian historian, author, and academic. Associate Professor of History at Dr. Subhash Mahila Arts, Commerce & Home Science College, Junagadh, Gujarat. Author of 33 books on the history of Saurashtra and Gujarat, of which 23 have been selected by the Library of Congress, USA.",
       "jobTitle": "Associate Professor of History",
       "honorificPrefix": "Dr.",
@@ -89,6 +97,10 @@
         {
           "@type": "Occupation",
           "name": "Professor"
+        },
+        {
+          "@type": "Occupation",
+          "name": "YouTuber"
         }
       ],
       "award": [
@@ -105,6 +117,7 @@
       "sameAs": [
         "https://www.youtube.com/c/PradumanKhachar",
         "https://www.instagram.com/praduman_khachar/",
+        "https://www.facebook.com/praduman.khachar.7",
         "https://www.facebook.com/Praduman.Khachar62/",
         "https://x.com/KhacharPraduman",
         "https://open.spotify.com/show/3QezwwyZYMk9PlSXsX0Erf",
@@ -131,12 +144,25 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Dr. Praduman Khachar",
-      "url": "https://praduman-khachar.vercel.app",
+      "url": "https://www.praduman.com",
       "description": "Official portfolio of Dr. Pradumankumar B. Khachar — historian, author, and researcher from Junagadh, Gujarat."
     }
     </script>
   </head>
   <body>
+    <!-- Hidden Google Translate Element -->
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,gu,hi',
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

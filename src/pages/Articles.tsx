@@ -537,6 +537,18 @@ function ArticleReader({
                   <span className="reader-ts-time">{fmtTime(seg.t)}</span>
                   <span className="reader-ts-text">{seg.text}</span>
                 </button>
+              <p className="reader-timestamps-hint">⏱ Click any timestamp to jump to that moment on YouTube.</p>
+              {segments.map((seg, i) => (
+                <a
+                  key={i}
+                  href={`${v.url}&t=${seg.t}s`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="reader-ts-row"
+                >
+                  <span className="reader-ts-time">{fmtTime(seg.t)}</span>
+                  <span className="reader-ts-text">{seg.text}</span>
+                </a>
               ))}
             </div>
           )}
@@ -556,6 +568,7 @@ function ArticleReader({
                      onRelated({...v, startTime: t} as any);
                   })}
                 </p>
+                <p className="reader-para" style={{ whiteSpace: 'pre-wrap' }}>{cleanDescription(v.description)}</p>
               </div>
             ) : (
               <p className="reader-no-transcript">

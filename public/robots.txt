@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://praduman-khachar.vercel.app/sitemap.xml
+Sitemap: https://www.praduman.com/sitemap.xml
