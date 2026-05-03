@@ -119,7 +119,15 @@ export default function Publications() {
   );
 }
 
-function BookCard({ title, titleGu, category, year, index }) {
+interface BookCardProps {
+  title: string;
+  titleGu?: string;
+  category: string;
+  year?: string;
+  index: number;
+}
+
+function BookCard({ title, titleGu, category, year, index }: BookCardProps) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 
@@ -140,7 +148,14 @@ function BookCard({ title, titleGu, category, year, index }) {
   );
 }
 
-function HighlightCard({ num, title, desc, index }) {
+interface HighlightCardProps {
+  num: string;
+  title: string;
+  desc: string;
+  index: number;
+}
+
+function HighlightCard({ num, title, desc, index }: HighlightCardProps) {
   const [ref, visible] = useReveal(0.1);
   return (
     <div

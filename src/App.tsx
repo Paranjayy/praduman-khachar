@@ -23,7 +23,7 @@ import LabsPage from "./pages/Labs";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
-import { CONFIG } from "./data/content";
+import { CONFIG } from "./config";
 
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change

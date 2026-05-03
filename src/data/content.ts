@@ -1,4 +1,4 @@
-import { Book, BookCategory, Playlist, ReadingItem, SITE_INFO } from "../types";
+import { Achievement, Book, BookCategory, CareerItem, EducationItem, MediaStatItem, Playlist, ReadingItem, SITE_INFO, StatItem } from "../types";
 
 export const SITE: SITE_INFO = {
   name: "Dr. Praduman Khachar",
@@ -6,6 +6,28 @@ export const SITE: SITE_INFO = {
   bio: "Chronicling the untold stories of Saurashtra and Gujarat — preserving heritage through scholarship, one chapter at a time.",
   location: "Junagadh, Gujarat",
   email: "pkhachar@gmail.com",
+  designation: "Associate Professor & PhD Guide",
+  institution: "Bahuddin Arts College, Junagadh",
+};
+
+export const SOCIAL_STATS = {
+  instagram: {
+    posts: "1.2k+",
+    followers: "45k+",
+    recentPosts: [
+      { id: "1", type: "photo", url: "https://instagram.com", preview: "https://picsum.photos/300/300?random=11" },
+      { id: "2", type: "video", url: "https://instagram.com", preview: "https://picsum.photos/300/300?random=12" },
+      { id: "3", type: "photo", url: "https://instagram.com", preview: "https://picsum.photos/300/300?random=13" },
+    ]
+  },
+  facebook: {
+    followers: "120k+",
+    likes: "98k+",
+    recentPosts: [
+      { id: "1", text: "New lecture series on the history of Saurashtra is now live.", date: "2 days ago" },
+      { id: "2", text: "Discussing the architecture of the Palitana temples.", date: "1 week ago" },
+    ]
+  }
 };
 
 export const SOCIALS = [
@@ -46,11 +68,6 @@ export const SOCIALS = [
     icon: "blog",
   },
 ];
-
-export const CONFIG = {
-  HIDE_TRANSCRIPTS: true, // Requested to prevent content theft
-  HIDE_ARTICLES: true,     // Hide the articles section entirely
-};
 
 export const BOOKS: Book[] = [
   { title: "Kathi Itihas Ane Sanskriti", titleGu: "કાઠી ઈતિહાસ અને સંસ્કૃતિ", year: "1997", category: "kathi", locSelected: true, publisher: "દેવેન્દ્રભાઈ બી. ખાચર, સણોસરા", price: "અપ્રાપ્ય" },
@@ -187,3 +204,35 @@ export const READING_CATEGORIES: Record<string, string> = {
   literature: "Historical Literature",
   primary: "Primary Sources",
 };
+
+export const STATS: StatItem[] = [
+  { number: "33", label: "Published Books" },
+  { number: "575+", label: "Academic Videos" },
+  { number: "33+", label: "Years Experience" },
+  { number: "11", label: "Court Cases Cited" },
+];
+
+export const MEDIA_STATS: MediaStatItem[] = [
+  { number: "42k+", label: "Subscribers" },
+  { number: "575+", label: "Videos" },
+  { number: "3.5M+", label: "Total Views" },
+];
+
+export const EDUCATION: EducationItem[] = [
+  { degree: "Ph.D. in History", university: "Saurashtra University", year: "2006", grade: "Awarded" },
+  { degree: "M.A. in History", university: "Saurashtra University", year: "1988", grade: "First Class" },
+  { degree: "B.A. in History", university: "Bahuddin Arts College", year: "1986", grade: "Distinction" },
+];
+
+export const CAREER: CareerItem[] = [
+  { period: "1991 – Present", title: "Associate Professor", place: "Bahuddin Arts College, Junagadh", desc: "Teaching & PhD Guide" },
+  { period: "2010 – Present", title: "Convener", place: "INTACH Junagadh Chapter", desc: "Heritage Conservation" },
+  { period: "2004 – 2010", title: "Research Officer", place: "Saurashtra University", desc: "History Archive project" },
+];
+
+export const ACHIEVEMENTS: Achievement[] = [
+  { icon: "🏛️", text: "Convener of **INTACH** Junagadh Chapter" },
+  { icon: "📜", text: "Author of **33+ Books** on Gujarat History" },
+  { icon: "⚖️", text: "Books cited in **11 High Court cases**" },
+  { icon: "🌍", text: "Recognized by **Library of Congress**, USA" },
+];

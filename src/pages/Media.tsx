@@ -81,6 +81,7 @@ async function fetchVideos(): Promise<VideoEntry[]> {
           id: string; title: string; thumbnailMq: string; url: string;
           publishedAt: string; views?: string; likes?: string;
           comments?: string; readMinutes?: number; transcriptWordCount?: number;
+          durationSeconds?: number;
         }[]
       };
       if (data.videos?.length) {

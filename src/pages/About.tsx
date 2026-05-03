@@ -99,7 +99,15 @@ export default function AboutPage() {
   );
 }
 
-function EduCard({ degree, university, year, grade, index }) {
+interface EduCardProps {
+  degree: string;
+  university: string;
+  year: string;
+  grade?: string;
+  index: number;
+}
+
+function EduCard({ degree, university, year, grade, index }: EduCardProps) {
   const [ref, visible] = useReveal(0.1);
   return (
     <div
@@ -119,7 +127,15 @@ function EduCard({ degree, university, year, grade, index }) {
   );
 }
 
-function TimelineItem({ period, title, place, desc, index }) {
+interface TimelineItemProps {
+  period: string;
+  title: string;
+  place: string;
+  desc?: string;
+  index: number;
+}
+
+function TimelineItem({ period, title, place, desc, index }: TimelineItemProps) {
   const [ref, visible] = useReveal(0.15);
   return (
     <div
@@ -141,7 +157,13 @@ function TimelineItem({ period, title, place, desc, index }) {
   );
 }
 
-function AchievementItem({ icon, text, index }) {
+interface AchievementItemProps {
+  icon: string;
+  text: string;
+  index: number;
+}
+
+function AchievementItem({ icon, text, index }: AchievementItemProps) {
   const [ref, visible] = useReveal(0.1);
   const parts = text.split(/\*\*(.*?)\*\*/g);
 

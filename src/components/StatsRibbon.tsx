@@ -1,7 +1,13 @@
 import { STATS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 
-function StatItem({ number, label, delay }) {
+interface StatItemProps {
+  number: string;
+  label: string;
+  delay: number;
+}
+
+function StatItem({ number, label, delay }: StatItemProps) {
   const [ref, visible] = useReveal(0.3);
   return (
     <div

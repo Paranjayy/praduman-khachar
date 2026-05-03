@@ -26,7 +26,7 @@ interface VideoArticle {
   url: string;
 }
 
-type UnifiedItem = {
+interface UnifiedItem {
   id: string;
   type: "video" | "writing";
   title: string;
@@ -39,8 +39,9 @@ type UnifiedItem = {
   views?: string;
   category?: string;
   lang?: string;
-  transcriptSnippet?: string; // Matched transcript excerpt
-};
+  transcriptSnippet?: string;
+  score?: number;
+}
 
 // ─── Data loader ──────────────────────────────────────────────────────────────
 let _cachedVideos: VideoArticle[] | null = null;
@@ -77,7 +78,7 @@ async function translateQuery(text: string, targetLang: 'gu' | 'hi'): Promise<st
       `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${targetLang}`
     );
     const data = await res.json();
-    return data.responseData?.translatedText || text;
+    return (data.responseData as any)?.translatedText || text;
   } catch {
     return text;
   }
@@ -143,7 +144,7 @@ export default function ExplorePage() {
       date: w.date,
       tags: w.tags,
       slug: `/writings/${w.id}`,
-      category: WRITING_CATEGORIES[w.category]?.label || w.category,
+      category: WRITING_CATEGORIES[w.category as keyof typeof WRITING_CATEGORIES]?.label || w.category,
       words: w.content.join(" ").split(/\s+/).length,
       lang: w.lang,
     }));
@@ -154,7 +155,7 @@ export default function ExplorePage() {
       title: v.title,
       description: v.description,
       date: v.publishedAt,
-      tags: v.tags,
+      tags: v.tags || [],
       slug: `/articles/${v.slug && v.slug !== "-" ? v.slug : v.id}`,
       thumbnail: v.thumbnailMq,
       words: v.transcriptWordCount,
@@ -170,28 +171,45 @@ export default function ExplorePage() {
     if (typeFilter !== "all") {
       list = list.filter(item => item.type === typeFilter);
     }
+
     if (search.trim()) {
       const q = search.trim().toLowerCase();
-      list = list
-        .map(item => {
-          // Title/tag/desc match — highest priority
-          const titleMatch = item.title.toLowerCase().includes(q);
-          const tagMatch = item.tags.some(t => t.toLowerCase().includes(q));
-          const descMatch = item.description.toLowerCase().includes(q);
+      const tq = translatedQuery.toLowerCase();
 
-          // Full-text transcript search (with cross-lingual support)
+      return (list
+        .map(item => {
+          let score = 0;
+          const title = item.title.toLowerCase();
+          const desc = item.description.toLowerCase();
+          const tags = item.tags.map(t => t.toLowerCase());
+
+          // Title Match (Highest weight)
+          if (title.includes(q)) score += 100;
+          else if (q.split(/\s+/).every(w => title.includes(w))) score += 70; // All words match
+          
+          if (tq && title.includes(tq)) score += 80;
+
+          // Tags Match
+          tags.forEach(t => { 
+            if (t === q) score += 50;
+            else if (t.includes(q)) score += 20; 
+          });
+
+          // Description Match
+          if (desc.includes(q)) score += 30;
+
+          // Transcript Match (Cross-lingual support)
           let transcriptSnippet: string | undefined;
           if (searchInTranscripts && item.type === "video") {
             const vid = videos.find(v => v.id === item.id);
             if (vid?.transcript) {
-              // Try original query first
               let snippet = findTranscriptSnippet(vid.transcript, q);
-              // Also try translated Gujarati query if we got one
-              if (!snippet && translatedQuery) {
-                snippet = findTranscriptSnippet(vid.transcript, translatedQuery);
+              if (!snippet && tq) {
+                snippet = findTranscriptSnippet(vid.transcript, tq);
                 if (snippet) snippet = `🌐 Cross-lingual match: ${snippet}`;
               }
               if (snippet) {
+                score += 40;
                 transcriptSnippet = CONFIG.HIDE_TRANSCRIPTS
                   ? "🧠 AI match found within video context."
                   : snippet;
@@ -199,15 +217,19 @@ export default function ExplorePage() {
             }
           }
 
-          const matches = titleMatch || tagMatch || descMatch || !!transcriptSnippet;
-          if (!matches) return null;
-          return { ...item, transcriptSnippet };
+          if (score === 0) return null;
+          return { ...item, score, transcriptSnippet };
         })
-        .filter(Boolean) as UnifiedItem[];
+        .filter((i): i is UnifiedItem & { score: number } => i !== null)
+        .sort((a, b) => {
+          if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+          return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+        })) as UnifiedItem[];
     }
 
-    list.sort((a, b) => {
-      if (sortBy === "title") return a.title.localeCompare(b.title);
+    // Default sort if no search
+    return ([...list].sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title, "gu");
       if (sortBy === "words") return (b.words || 0) - (a.words || 0);
       if (sortBy === "views") {
         const av = parseInt((a.views || "0").replace(/\D/g, "")) || 0;
@@ -215,12 +237,10 @@ export default function ExplorePage() {
         return bv - av;
       }
       return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
-    });
+    })) as UnifiedItem[];
+  }, [items, search, translatedQuery, typeFilter, sortBy, searchInTranscripts, videos]);
 
-    return list;
-  }, [items, search, typeFilter, sortBy, searchInTranscripts, videos, translatedQuery]);
-
-  const transcriptMatches = filteredItems.filter(i => i.transcriptSnippet).length;
+  const transcriptMatches = filteredItems.filter(i => !!i.transcriptSnippet).length;
   const totalVideos = items.filter(i => i.type === "video").length;
   const transcriptSearchable = videos.filter(v => v.transcript && v.transcript.length > 100).length;
 
@@ -228,8 +248,8 @@ export default function ExplorePage() {
     <>
       <PageHeader
         label="Explore Knowledge"
-        title="Search All Content"
-        subtitle={`${totalVideos} videos · ${WRITINGS.length} writings · ${transcriptSearchable} transcripts searchable`}
+        title="Semantic Archive Search"
+        subtitle={`${totalVideos} videos · ${WRITINGS.length} writings · ${transcriptSearchable} transcripts indexed`}
       />
 
       <main className="section explore-page">
@@ -237,30 +257,30 @@ export default function ExplorePage() {
         <div className="explore-search-wrap" style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', top: '-24px', right: '0', fontSize: '0.8rem', color: 'var(--c-terracotta)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span style={{ width: '8px', height: '8px', background: 'var(--c-terracotta)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-            Semantic Search Active
+            Semantic Engine V2
           </div>
           <input
             className="articles-search"
             type="search"
             placeholder={searchInTranscripts
-              ? "Cross-lingual search: try Gujarati or English keywords…"
-              : "Search titles, tags, and descriptions…"}
+              ? "Try: 'Saurashtra history', 'ભવનાથ મહાદેવ', or 'INTACH'…"
+              : "Search titles and tags…"}
             value={search}
-            onChange={e => { setSearch(e.target.value); track("explore_search", { q: e.target.value.slice(0, 30) }); }}
+            onChange={e => { setSearch(e.target.value); (track as any)("explore_search", { q: e.target.value.slice(0, 30) }); }}
             autoFocus
             style={{ paddingLeft: '40px', border: '2px solid transparent', transition: 'border-color 0.3s' }}
-            onFocus={e => e.target.style.borderColor = 'var(--c-terracotta)'}
-            onBlur={e => e.target.style.borderColor = 'transparent'}
+            onFocus={e => (e.target as any).style.borderColor = 'var(--c-terracotta)'}
+            onBlur={e => (e.target as any).style.borderColor = 'transparent'}
           />
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
           {search && (
             <p className="explore-search-meta">
-              Found <strong>{filteredItems.length}</strong> results
-              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matched via transcript</>}
+              Showing <strong>{filteredItems.length}</strong> prioritized results
+              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matches in transcript</>}
               {isTranslating && <> · <em style={{color:'var(--c-terracotta)'}}>translating…</em></>}
-              {translatedQuery && !isTranslating && <> · also searched: <em>{translatedQuery}</em></>}
+              {translatedQuery && !isTranslating && <> · cross-lingual: <em>{translatedQuery}</em></>}
             </p>
           )}
         </div>
@@ -269,18 +289,17 @@ export default function ExplorePage() {
         <div className="articles-controls" style={{ marginBottom: "var(--space-xl)" }}>
           <div className="articles-filters">
             <select className="articles-select" value={typeFilter} onChange={e => setTypeFilter(e.target.value as any)}>
-              <option value="all">All Types</option>
-              <option value="video">Video Articles ({items.filter(i=>i.type==="video").length})</option>
-              <option value="writing">Authored Writings ({items.filter(i=>i.type==="writing").length})</option>
+              <option value="all">All Content</option>
+              <option value="video">Lectures & Videos ({items.filter(i=>i.type==="video").length})</option>
+              <option value="writing">Articles & Writings ({items.filter(i=>i.type==="writing").length})</option>
             </select>
             <select className="articles-select" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
               <option value="date">Newest First</option>
-              <option value="words">Most Words</option>
-              <option value="views">Most Viewed</option>
-              <option value="title">A → Z</option>
+              <option value="words">Long Form</option>
+              <option value="views">Most Popular</option>
+              <option value="title">Alphabetical</option>
             </select>
 
-            {/* Full-text search toggle */}
             <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "var(--c-ink-muted)", cursor: "pointer", whiteSpace: "nowrap" }}>
               <input
                 type="checkbox"
@@ -288,7 +307,7 @@ export default function ExplorePage() {
                 onChange={e => setSearchInTranscripts(e.target.checked)}
                 style={{ accentColor: "var(--c-terracotta)" }}
               />
-              Search transcripts
+              Deep Search
             </label>
 
             <div className="explore-view-toggles">
@@ -297,7 +316,6 @@ export default function ExplorePage() {
                   key={mode}
                   className={`view-toggle ${viewMode === mode ? 'active' : ''}`}
                   onClick={() => setViewMode(mode)}
-                  title={`${mode.charAt(0).toUpperCase() + mode.slice(1)} View`}
                 >
                   {mode === "grid" ? "⊞" : mode === "compact" ? "☰" : "⊟"}
                 </button>
@@ -307,19 +325,16 @@ export default function ExplorePage() {
         </div>
 
         {!loaded ? (
-          <div className="articles-loading"><div className="articles-loading-spinner" /><p>Loading content…</p></div>
+          <div className="articles-loading"><div className="articles-loading-spinner" /><p>Indexing archive…</p></div>
         ) : filteredItems.length === 0 ? (
           <div className="articles-empty">
-            <h2>No content found</h2>
-            <p style={{ color: "var(--c-ink-muted)", marginTop: "8px" }}>
-              {search ? `No results for "${search}". Try different keywords.` : "Nothing here yet."}
-            </p>
+            <h2>No matches found</h2>
+            <p>Try broader terms or Gujarati keywords.</p>
           </div>
         ) : viewMode === "grid" ? (
           <div className="explore-grid">
             {filteredItems.map(item => (
-              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-card"
-                onClick={() => track("explore_click", { type: item.type, id: item.id })}>
+              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-card">
                 {item.thumbnail ? (
                   <div className="explore-card-thumb">
                     <img src={item.thumbnail} alt={item.title} loading="lazy" />
@@ -338,7 +353,7 @@ export default function ExplorePage() {
                   {item.transcriptSnippet ? (
                     <p className="transcript-snippet">{item.transcriptSnippet}</p>
                   ) : (
-                    <p className="explore-card-desc">{item.description.slice(0, 100)}…</p>
+                    <p className="explore-card-desc">{item.description.slice(0, 110)}…</p>
                   )}
                   <div className="explore-card-footer">
                     {item.words && item.words > 0 && <span className="explore-stat">{item.words.toLocaleString()} words</span>}
@@ -349,22 +364,15 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : viewMode === "compact" ? (
-          // Compact list view — like Notion list
           <div className="explore-compact-list">
             {filteredItems.map(item => (
-              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-compact-item"
-                onClick={() => track("explore_click", { type: item.type, id: item.id })}>
+              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-compact-item">
                 <span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span>
                 <div className="explore-compact-body">
                   <span className="explore-compact-title">{item.title}</span>
-                  {item.transcriptSnippet && (
-                    <span className="transcript-snippet" style={{ display: "block", marginTop: "4px" }}>
-                      {item.transcriptSnippet}
-                    </span>
-                  )}
+                  {item.transcriptSnippet && <span className="transcript-snippet" style={{ display: "block", marginTop: "4px" }}>{item.transcriptSnippet}</span>}
                 </div>
                 <div className="explore-compact-meta">
-                  {item.words && item.words > 0 && <span>{item.words.toLocaleString()}w</span>}
                   <span>{relativeDate(item.date)}</span>
                 </div>
               </Link>
@@ -378,24 +386,20 @@ export default function ExplorePage() {
                   <th>Type</th>
                   <th>Title</th>
                   <th>Date</th>
-                  <th>Words</th>
-                  <th>Views</th>
+                  <th>Stats</th>
                   <th>Tags</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.map(item => (
                   <tr key={`${item.type}-${item.id}`} onClick={() => navigate(item.slug)} className="explore-table-row">
-                    <td><span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥 Video" : "✍️ Writing"}</span></td>
+                    <td><span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span></td>
                     <td className="explore-table-title">
                       {item.title}
-                      {item.transcriptSnippet && (
-                        <p className="transcript-snippet" style={{ marginTop: "4px" }}>{item.transcriptSnippet}</p>
-                      )}
+                      {item.transcriptSnippet && <p className="transcript-snippet" style={{ marginTop: "4px" }}>{item.transcriptSnippet}</p>}
                     </td>
                     <td>{relativeDate(item.date)}</td>
-                    <td>{item.words ? item.words.toLocaleString() : "—"}</td>
-                    <td>{item.views || "—"}</td>
+                    <td>{item.views || (item.words ? `${item.words}w` : "—")}</td>
                     <td>
                       <div className="explore-table-tags">
                         {item.tags.slice(0, 2).map(t => <span key={t} className="explore-tag">{t}</span>)}

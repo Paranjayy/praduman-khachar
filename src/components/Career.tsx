@@ -1,7 +1,15 @@
 import { CAREER, EDUCATION } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 
-function TimelineItem({ period, title, place, desc, index }) {
+interface TimelineItemProps {
+  period: string;
+  title: string;
+  place: string;
+  desc?: string;
+  index: number;
+}
+
+function TimelineItem({ period, title, place, desc, index }: TimelineItemProps) {
   const [ref, visible] = useReveal(0.15);
   return (
     <div

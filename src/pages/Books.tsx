@@ -96,7 +96,13 @@ export default function BooksPage() {
   );
 }
 
-function BookFullCard({ title, titleGu, category, year, locSelected, index }) {
+import { Book } from "../types";
+
+interface BookFullCardProps extends Book {
+  index: number;
+}
+
+function BookFullCard({ title, titleGu, category, year, locSelected, index }: BookFullCardProps) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 

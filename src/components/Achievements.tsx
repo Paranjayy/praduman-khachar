@@ -1,7 +1,13 @@
 import { ACHIEVEMENTS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 
-function AchievementItem({ icon, text, index }) {
+interface AchievementItemProps {
+  icon: string;
+  text: string;
+  index: number;
+}
+
+function AchievementItem({ icon, text, index }: AchievementItemProps) {
   const [ref, visible] = useReveal(0.1);
   const parts = text.split(/\*\*(.*?)\*\*/g);
 

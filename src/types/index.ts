@@ -10,6 +10,18 @@ export interface Book {
   pages?: number;
   imageUrl?: string;
   description?: string;
+  publisher?: string;
+  price?: string;
+}
+
+export interface SITE_INFO {
+  name: string;
+  title: string;
+  bio: string;
+  location: string;
+  email: string;
+  designation: string;
+  institution: string;
 }
 
 export interface Achievement {

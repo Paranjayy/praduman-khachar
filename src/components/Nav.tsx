@@ -5,7 +5,7 @@ import { Menu, X, Search, Moon, Sun, Globe } from "lucide-react";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
 import { SITE } from "../data/content";
-import { CONFIG } from "../data/content";
+import { CONFIG } from "../config";
 
 export default function Nav() {
   const scrolled = useScrolled(40);
