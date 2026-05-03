@@ -8,8 +8,6 @@ import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
 import AboutPage from "./pages/About";
-<<<<<<< Updated upstream
-=======
 import ArticlesPage from "./pages/Articles";
 import WritingsPage from "./pages/Writings";
 import ExplorePage from "./pages/Explore";
@@ -19,7 +17,6 @@ import LabsPage from "./pages/Labs";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
->>>>>>> Stashed changes
 
 export default function App() {
   return (
@@ -31,8 +28,6 @@ export default function App() {
         <Route path="/books" element={<BooksPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
-<<<<<<< Updated upstream
-=======
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:slug" element={<ArticlesPage />} />
         <Route path="/writings" element={<WritingsPage />} />
@@ -44,7 +39,6 @@ export default function App() {
         <Route path="/topics" element={<TopicsPage />} />
         <Route path="/reading" element={<ReadingPage />} />
         <Route path="*" element={<NotFoundPage />} />
->>>>>>> Stashed changes
       </Routes>
       <Footer />
       <BackToTop />
