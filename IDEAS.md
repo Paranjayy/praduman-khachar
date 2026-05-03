@@ -13,10 +13,13 @@
 - [x] Gujarati font (Noto Sans Gujarati) for book titles
 - [x] Deployed to Vercel: https://praduman-khachar.vercel.app
 - [x] GitHub repo: https://github.com/Paranjayy/praduman-khachar
+- [x] Manual slug editing in Admin editor
+- [x] Premium Bibliography view with LOC badges
 
 ### 📚 Content to Add
 - [ ] **Verify which 23 books** are selected by Library of Congress
 - [ ] **Book cover photographs** — scan or photograph each book
+- [ ] **ISBN & Page Counts** — for all 33+ books
 - [ ] **Individual book pages** — detailed page per book with excerpts
 - [ ] **Research articles list** — 15 articles with journal names and links
 - [ ] **PhD scholars section** — names and thesis topics of guided students
@@ -40,7 +43,7 @@
 - [ ] **Noto Sans Gujarati already loaded** — ready for gu content
 - [ ] **Devanagari font** — load Noto Sans Devanagari for Hindi
 
-### 🎨 Design Enhancements
+### 🎨 Design & Aesthetics
 - [ ] **Multi-page architecture** — separate pages for Books, About, Media
 - [ ] **Dark mode toggle** — moody night-archive mode
 - [ ] **Animated timeline** — interactive scrolling career timeline
@@ -48,15 +51,17 @@
 - [ ] **Map of Gujarat** — interactive map showing exhibition locations
 - [ ] **Photo gallery lightbox** — for historical picture exhibitions
 - [ ] **Testimonials section** — quotes from students, peers, officials
+- [ ] **Stripe Press aesthetic** — for book images (high-contrast, 3D-like, premium)
+- [ ] **Chanh Dai / Lando Norris** — high-end typography, bold headers, and interactive blocks
 
-### 🔧 Technical
+### 🔧 Technical & Admin
 - [ ] **Google Analytics** — track visitors
 - [ ] **Contact form** — functional email form (Formspree/Resend)
 - [ ] **RSS feed** — for blog posts if added
 - [ ] **Sitemap** — XML sitemap for search engines
 - [ ] **Performance** — optimize images (WebP conversion, lazy loading)
-- [ ] **PWA support** — offline access, app-like experience
-- [ ] **Wikipedia draft** — consider creating a Wikipedia page
+- [ ] **Advanced Admin customizations** — toggle sections, reorder layout, change theme accents
+- [ ] **Branch-based experimental redesigns** — explore different aesthetic directions
 
 ### 🌐 Social Integration
 - [x] YouTube link
@@ -65,18 +70,9 @@
 - [x] Twitter/X link
 - [x] Spotify Podcast link
 - [x] Blog link
-- [x] ~~Telegram~~ (removed — lost access)
 - [ ] **WhatsApp contact** — direct link
 - [ ] **Google Scholar** — if profile exists
 - [ ] **ORCID** — academic identifier
-
-### 📝 Content Sections to Consider
-- [ ] **Blog/Articles** — write & publish directly on the site
-- [ ] **Speaking engagements** — past & upcoming events calendar
-- [ ] **INTACH work** — dedicated section on heritage conservation
-- [ ] **Student corner** — resources for history students
-- [ ] **Awards gallery** — photos of award ceremonies
-- [ ] **Press coverage** — media mentions and interviews
 
 ---
 
@@ -96,29 +92,13 @@
 **YouTube:** 485+ historical videos  
 
 # my ideas
-- maybe add stats accross from all the things too like fb/insta and things too 
+- **Inspiration section**: for Dr. Khachar to add literature he likes, including photos, metadata, and personal notes.
+- explore subdomains and use it as shortlink or redirecting (e.g. go.praduman.com/link)
+- maybe add polling and some nice features too ig idk
+- Editable old articles & CMS integration for easy content management and clean organization
+
 # my father's ideas
 - Add a dedicated "Press & Media" section to showcase newspaper clippings, articles, and public recognitions.
 - Integrate a simple Contact/Consultation form for students and event organizers to easily reach out.
 - Highlight the impact of the 485+ YouTube videos with a "Featured Talks" or "Popular Lectures" carousel.
-<<<<<<< Updated upstream
 - Include a gallery or timeline of academic milestones and awards received over the 33+ years of teaching.
-<<<<<<< Updated upstream
-=======
-- Include a gallery or timeline of academic milestones and awards received over the 33+ years of teaching.
-- later we can add any language support maybe why not lol but we would only show the primary three languages as english/gujarati and hindi thats all but in that same dropdown there would be more button to show all other languages lol and it would have search in case any1 wanna search their language and same semantic search needs to work too btw 
-- maybe add polling and some nice features too ig idk
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
-- later we can add any language support maybe why not lol but we would only show the primary three languages as english/gujarati and hindi thats all but in that same dropdown there would be more button to show all other languages lol and it would have search in case any1 wanna search their language and same semantic search needs to work too btw 
-- maybe add polling and some nice features too ig idk
->>>>>>> Stashed changes
-=======
-- explore subdomains and use it as shortlink or redirecting (e.g. go.praduman.com/link)
-- create better design of main branch in different branch with a "goated designer model" to see different paths
-- "Inspiration" section for Dr. Khachar to add literature he likes, including photos, metadata, and personal notes.
-- Historical Gallery for exhibition photos and rare document scans.
-- Advanced Admin customizations (toggle sections, reorder layout, change theme accents).
-- Branch-based experimental redesigns to explore different aesthetic directions.
->>>>>>> Stashed changes

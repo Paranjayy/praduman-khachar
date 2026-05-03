@@ -6,6 +6,10 @@ export interface Book {
   year?: string;
   category: string;
   locSelected?: boolean; // true = selected by Library of Congress
+  isbn?: string;
+  pages?: number;
+  imageUrl?: string;
+  description?: string;
 }
 
 export interface Achievement {
