@@ -4,6 +4,7 @@ const CustomCursor: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [active, setActive] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const [cursorText, setCursorText] = useState<string | null>(null);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -17,31 +18,21 @@ const CustomCursor: React.FC = () => {
     const onMouseDown = () => setActive(true);
     const onMouseUp = () => setActive(false);
 
-    // Track interaction with links/buttons
+    // Track interaction with links/buttons and read cues
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'A' || 
-        target.tagName === 'BUTTON' || 
-        target.closest('a') || 
-        target.closest('button') ||
-        target.classList.contains('interactive')
-      ) {
+      const interactive = target.closest('a, button, .interactive') as HTMLElement;
+      
+      if (interactive) {
         setActive(true);
+        const cue = interactive.getAttribute('data-cursor-text');
+        if (cue) setCursorText(cue);
       }
     };
 
     const handleMouseOut = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'A' || 
-        target.tagName === 'BUTTON' || 
-        target.closest('a') || 
-        target.closest('button') ||
-        target.classList.contains('interactive')
-      ) {
-        setActive(false);
-      }
+      setActive(false);
+      setCursorText(null);
     };
 
     window.addEventListener('mousemove', onMouseMove);
@@ -68,13 +59,13 @@ const CustomCursor: React.FC = () => {
   return (
     <div 
       id="custom-cursor" 
-      className={active ? 'active' : ''}
-      style={{ 
-        left: `${position.x}px`, 
-        top: `${position.y}px`,
-        opacity: hidden ? 0 : 1
-      }} 
-    />
+      className={`${active ? 'active' : ''} ${hidden ? 'hidden' : ''}`}
+      style={{ left: `${position.x}px`, top: `${position.y}px` }} 
+    >
+      {cursorText && (
+        <span className="cursor-label">{cursorText}</span>
+      )}
+    </div>
   );
 };
 

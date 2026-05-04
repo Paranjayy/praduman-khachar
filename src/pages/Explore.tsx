@@ -5,6 +5,8 @@ import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { WRITINGS, WRITING_CATEGORIES } from "../data/writings";
 import { CONFIG } from "../config";
+import { QuicklookPortal } from "../components/QuicklookPortal";
+import { Eye } from "lucide-react";
 
 interface VideoArticle {
   id: string;
@@ -117,8 +119,16 @@ export default function ExplorePage() {
   const [hoveredThumb, setHoveredThumb] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Quicklook State
+  const [quicklookItem, setQuicklookItem] = useState<UnifiedItem | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleQuicklook = (e: React.MouseEvent, item: UnifiedItem) => {
+    e.stopPropagation();
+    setQuicklookItem(item);
   };
 
   // Auto-translate English queries to Gujarati for cross-lingual matching
@@ -342,45 +352,60 @@ export default function ExplorePage() {
         ) : viewMode === "grid" ? (
           <div className="explore-grid">
             {filteredItems.map(item => (
-              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-card">
-                {item.thumbnail ? (
-                  <div className="explore-card-thumb">
-                    <img src={item.thumbnail} alt={item.title} loading="lazy" />
-                  </div>
-                ) : (
-                  <div className="explore-card-thumb no-thumb">
-                    <span className="no-thumb-icon">✍️</span>
-                  </div>
-                )}
-                <div className="explore-card-content">
-                  <div className="explore-card-meta">
-                    <span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥 Video" : "✍️ Writing"}</span>
-                    {item.date && <time className="explore-date">{relativeDate(item.date)}</time>}
-                  </div>
-                  <h3 className="explore-card-title">{item.title}</h3>
-                  {item.transcriptSnippet ? (
-                    <p className="transcript-snippet">{item.transcriptSnippet}</p>
+              <div key={`${item.type}-${item.id}`} className="explore-card-container">
+                <Link to={item.slug} className="explore-card" data-cursor-text="View">
+                  {item.thumbnail ? (
+                    <div className="explore-card-thumb">
+                      <img src={item.thumbnail} alt={item.title} loading="lazy" />
+                    </div>
                   ) : (
-                    <p className="explore-card-desc">{item.description.slice(0, 110)}…</p>
+                    <div className="explore-card-thumb no-thumb">
+                      <span className="no-thumb-icon">✍️</span>
+                    </div>
                   )}
-                  <div className="explore-card-footer">
-                    {item.words && item.words > 0 && <span className="explore-stat">{item.words.toLocaleString()} words</span>}
-                    {item.views && <span className="explore-stat">👁 {item.views}</span>}
+                  <div className="explore-card-content">
+                    <div className="explore-card-meta">
+                      <span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥 Video" : "✍️ Writing"}</span>
+                      {item.date && <time className="explore-date">{relativeDate(item.date)}</time>}
+                    </div>
+                    <h3 className="explore-card-title">{item.title}</h3>
+                    {item.transcriptSnippet ? (
+                      <p className="transcript-snippet">{item.transcriptSnippet}</p>
+                    ) : (
+                      <p className="explore-card-desc">{item.description.slice(0, 110)}…</p>
+                    )}
+                    <div className="explore-card-footer">
+                      {item.words && item.words > 0 && <span className="explore-stat">{item.words.toLocaleString()} words</span>}
+                      {item.views && <span className="explore-stat">👁 {item.views}</span>}
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                <button 
+                  className="card-quicklook-trigger" 
+                  onClick={(e) => handleQuicklook(e, item)}
+                  data-cursor-text="Quick Look"
+                >
+                  <Eye size={16} />
+                </button>
+              </div>
             ))}
           </div>
         ) : viewMode === "compact" ? (
           <div className="explore-compact-list">
             {filteredItems.map(item => (
-              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-compact-item">
+              <Link to={item.slug} key={`${item.type}-${item.id}`} className="explore-compact-item" data-cursor-text="View">
                 <span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span>
                 <div className="explore-compact-body">
                   <span className="explore-compact-title">{item.title}</span>
                   {item.transcriptSnippet && <span className="transcript-snippet" style={{ display: "block", marginTop: "4px" }}>{item.transcriptSnippet}</span>}
                 </div>
                 <div className="explore-compact-meta">
+                  <button 
+                    className="compact-quicklook-trigger" 
+                    onClick={(e) => handleQuicklook(e, item)}
+                  >
+                    <Eye size={14} />
+                  </button>
                   <span>{relativeDate(item.date)}</span>
                 </div>
               </Link>
@@ -395,7 +420,7 @@ export default function ExplorePage() {
                   <th>Title</th>
                   <th>Date</th>
                   <th>Stats</th>
-                  <th>Tags</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -406,6 +431,7 @@ export default function ExplorePage() {
                     className="explore-table-row"
                     onMouseEnter={() => item.thumbnail && setHoveredThumb(item.thumbnail)}
                     onMouseLeave={() => setHoveredThumb(null)}
+                    data-cursor-text="Open"
                   >
                     <td><span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span></td>
                     <td className="explore-table-title">
@@ -415,8 +441,15 @@ export default function ExplorePage() {
                     <td>{relativeDate(item.date)}</td>
                     <td>{item.views || (item.words ? `${item.words}w` : "—")}</td>
                     <td>
-                      <div className="explore-table-tags">
-                        {item.tags.slice(0, 2).map(t => <span key={t} className="explore-tag">{t}</span>)}
+                      <div className="explore-table-actions">
+                        <button 
+                          className="table-quicklook-btn"
+                          onClick={(e) => handleQuicklook(e, item)}
+                          title="Quick Look"
+                          data-cursor-text="Quick Look"
+                        >
+                          <Eye size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -433,6 +466,20 @@ export default function ExplorePage() {
             </div>
           </div>
         )}
+
+        <QuicklookPortal
+          isOpen={!!quicklookItem}
+          onClose={() => setQuicklookItem(null)}
+          title={quicklookItem?.title || ""}
+          itemId={quicklookItem?.id.toUpperCase() || "ARC.001"}
+          image={quicklookItem?.thumbnail}
+          description={quicklookItem?.description}
+          figures={quicklookItem?.type === 'video' ? [
+            quicklookItem.thumbnail,
+            "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=300",
+            "https://images.unsplash.com/photo-1454165833767-027ffea9e77b?auto=format&fit=crop&q=80&w=300"
+          ] : []}
+        />
       </main>
     </>
   );

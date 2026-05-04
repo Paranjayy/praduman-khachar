@@ -65,6 +65,10 @@ export default function Footer() {
               © {year} <span className="notranslate" translate="no">{SITE.name}</span>
             </span>
             <span className="footer-sep">·</span>
+            <Link to="/legal/privacy" className="footer-legal-link">Privacy</Link>
+            <span className="footer-sep">·</span>
+            <Link to="/legal/terms" className="footer-legal-link">Terms</Link>
+            <span className="footer-sep">·</span>
             <span>{SITE.location}</span>
           </div>
           

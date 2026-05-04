@@ -21,6 +21,7 @@ import ExplorePage from "./pages/Explore";
 import AdminPage from "./pages/Admin";
 import PressPage from "./pages/Press";
 import LabsPage from "./pages/Labs";
+import LegalPage from "./pages/Legal";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
@@ -49,6 +50,7 @@ function AppInner() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/labs" element={<LabsPage />} />
+        <Route path="/legal/:type" element={<LegalPage />} />
         <Route path="/topics" element={<TopicsPage />} />
         <Route path="/reading" element={<ReadingPage />} />
         <Route path="*" element={<NotFoundPage />} />
