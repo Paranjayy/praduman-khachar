@@ -37,15 +37,9 @@ function AppInner() {
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
         
-        {/* Conditional Routes to prevent content theft */}
-        {!CONFIG.HIDE_ARTICLES ? (
-          <>
-            <Route path="/articles" element={<ArticlesPage />} />
-            <Route path="/articles/:slug" element={<ArticlesPage />} />
-          </>
-        ) : (
-          <Route path="/articles/*" element={<Navigate to="/" replace />} />
-        )}
+        {/* Secret Routes: Hidden from Nav via CONFIG.HIDE_ARTICLES but accessible via slug */}
+        <Route path="/articles" element={<ArticlesPage />} />
+        <Route path="/articles/:slug" element={<ArticlesPage />} />
 
         <Route path="/writings" element={<WritingsPage />} />
         <Route path="/writings/:slug" element={<WritingsPage />} />

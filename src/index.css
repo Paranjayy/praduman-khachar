@@ -67,32 +67,31 @@ img { max-width: 100%; display: block; }
 /* ── NAV ── */
 .site-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 0;
+  padding: 0.4rem 0;
   display: flex; justify-content: space-between; align-items: center;
   backdrop-filter: blur(12px) saturate(1.4);
   background: color-mix(in oklch, var(--c-parchment) 85%, transparent);
   border-bottom: 1px solid var(--c-border-light);
-  transition: box-shadow 0.4s ease;
+  transition: all 0.4s ease;
 }
-.site-nav.scrolled { box-shadow: 0 2px 20px oklch(0.3 0.05 60 / 0.08); }
+.site-nav.scrolled { padding: 0.2rem 0; box-shadow: 0 2px 20px oklch(0.3 0.05 60 / 0.08); }
 .nav-brand {
   font-family: var(--font-display); font-size: clamp(0.9rem, 1.2vw, 1.1rem);
   font-weight: 600; color: var(--c-ink); letter-spacing: 0.02em;
-  display: flex; align-items: center; height: 100%;
+  display: flex; align-items: center;
 }
-.nav-links { display: flex; gap: var(--space-lg); list-style: none; height: 100%; align-items: stretch; }
+.nav-links { display: flex; gap: 0.5rem; list-style: none; align-items: center; }
 .nav-links li { display: flex; align-items: center; }
 .nav-links a {
-  font-family: var(--font-body); font-size: 0.85rem; color: var(--c-ink-soft);
-  letter-spacing: 0.04em; text-transform: uppercase; position: relative; 
-  display: flex; align-items: center; height: 100%;
+  font-family: var(--font-body); font-size: 0.82rem; color: var(--c-ink-soft);
+  letter-spacing: 0.05em; text-transform: uppercase; position: relative; 
+  padding: 0.5rem 0.75rem;
+  display: flex; align-items: center;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
-.nav-links a::after {
-  content: ''; position: absolute; bottom: 1.2rem; left: 0; width: 0; height: 1.5px;
-  background: var(--c-terracotta); transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.nav-links a:hover { color: var(--c-ink); }
-.nav-links a:hover::after { width: 100%; }
+.nav-links a:hover { color: var(--c-ink); background: oklch(0.5 0 0 / 0.03); }
+.nav-links a.active { color: var(--c-terracotta); font-weight: 600; }
 
 .nav-toggle {
   display: none; background: none; border: none; cursor: pointer;

@@ -221,9 +221,9 @@ export default function Nav() {
           max-width: var(--max-w); 
           margin: 0 auto;
           padding: 0 var(--space-lg);
-          height: 4.5rem; /* Standardized height for perfect centering */
+          min-height: 4rem;
         }
-        .desktop-only { display: flex; list-style: none; gap: var(--space-lg); align-items: center; }
+        .desktop-only { display: flex; list-style: none; gap: 0.5rem; align-items: center; }
         .nav-toggle-premium { display: none; background: none; border: none; cursor: pointer; color: var(--c-ink); padding: 5px; }
         
         .nav-more-item { position: relative; display: flex; align-items: center; }
@@ -232,19 +232,19 @@ export default function Nav() {
           border: none;
           color: var(--c-ink-soft);
           font-family: var(--font-body);
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 500;
           text-transform: uppercase;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 4px;
-          padding: 0;
-          height: 100%;
+          padding: 0.5rem 0.75rem;
           transition: all 0.3s ease;
+          border-radius: 6px;
         }
-        .nav-more-trigger:hover, .nav-more-trigger.active { color: var(--c-terracotta); }
+        .nav-more-trigger:hover, .nav-more-trigger.active { color: var(--c-terracotta); background: oklch(0.5 0 0 / 0.03); }
         
         .nav-more-dropdown {
           position: absolute;
