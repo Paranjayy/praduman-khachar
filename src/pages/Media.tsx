@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { SOCIALS, SOCIAL_STATS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
+import { useTilt } from "../hooks/useTilt";
 import { useChannelStats } from "../hooks/useChannelStats";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -432,8 +433,15 @@ export default function MediaPage() {
 
 // ── Video Card ────────────────────────────────────────────────────────────────
 function VideoCard({ id, title, thumbnail, url, published, views, likes, durationSeconds }: VideoEntry) {
-  const [ref, visible] = useReveal(0.02);
+  const [revealRef, visible] = useReveal(0.02);
+  const tilt = useTilt(10);
   const [copied, setCopied] = useState(false);
+
+  // Combine refs
+  const setRefs = useCallback((node: HTMLElement | null) => {
+    revealRef.current = node;
+    tilt.ref.current = node;
+  }, [revealRef, tilt.ref]);
 
   const handleCopy = useCallback((e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
@@ -443,8 +451,20 @@ function VideoCard({ id, title, thumbnail, url, published, views, likes, duratio
   const ago = published ? relativeDate(published) : "";
 
   return (
-    <a ref={ref} href={url} target="_blank" rel="noopener noreferrer" className="yt-video-card"
-      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(10px)", transition: "all 0.4s ease" }}>
+    <a 
+      ref={setRefs} 
+      href={url} 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="yt-video-card balatro-card"
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={tilt.onMouseLeave}
+      style={{ 
+        opacity: visible ? 1 : 0, 
+        transform: `${visible ? "translateY(0)" : "translateY(10px)"} ${tilt.style.transform}`, 
+        transition: `${tilt.style.transition}, opacity 0.4s ease, transform 0.4s ease` 
+      }}
+    >
       <div className="yt-thumb-wrap">
         <img src={thumbnail} alt={title} loading="lazy" />
         <div className="yt-play-btn">
@@ -474,8 +494,14 @@ function VideoCard({ id, title, thumbnail, url, published, views, likes, duratio
 
 // ── Playlist Card (dynamic from playlists.json) ───────────────────────────────
 function PlaylistCard({ pl, index }: { pl: PlaylistEntry; index: number }) {
-  const [ref, visible] = useReveal(0.02);
+  const [revealRef, visible] = useReveal(0.02);
+  const tilt = useTilt(8);
   const [imgErr, setImgErr] = useState(false);
+
+  const setRefs = useCallback((node: HTMLElement | null) => {
+    revealRef.current = node;
+    tilt.ref.current = node;
+  }, [revealRef, tilt.ref]);
 
   const totalViews = pl.recentVideos?.reduce((acc, v) => {
     const n = parseInt((v.views || "0").replace(/[^0-9]/g, ""), 10);
@@ -487,9 +513,15 @@ function PlaylistCard({ pl, index }: { pl: PlaylistEntry; index: number }) {
 
   return (
     <div
-      ref={ref}
-      className="playlist-card"
-      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition: `all 0.35s ${(index % 12) * 0.04}s ease` }}
+      ref={setRefs}
+      className="playlist-card balatro-card"
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={tilt.onMouseLeave}
+      style={{ 
+        opacity: visible ? 1 : 0, 
+        transform: `${visible ? "translateY(0)" : "translateY(12px)"} ${tilt.style.transform}`, 
+        transition: `${tilt.style.transition}, all 0.35s ${(index % 12) * 0.04}s ease` 
+      }}
     >
       {/* Thumbnail */}
       <div className="playlist-thumb">

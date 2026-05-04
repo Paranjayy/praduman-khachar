@@ -112,6 +112,14 @@ export default function ExplorePage() {
   // Translated query for cross-lingual search
   const [translatedQuery, setTranslatedQuery] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
+  
+  // Tina Hover Preview State
+  const [hoveredThumb, setHoveredThumb] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
 
   // Auto-translate English queries to Gujarati for cross-lingual matching
   const isLikelyEnglish = (q: string) => /^[a-zA-Z\s]+$/.test(q) && q.trim().length > 2;
@@ -379,7 +387,7 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : (
-          <div className="explore-table-wrap">
+          <div className="explore-table-wrap" onMouseMove={handleMouseMove}>
             <table className="explore-table">
               <thead>
                 <tr>
@@ -392,7 +400,13 @@ export default function ExplorePage() {
               </thead>
               <tbody>
                 {filteredItems.map(item => (
-                  <tr key={`${item.type}-${item.id}`} onClick={() => navigate(item.slug)} className="explore-table-row">
+                  <tr 
+                    key={`${item.type}-${item.id}`} 
+                    onClick={() => navigate(item.slug)} 
+                    className="explore-table-row"
+                    onMouseEnter={() => item.thumbnail && setHoveredThumb(item.thumbnail)}
+                    onMouseLeave={() => setHoveredThumb(null)}
+                  >
                     <td><span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span></td>
                     <td className="explore-table-title">
                       {item.title}
@@ -409,6 +423,14 @@ export default function ExplorePage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Tina Hover Preview */}
+            <div 
+              className={`hover-preview-container ${hoveredThumb ? 'visible' : ''}`}
+              style={{ left: mousePos.x, top: mousePos.y }}
+            >
+              {hoveredThumb && <img src={hoveredThumb} alt="Preview" />}
+            </div>
           </div>
         )}
       </main>

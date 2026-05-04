@@ -10,6 +10,7 @@ import BackToTop from "./components/BackToTop";
 import DesignCustomizer from "./components/DesignCustomizer";
 import CommandPalette from "./components/CommandPalette";
 import SurpriseMe from "./components/SurpriseMe";
+import CustomCursor from "./components/CustomCursor";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -59,6 +60,7 @@ function AppInner() {
       <DesignCustomizer />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
+      <CustomCursor />
     </>
   );
 }

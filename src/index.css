@@ -56,6 +56,60 @@ body {
   color: var(--c-ink);
   line-height: 1.7;
   overflow-x: hidden;
+  cursor: none !important; /* Global custom cursor */
+}
+
+/* ── CUSTOM CURSOR (Tina/Sabesh style) ───────────────────────────────────────── */
+#custom-cursor {
+  position: fixed; top: 0; left: 0;
+  width: 20px; height: 20px;
+  border: 1px solid var(--c-terracotta);
+  border-radius: 50%;
+  pointer-events: none; z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1), 
+              height 0.3s cubic-bezier(0.23, 1, 0.32, 1), 
+              background 0.3s, border-color 0.3s, transform 0.08s linear;
+  display: flex; align-items: center; justify-content: center;
+  mix-blend-mode: difference;
+}
+#custom-cursor::after {
+  content: ''; position: absolute; width: 4px; height: 4px;
+  background: var(--c-terracotta); border-radius: 50%;
+}
+#custom-cursor.active {
+  width: 60px; height: 60px;
+  background: rgba(184, 85, 58, 0.1);
+  border-color: var(--c-terracotta);
+  mix-blend-mode: normal;
+}
+#custom-cursor.active::after { width: 6px; height: 6px; }
+
+/* ── TINA HOVER PREVIEW ──────────────────────────────────────────────────────── */
+.hover-preview-container {
+  position: fixed; pointer-events: none; z-index: 9999;
+  width: 240px; aspect-ratio: 16/9; overflow: hidden;
+  border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  transform: translate(20px, -50%);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.hover-preview-container.visible { opacity: 1; visibility: visible; }
+.hover-preview-container img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── BALATRO TILT ────────────────────────────────────────────────────────────── */
+.balatro-card {
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+.balatro-card:hover {
+  box-shadow: 0 15px 35px rgba(184, 85, 58, 0.2);
+}
+
+@media (max-width: 1024px) {
+  body { cursor: auto !important; }
+  #custom-cursor { display: none; }
 }
 
 ::selection { background: var(--c-terracotta); color: var(--c-parchment); }
