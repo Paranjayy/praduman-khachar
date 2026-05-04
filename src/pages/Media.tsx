@@ -512,7 +512,17 @@ function PlaylistCard({ pl, index }: { pl: PlaylistEntry; index: number }) {
       {/* Info */}
       <div className="playlist-info">
         <div className="playlist-title">{pl.title}</div>
-        {latestDate && <div className="playlist-title-en">Updated {latestDate}</div>}
+        <div className="playlist-meta-row">
+          {latestDate && <span className="playlist-meta-item">Updated {latestDate}</span>}
+          <span className="playlist-meta-sep">•</span>
+          <span className="playlist-meta-item">{pl.videoCount} videos</span>
+          {totalViews > 0 && (
+            <>
+              <span className="playlist-meta-sep">•</span>
+              <span className="playlist-meta-item">{totalViews.toLocaleString("en-IN")} views</span>
+            </>
+          )}
+        </div>
 
         <a
           href={pl.url}
