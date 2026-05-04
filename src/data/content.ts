@@ -7,7 +7,7 @@ export const SITE: SITE_INFO = {
   location: "Junagadh, Gujarat",
   email: "pkhachar@gmail.com",
   designation: "Associate Professor & PhD Guide",
-  institution: "Bahuddin Arts College, Junagadh",
+  institution: "Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh",
 };
 
 export const SOCIAL_STATS = {
@@ -219,20 +219,27 @@ export const MEDIA_STATS: MediaStatItem[] = [
 ];
 
 export const EDUCATION: EducationItem[] = [
-  { degree: "Ph.D. in History", university: "Saurashtra University", year: "2006", grade: "Awarded" },
-  { degree: "M.A. in History", university: "Saurashtra University", year: "1988", grade: "First Class" },
-  { degree: "B.A. in History", university: "Bahuddin Arts College", year: "1986", grade: "Distinction" },
+  { degree: "Ph.D. in History", university: "M. K. Uni. Bhavnagar", year: "2006", grade: "Awarded" },
+  { degree: "M.A. in History", university: "Saurashtra University", year: "1991", grade: "First Class (66%)" },
+  { degree: "B.A. in History", university: "Saurashtra University", year: "1989", grade: "First Class (60%)" },
 ];
 
 export const CAREER: CareerItem[] = [
-  { period: "1991 – Present", title: "Associate Professor", place: "Bahuddin Arts College, Junagadh", desc: "Teaching & PhD Guide" },
-  { period: "2010 – Present", title: "Convener", place: "INTACH Junagadh Chapter", desc: "Heritage Conservation" },
-  { period: "2004 – 2010", title: "Research Officer", place: "Saurashtra University", desc: "History Archive project" },
+  { period: "1992 – Present", title: "Associate Professor", place: "Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh", desc: "U.G. Level Teaching (33 Years)" },
+  { period: "1998 – 2006", title: "P.G. Lecturer", place: "Bahauddin College, Junagadh (Govt. of Gujarat)", desc: "P.G. Level Teaching (8 Years)" },
+  { period: "2010 – Present", title: "Convener", place: "INTACH Junagadh Chapter", desc: "Heritage Conservation & Documentation" },
+  { period: "Present", title: "Ph.D. Guide", place: "Saurashtra University", desc: "Guided 4 Ph.D. scholars, 3 currently under guidance" },
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
   { icon: "🏛️", text: "Convener of **INTACH** Junagadh Chapter" },
-  { icon: "📜", text: "Author of **33+ Books** on Gujarat History" },
-  { icon: "⚖️", text: "Books cited in **11 High Court cases**" },
-  { icon: "🌍", text: "Recognized by **Library of Congress**, USA" },
+  { icon: "📜", text: "Author of **33+ Books** and **15 Research Articles** on Gujarat History" },
+  { icon: "⚖️", text: "Books cited in **11 High Court cases** involving historical heritage" },
+  { icon: "🌍", text: "Recognized by **Library of Congress**, USA (23 Books Selected)" },
+  { icon: "🏆", text: "Recipient of **Kalatirth Surat Sanskruti Savardhan** Award 2025" },
+  { icon: "🎓", text: "Honored by **Govt. of Gujarat** as a Distinguished person of Sorath District" },
+  { icon: "❤️", text: "Dedicated Personality Award from **International Human Rights Association**" },
+  { icon: "🎙️", text: "Expert Speaker at **AIR (12 times)** and **Doordarshan (6 times)**" },
+  { icon: "✍️", text: "Regular Columnist for **Mumbai Samachar** and **Fulchhab**" },
+  { icon: "🎨", text: "Curator of **Exhibitions** showcasing historical pictures across Gujarat" },
 ];

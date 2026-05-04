@@ -19,7 +19,6 @@ interface VideoEntry {
   comments?: string;
   readMinutes?: number;
   durationSeconds?: number;
-  hasTranscript?: boolean;
 }
 
 interface PlaylistEntry {
@@ -89,9 +88,7 @@ async function fetchVideos(): Promise<VideoEntry[]> {
           id: v.id, title: v.title, thumbnail: v.thumbnailMq, url: v.url,
           published: v.publishedAt, views: v.views || undefined,
           likes: v.likes || undefined, comments: v.comments || undefined,
-          readMinutes: v.readMinutes || undefined,
           durationSeconds: v.durationSeconds,
-          hasTranscript: !!(v.transcriptWordCount && v.transcriptWordCount > 100),
         }));
       }
     }
@@ -434,7 +431,7 @@ export default function MediaPage() {
 }
 
 // ── Video Card ────────────────────────────────────────────────────────────────
-function VideoCard({ id, title, thumbnail, url, published, views, likes, readMinutes, durationSeconds, hasTranscript }: VideoEntry) {
+function VideoCard({ id, title, thumbnail, url, published, views, likes, durationSeconds }: VideoEntry) {
   const [ref, visible] = useReveal(0.02);
   const [copied, setCopied] = useState(false);
 
@@ -453,11 +450,9 @@ function VideoCard({ id, title, thumbnail, url, published, views, likes, readMin
         <div className="yt-play-btn">
           <svg viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg>
         </div>
-        {durationSeconds ? (
+        {durationSeconds && (
           <div className="yt-duration-badge">{formatDuration(durationSeconds)}</div>
-        ) : (readMinutes && readMinutes > 0 ? (
-          <div className="yt-duration-badge">{readMinutes} min read</div>
-        ) : null)}
+        )}
         <button className={`yt-copy-btn${copied ? " copied" : ""}`} onClick={handleCopy} title="Copy link" aria-label="Copy video link">
           {copied
             ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
@@ -470,7 +465,6 @@ function VideoCard({ id, title, thumbnail, url, published, views, likes, readMin
         <div className="yt-video-stats">
           {views && <span className="yt-stat">👁 {views}</span>}
           {likes && <span className="yt-stat">👍 {likes}</span>}
-          {hasTranscript && <span className="yt-stat yt-transcript-badge">📄 Transcript</span>}
         </div>
         {ago && <p className="yt-video-date">{ago}</p>}
       </div>

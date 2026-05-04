@@ -78,7 +78,7 @@ img { max-width: 100%; display: block; }
 .nav-brand {
   font-family: var(--font-display); font-size: clamp(0.9rem, 1.2vw, 1.1rem);
   font-weight: 600; color: var(--c-ink); letter-spacing: 0.02em;
-  display: flex; align-items: center;
+  display: flex; align-items: center; line-height: 1;
 }
 .nav-links { display: flex; gap: 0.5rem; list-style: none; align-items: center; }
 .nav-links li { display: flex; align-items: center; }
@@ -92,6 +92,8 @@ img { max-width: 100%; display: block; }
 }
 .nav-links a:hover { color: var(--c-ink); background: oklch(0.5 0 0 / 0.03); }
 .nav-links a.active { color: var(--c-terracotta); font-weight: 600; }
+
+.site-nav-right { display: flex; align-items: center; gap: 1rem; }
 
 .nav-toggle {
   display: none; background: none; border: none; cursor: pointer;
@@ -110,13 +112,14 @@ img { max-width: 100%; display: block; }
   min-height: 100vh; display: grid; grid-template-columns: 1fr auto;
   align-items: center; padding: var(--space-2xl) var(--space-lg); padding-top: 6rem;
   position: relative; overflow: hidden; gap: 3rem;
+  background: #1a1612; /* Fixed deep base for hero drama */
 }
 .hero-bg { position: absolute; inset: 0; z-index: -1; }
 .hero-bg img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) sepia(0.3); }
 .hero-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom,
-    oklch(0.95 0.02 75 / 0.3) 0%, oklch(0.2 0.04 60 / 0.4) 40%, oklch(0.15 0.04 60 / 0.85) 100%);
+  background: linear-gradient(to right, #1a1612 35%, transparent),
+              linear-gradient(to bottom, transparent 60%, #1a1612);
 }
 .hero-text { color: var(--c-parchment); padding-bottom: var(--space-xl); max-width: 36rem; }
 .hero-label {
@@ -127,8 +130,9 @@ img { max-width: 100%; display: block; }
 .hero-title {
   font-family: var(--font-display); font-size: clamp(2.5rem, 5.5vw, 4.5rem);
   font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+  color: #f5f0e8; /* Always light on fixed dark bg */
   margin-bottom: var(--space-md); opacity: 0; animation: fadeUp 0.8s 0.5s ease forwards;
-  word-break: keep-all; /* Prevent breaking Pradumankumar awkwardly */
+  word-break: keep-all; 
   hyphens: auto;
 }
 .hero-subtitle {
@@ -1431,8 +1435,8 @@ body {
 /* ══ PLAYLISTS GRID ══════════════════════════════════════════════════════════ */
 .playlists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-xl);
 }
 .playlist-card {
   background: var(--c-parchment-deep);
@@ -1466,8 +1470,8 @@ body {
 .playlist-info { padding: var(--space-md); flex: 1; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--c-border); }
 .playlist-title { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--c-ink); line-height: 1.35; }
 .playlist-title-en { font-size: .75rem; color: var(--c-ink-muted); font-style: italic; }
-.playlist-meta { display: flex; gap: var(--space-sm); font-size: .72rem; color: var(--c-ink-muted); margin-top: auto; padding-top: var(--space-sm); border-top: 1px solid var(--c-border); flex-wrap: wrap; }
-.playlist-yt-link { display: inline-flex; align-items: center; gap: .3rem; color: #ff0000; font-weight: 600; font-size: .75rem; text-decoration: none; margin-top: var(--space-xs); }
+.playlist-meta { display: flex; gap: var(--space-md); font-size: .78rem; color: var(--c-ink-muted); margin-top: auto; padding-top: var(--space-sm); border-top: 1px solid var(--c-border); flex-wrap: wrap; }
+.playlist-yt-link { display: inline-flex; align-items: center; gap: .4rem; color: #ff0000; font-weight: 600; font-size: .8rem; text-decoration: none; margin-top: var(--space-xs); }
 .playlist-yt-link:hover { text-decoration: underline; }
 [data-theme="dark"] .playlist-card { background: oklch(.15 .02 60); border-color: oklch(.26 .02 60); }
 [data-theme="dark"] .playlist-card:hover { border-color: var(--c-terracotta); }
@@ -2608,11 +2612,19 @@ body { top: 0px !important; }
   padding-top: 1.25rem;
   margin-top: 0.5rem;
   display: flex;
-  gap: 0.75rem;
+  justify-content: space-between;
   align-items: center;
   font-size: 0.78rem;
   color: var(--c-ink-muted);
   flex-wrap: wrap;
+}
+.footer-build-info { 
+  display: flex; align-items: center; gap: 6px; 
+  font-size: 0.7rem; opacity: 0.7; font-family: monospace;
+}
+.build-dot { 
+  width: 6px; height: 6px; border-radius: 50%; background: #10b981; 
+  box-shadow: 0 0 8px #10b981;
 }
 .footer-sep { opacity: 0.4; }
 .footer-copy { font-weight: 500; }

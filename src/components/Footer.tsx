@@ -6,7 +6,6 @@ const FOOTER_LINKS = [
   { label: "About", to: "/about" },
   { label: "Books", to: "/books" },
   { label: "Media", to: "/media" },
-  { label: "Articles", to: "/articles" },
   { label: "Explore", to: "/explore" },
   { label: "Press", to: "/press" },
   { label: "Labs", to: "/labs" },
@@ -61,13 +60,18 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="footer-bottom">
-          <span className="footer-copy">
-            © {year} <span className="notranslate" translate="no">{SITE.name}</span>
-          </span>
-          <span className="footer-sep">·</span>
-          <span>{SITE.location}</span>
-          <span className="footer-sep">·</span>
-          <span>Historian · Author · YouTuber</span>
+          <div className="footer-meta-left">
+            <span className="footer-copy">
+              © {year} <span className="notranslate" translate="no">{SITE.name}</span>
+            </span>
+            <span className="footer-sep">·</span>
+            <span>{SITE.location}</span>
+          </div>
+          
+          <div className="footer-build-info" title="Deployment Telemetry">
+            <span className="build-dot"></span>
+            <span>Build {new Date().toLocaleDateString('en-GB')}</span>
+          </div>
         </div>
       </div>
     </footer>

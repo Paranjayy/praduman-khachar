@@ -658,7 +658,6 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
           onError={e => { (e.currentTarget as HTMLImageElement).src = v.thumbnail; }}
         />
         <span className="article-thumb-play">📖</span>
-        <span className="article-thumb-duration">{v.readMinutes} min read</span>
       </div>
 
       {/* Content */}
@@ -668,11 +667,6 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
             <time className="article-date">
               {!v.publishedAt.startsWith("NA") ? relativeDate(v.publishedAt) : "Unknown Date"}
             </time>
-          )}
-          {v.transcriptWordCount > 0 && (
-            <span className="article-transcript-badge" title="Transcript available">
-              📝 {langLabel(v.transcriptLang)}
-            </span>
           )}
           {difficulty && (
             <span className={`article-difficulty ${difficulty.cls}`} title="Reading difficulty">
@@ -696,9 +690,6 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
 
         <div className="article-footer">
           <span className="article-watch-link">Read article →</span>
-          {v.transcriptWordCount > 0 && (
-            <span className="article-word-count">{v.transcriptWordCount.toLocaleString()} words</span>
-          )}
         </div>
       </div>
     </article>
