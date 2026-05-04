@@ -2,65 +2,67 @@ import React, { useEffect, useState } from 'react';
 
 const CustomCursor: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [active, setActive] = useState(false);
-  const [hidden, setHidden] = useState(true);
+  const [isInteractive, setIsInteractive] = useState(false);
   const [cursorText, setCursorText] = useState<string | null>(null);
+  const [isMouseDown, setIsMouseDown] = useState(false);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
-      setHidden(false);
-    };
-
-    const onMouseEnter = () => setHidden(false);
-    const onMouseLeave = () => setHidden(true);
-    
-    const onMouseDown = () => setActive(true);
-    const onMouseUp = () => setActive(false);
-
-    // Track interaction with links/buttons and read cues
-    const handleMouseOver = (e: MouseEvent) => {
+      
       const target = e.target as HTMLElement;
-      const interactive = target.closest('a, button, .interactive') as HTMLElement;
+      const interactive = target.closest('a, button, .interactive, [data-cursor-text]') as HTMLElement;
       
       if (interactive) {
-        setActive(true);
+        setIsInteractive(true);
         const cue = interactive.getAttribute('data-cursor-text');
-        if (cue) setCursorText(cue);
+        setCursorText(cue);
+      } else {
+        setIsInteractive(false);
+        setCursorText(null);
       }
     };
 
-    const handleMouseOut = (e: MouseEvent) => {
-      setActive(false);
-      setCursorText(null);
-    };
+    const onMouseDown = () => setIsMouseDown(true);
+    const onMouseUp = () => setIsMouseDown(false);
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseenter', onMouseEnter);
-    window.addEventListener('mouseleave', onMouseLeave);
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mouseover', handleMouseOver);
-    document.addEventListener('mouseout', handleMouseOut);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseenter', onMouseEnter);
-      window.removeEventListener('mouseleave', onMouseLeave);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
-      document.removeEventListener('mouseover', handleMouseOver);
-      document.removeEventListener('mouseout', handleMouseOut);
+      document.body.style.cursor = 'auto';
     };
   }, []);
 
-  if (hidden) return null;
+  const shouldShowCustom = isInteractive || !!cursorText;
+
+  useEffect(() => {
+    if (shouldShowCustom) {
+      document.body.style.cursor = 'none';
+    } else {
+      document.body.style.cursor = 'auto';
+    }
+  }, [shouldShowCustom]);
+
+  if (!shouldShowCustom) return null;
 
   return (
     <div 
       id="custom-cursor" 
-      className={`${active ? 'active' : ''} ${hidden ? 'hidden' : ''}`}
-      style={{ left: `${position.x}px`, top: `${position.y}px` }} 
+      className={`${isMouseDown ? 'active' : ''}`}
+      style={{ 
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
+        opacity: shouldShowCustom ? 1 : 0,
+        transform: `translate(-50%, -50%) scale(${isMouseDown ? 0.8 : 1})`,
+        transition: 'opacity 0.2s, transform 0.1s',
+        pointerEvents: 'none',
+        zIndex: 99999
+      }} 
     >
       {cursorText && (
         <span className="cursor-label">{cursorText}</span>

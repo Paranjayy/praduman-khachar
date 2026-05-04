@@ -56,7 +56,7 @@ body {
   color: var(--c-ink);
   line-height: 1.7;
   overflow-x: hidden;
-  cursor: none !important; /* Global custom cursor */
+  cursor: auto; /* Handle visibility in CustomCursor.tsx */
 }
 
 /* ── CUSTOM CURSOR (Tina/Sabesh style) ───────────────────────────────────────── */
@@ -4165,3 +4165,253 @@ body { top: 0px !important; }
 [data-theme="dark"] .admin-article-row:hover { background: oklch(0.2 0.02 60); }
 [data-theme="dark"] .admin-stat-card { background: oklch(0.18 0.02 60); }
 
+
+/* ── QUICKLOOK VIDEO & NAV ── */
+.ql-video-container {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ql-video-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.ql-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── CMS ADMIN STYLES ── */
+.explore-card-container {
+  position: relative;
+}
+.is-hidden-admin {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+.card-actions-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+.card-admin-hide-btn {
+  background: var(--c-parchment);
+  border: 1px solid var(--c-border);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+.card-admin-hide-btn:hover {
+  background: var(--c-terracotta);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* ── ARTICLE NAVIGATION ── */
+.article-nav-fixed {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 100;
+  background: var(--c-parchment);
+  padding: 10px 20px;
+  border-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(10px);
+}
+.explore-table-actions {
+  display: flex;
+  gap: 8px;
+}
+.table-admin-hide-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  transition: opacity 0.2s;
+}
+.table-admin-hide-btn:hover {
+  opacity: 0.7;
+}
+.ql-transcript-box {
+  margin-top: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--c-ink-muted);
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: inherit;
+  white-space: pre-wrap;
+}
+
+[data-theme='dark'] .ql-transcript-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Books Page Refinements --- */
+.books-view-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--c-bg-subtle);
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.view-toggle-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--c-ink-muted);
+  transition: all 0.2s;
+}
+
+.view-toggle-btn.active {
+  background: var(--c-bg);
+  color: var(--c-ink);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Bibliographic Table */
+.books-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-serif);
+}
+
+.books-table th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-ink-muted);
+  border-bottom: 2px solid var(--c-ink);
+  font-family: var(--font-sans);
+}
+
+.books-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+
+.bt-year {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink-muted);
+  width: 60px;
+}
+
+.bt-title-cell {
+  max-width: 400px;
+}
+
+.bt-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.bt-gujarati {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--c-accent);
+}
+
+.bt-category {
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  color: var(--c-ink-muted);
+  text-transform: uppercase;
+}
+
+.bt-loc {
+  color: #c4a000;
+  font-size: 0.8rem;
+}
+
+/* Premium Card Refinements */
+.book-card-full {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+}
+
+.book-card-full:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+.loc-selected {
+  border-left: 3px solid #c4a000;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.books-table-wrapper {
+  margin-top: 1rem;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-bg);
+}
+
+.bt-year {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+[data-theme='dark'] .books-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .books-table th {
+  border-bottom-color: var(--c-accent);
+}
+.book-description-short {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--c-ink-muted);
+  margin: 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

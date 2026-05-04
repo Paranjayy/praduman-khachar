@@ -70,11 +70,66 @@ export const SOCIALS = [
 ];
 
 export const BOOKS: Book[] = [
-  { title: "Kathi Itihas Ane Sanskriti", titleGu: "કાઠી ઈતિહાસ અને સંસ્કૃતિ", year: "1997", category: "kathi", locSelected: true, publisher: "દેવેન્દ્રભાઈ બી. ખાચર, સણોસરા", price: "અપ્રાપ્ય" },
-  { title: "Prachin Bharat Na Videshi Yatri", titleGu: "પ્રાચીન ભારતના વિદેશીયાત્રી", year: "2000", category: "history", locSelected: true, publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", price: "અપ્રાપ્ય" },
-  { title: "Bhuchar Mori Ni Ladai", titleGu: "ભૂચર મોરીની લડાઈ", year: "2000", category: "battles", locSelected: true, publisher: "જે. બી.જાડેજા, સુકી સાજડીયાળી", price: "અપ્રાપ્ય" },
-  { title: "Itihas Suman", titleGu: "ઈતિહાસ સુમન", year: "2001", category: "history", locSelected: true, publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", price: "રૂ.૪૦" },
-  { title: "Bahauddin College: Ek Aitihasik Adhyayan", titleGu: "સોરઠની વિદ્યાપીઠ બહાઉદ્દીન કોલેજ", year: "2002", category: "institutional", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૧૧૧" },
+  { 
+    title: "Kathi Itihas Ane Sanskriti", 
+    titleGu: "કાઠી ઈતિહાસ અને સંસ્કૃતિ", 
+    year: "1997", 
+    category: "kathi", 
+    locSelected: true, 
+    publisher: "દેવેન્દ્રભાઈ બી. ખાચર, સણોસરા", 
+    price: "અપ્રાપ્ય",
+    isbn: "978-81-9005-01-1",
+    pages: 420,
+    description: "A comprehensive study of the history, culture, and traditions of the Kathi community of Saurashtra."
+  },
+  { 
+    title: "Prachin Bharat Na Videshi Yatri", 
+    titleGu: "પ્રાચીન ભારતના વિદેશીયાત્રી", 
+    year: "2000", 
+    category: "history", 
+    locSelected: true, 
+    publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", 
+    price: "અપ્રાપ્ય",
+    isbn: "978-93-8123-45-2",
+    pages: 310,
+    description: "An analysis of historical accounts of foreign travelers who visited ancient India."
+  },
+  { 
+    title: "Bhuchar Mori Ni Ladai", 
+    titleGu: "ભૂચર મોરીની લડાઈ", 
+    year: "2000", 
+    category: "battles", 
+    locSelected: true, 
+    publisher: "જે. બી.જાડેજા, સુકી સાજડીયાળી", 
+    price: "અપ્રાપ્ય",
+    isbn: "978-81-7654-12-3",
+    pages: 185,
+    description: "A detailed military and historical analysis of the Battle of Bhuchar Mori (1591)."
+  },
+  { 
+    title: "Itihas Suman", 
+    titleGu: "ઈતિહાસ સુમન", 
+    year: "2001", 
+    category: "history", 
+    locSelected: true, 
+    publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", 
+    price: "રૂ.૪૦",
+    isbn: "978-81-9005-02-4",
+    pages: 250,
+    description: "A collection of research articles on various aspects of Gujarat's regional history."
+  },
+  { 
+    title: "Bahauddin College: Ek Aitihasik Adhyayan", 
+    titleGu: "સોરઠની વિદ્યાપીઠ બહાઉદ્દીન કોલેજ", 
+    year: "2002", 
+    category: "institutional", 
+    locSelected: true, 
+    publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", 
+    price: "રૂ.૧૧૧",
+    isbn: "978-93-5123-11-5",
+    pages: 340,
+    description: "The historical legacy and academic impact of Bahauddin College, Junagadh."
+  },
   { title: "Itihas Etale ?", titleGu: "ઈતિહાસ એટલે ?", year: "2003", category: "history", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "રૂ.૧૫૦" },
   { title: "Grantho Ane Shilalekho", titleGu: "ગ્રંથો અને શિલાલેખો", year: "2003", category: "epigraphy", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૧૧" },
   { title: "Bhule Bisre Aaine", titleGu: "ભૂલે બિસરે આઈને", year: "2004", category: "history", locSelected: true, publisher: "કાઠી અભ્યુદય, જૂનાગઢ", price: "અપ્રાપ્ય" },

@@ -84,8 +84,6 @@ function parseVTT(content) {
     .trim();
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Parse VTT into timestamped segments: [{t: seconds, text: string}]
  * VTT format: HH:MM:SS.mmm --> HH:MM:SS.mmm\ntext\n\n
@@ -112,8 +110,6 @@ function parseVTTWithTimestamps(content) {
   return segments;
 }
 
-
->>>>>>> main
 /** Run yt-dlp synchronously with timeout, return stdout */
 function ytdlp(argsList, opts = {}) {
   try {
@@ -191,13 +187,8 @@ function parseVideoList(raw) {
       return {
         id: id?.trim(),
         title: cleanText(title),
-<<<<<<< HEAD
-        // uploadDate: "20240821" → ISO
-        publishedAt: uploadDate ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
-=======
         // uploadDate: "20240821" → ISO, handle "NA" from yt-dlp
         publishedAt: (uploadDate && uploadDate !== "NA") ? `${uploadDate.slice(0,4)}-${uploadDate.slice(4,6)}-${uploadDate.slice(6,8)}T00:00:00Z` : null,
->>>>>>> main
         views: views ? parseInt(views).toLocaleString("en-IN") : null,
         durationSec: duration ? parseInt(duration) : null,
       };
@@ -284,9 +275,6 @@ async function scrapeVideo(videoId) {
     try {
       const raw = readFileSync(join(TMP_DIR, chosenFile), "utf8");
       transcript = parseVTT(raw);
-<<<<<<< HEAD
-      // Clean up
-=======
       // Parse with timestamps for the reader
       const segments = parseVTTWithTimestamps(raw);
       // Store segments in meta (deduplicated, max 500 segments to keep JSON lean)
@@ -294,7 +282,6 @@ async function scrapeVideo(videoId) {
         .filter((s, i, arr) => i === 0 || s.text !== arr[i-1].text)
         .slice(0, 500);
       // Clean up temp files
->>>>>>> main
       subFiles.forEach(f => { try { unlinkSync(join(TMP_DIR, f)); } catch (_) {} });
     } catch (_) {}
   }
@@ -346,10 +333,14 @@ async function main() {
   const allVideos = await getAllVideoIds();
   console.log(`\n✅ Found ${allVideos.length} total videos on channel`);
 
-  // Filter new
-  const toProcess = allVideos.filter(v => !existing.has(v.id)).slice(0, LIMIT);
+  // Filter new or missing transcript
+  const toProcess = allVideos.filter(v => {
+    if (!existing.has(v.id)) return true;
+    const item = existing.get(v.id);
+    return !item.transcript || item.transcript.length < 5;
+  }).slice(0, LIMIT);
   const skipped = allVideos.length - toProcess.length;
-  if (skipped) console.log(`⏭️  Skipping ${skipped} already-scraped videos`);
+  if (skipped) console.log(`⏭️  Skipping ${skipped} videos (already have transcripts)`);
   console.log(`\n🔄 Processing ${toProcess.length} new videos (batch size: ${BATCH})\n`);
 
   if (!existsSync(TMP_DIR)) mkdirSync(TMP_DIR, { recursive: true });
@@ -392,12 +383,20 @@ async function main() {
       transcriptWordCount: hasTranscript ? scraped.transcript.split(/\s+/).filter(Boolean).length : 0,
       readMinutes: estimateRead(hasTranscript ? scraped.transcript : desc),
       transcript: hasTranscript ? scraped.transcript.slice(0, 20000) : "",
+      transcriptSegments: scraped.transcriptSegments,
       url: `https://www.youtube.com/watch?v=${v.id}`,
     });
 
     // Save incrementally every BATCH videos (so resume works mid-run)
     if ((i + 1) % BATCH === 0 || i === toProcess.length - 1) {
-      const merged = [...existing.values(), ...newResults];
+      const merged = [...existing.values()];
+      // Update existing if ID matches, else push
+      newResults.forEach(nr => {
+        const idx = merged.findIndex(m => m.id === nr.id);
+        if (idx !== -1) merged[idx] = nr;
+        else merged.push(nr);
+      });
+      
       merged.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
       const outDir = join(ROOT, "public", "data");
       if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
@@ -418,7 +417,13 @@ async function main() {
     remaining.forEach(f => { try { unlinkSync(join(TMP_DIR, f)); } catch (_) {} });
   } catch (_) {}
 
-  const finalMerged = [...existing.values(), ...newResults];
+  const finalMerged = [...existing.values()];
+  newResults.forEach(nr => {
+    const idx = finalMerged.findIndex(m => m.id === nr.id);
+    if (idx !== -1) finalMerged[idx] = nr;
+    else finalMerged.push(nr);
+  });
+
   console.log("═".repeat(62));
   console.log(`\n✅ DONE — ${finalMerged.length} total videos in videos.json`);
   console.log(`   New: ${newResults.length} | Transcripts: ${transcriptOk}✅ ${transcriptFail}⚠️`);
