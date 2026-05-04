@@ -512,12 +512,7 @@ function PlaylistCard({ pl, index }: { pl: PlaylistEntry; index: number }) {
       {/* Info */}
       <div className="playlist-info">
         <div className="playlist-title">{pl.title}</div>
-        {latestDate && <div className="playlist-title-en">Last updated {latestDate}</div>}
-
-        <div className="playlist-meta">
-          <span>🎬 {pl.videoCount} videos</span>
-          {totalViews > 0 && <span>👁 {totalViews.toLocaleString("en-IN")} views</span>}
-        </div>
+        {latestDate && <div className="playlist-title-en">Updated {latestDate}</div>}
 
         <a
           href={pl.url}

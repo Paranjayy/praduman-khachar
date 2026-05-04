@@ -237,17 +237,6 @@ img { max-width: 100%; display: block; }
 .yt-no-videos-inner svg { color: var(--c-ink-muted); margin: 0 auto var(--space-md); }
 .yt-no-videos-inner p { color: var(--c-ink-muted); margin-bottom: var(--space-lg); }
 
-/* ── PLAYLIST CARD THUMBNAIL ── */
-.playlist-full-card { position: relative; }
-.playlist-thumb {
-  position: relative; width: 70px; height: 52px; flex-shrink: 0;
-  overflow: hidden; border-radius: 2px;
-}
-.playlist-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.playlist-thumb-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, var(--c-terracotta) / 0.15 0%, transparent 100%);
-}
 .playlist-ext-icon {
   position: absolute; top: 0.75rem; right: 0.9rem;
   font-size: 0.75rem; color: var(--c-ink-muted); opacity: 0;
@@ -1435,8 +1424,8 @@ body {
 /* ══ PLAYLISTS GRID ══════════════════════════════════════════════════════════ */
 .playlists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--space-xl);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
 }
 .playlist-card {
   background: var(--c-parchment-deep);
@@ -1468,9 +1457,8 @@ body {
 /* Top accent bar */
 .playlist-stack { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--c-terracotta); z-index: 2; }
 .playlist-info { padding: var(--space-md); flex: 1; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--c-border); }
-.playlist-title { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--c-ink); line-height: 1.35; }
-.playlist-title-en { font-size: .75rem; color: var(--c-ink-muted); font-style: italic; }
-.playlist-meta { display: flex; gap: var(--space-md); font-size: .78rem; color: var(--c-ink-muted); margin-top: auto; padding-top: var(--space-sm); border-top: 1px solid var(--c-border); flex-wrap: wrap; }
+.playlist-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--c-ink); line-height: 1.35; margin-bottom: 2px; }
+.playlist-title-en { font-size: 0.78rem; color: var(--c-ink-muted); font-style: italic; }
 .playlist-yt-link { display: inline-flex; align-items: center; gap: .4rem; color: #ff0000; font-weight: 600; font-size: .8rem; text-decoration: none; margin-top: var(--space-xs); }
 .playlist-yt-link:hover { text-decoration: underline; }
 [data-theme="dark"] .playlist-card { background: oklch(.15 .02 60); border-color: oklch(.26 .02 60); }
