@@ -48,7 +48,8 @@ const CHANNEL_ID = "UCcxFZ3XuZjB9eXyFZdrjDXQ";
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function isBroken(v) {
   // A video is "broken" if it lacks a transcript OR has null metadata
-  if (!v.likes || !v.publishedAt || v.publishedAt === "NA") return true;
+  if (!v.likes || !v.publishedAt || v.publishedAt.includes("NA")) return true;
+  if (!v.durationSeconds || v.durationSeconds === 0) return true;
   if (v.transcriptWordCount === 0 && !v.title.toLowerCase().includes("shorts")) return true;
   return false;
 }

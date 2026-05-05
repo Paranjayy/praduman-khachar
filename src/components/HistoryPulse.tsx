@@ -52,7 +52,7 @@ export default function HistoryPulse() {
         ctx.fill();
 
         if (this.text) {
-          ctx.font = "10px var(--font-sans)";
+          ctx.font = "10px sans-serif";
           ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.5})`;
           ctx.fillText(this.text, this.x + 10, this.y + 5);
         }
@@ -63,8 +63,10 @@ export default function HistoryPulse() {
       particles.push(new Particle());
     }
 
+    let mounted = true;
+
     function animate() {
-      if (!ctx) return;
+      if (!mounted || !ctx) return;
       ctx.clearRect(0, 0, w, h);
       particles.forEach(p => {
         p.update();
@@ -80,12 +82,17 @@ export default function HistoryPulse() {
       h = canvas.height = window.innerHeight;
     };
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    
+    return () => {
+      mounted = false;
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
     <canvas 
       ref={canvasRef} 
+      className="history-pulse-canvas"
       style={{ 
         position: "fixed", 
         top: 0, 
@@ -94,7 +101,7 @@ export default function HistoryPulse() {
         height: "100%", 
         pointerEvents: "none", 
         zIndex: 0,
-        opacity: 0.4
+        opacity: 0.3
       }} 
     />
   );
