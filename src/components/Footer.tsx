@@ -8,6 +8,8 @@ const FOOTER_LINKS = [
   { label: "Media", to: "/media" },
   { label: "Explore", to: "/explore" },
   { label: "Press", to: "/press" },
+  { label: "Timeline", to: "/timeline" },
+  { label: "Citations", to: "/citations" },
   { label: "Labs", to: "/labs" },
 ];
 
@@ -74,7 +76,7 @@ export default function Footer() {
           
           <div className="footer-build-info" title="Deployment Telemetry">
             <span className="build-dot"></span>
-            <span>Build {new Date().toLocaleDateString('en-GB')}</span>
+            <span>Build {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
       </div>

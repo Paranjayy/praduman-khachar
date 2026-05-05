@@ -1,11 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Marquee from "./Marquee";
 import { SITE } from "../data/content";
-
-const HERO_IMAGES = [
-  "/profile.png",
-  "/junagadh.png",
-];
 
 const MARQUEE_ITEMS = [
   "Junagadh State History",
@@ -49,27 +44,18 @@ function SplitTitle({ text }: { text: string }) {
 
 export default function Hero() {
   const labelRef = useRef<HTMLParagraphElement>(null);
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
-  // Staggered highlight reveal on the label words (Lando-style)
   useEffect(() => {
     const el = labelRef.current;
     if (!el) return;
     setTimeout(() => el.classList.add("label-revealed"), 300);
   }, []);
 
-  // Image Carousel Effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImgIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section className="hero">
       <div className="hero-bg">
-        <img src="/junagadh.png" alt="Girnar mountain range, Junagadh" />
+        {/* Removed background image as requested */}
+        <div className="hero-bg-gradient" />
       </div>
 
       <div className="hero-text">
@@ -89,19 +75,12 @@ export default function Hero() {
       </div>
 
       <div className="hero-portrait">
-        {HERO_IMAGES.map((imgSrc, idx) => (
-          <img 
-            key={imgSrc}
-            src={imgSrc} 
-            alt={`Hero image ${idx + 1}`} 
-            style={{ 
-              position: idx === 0 ? "relative" : "absolute",
-              opacity: idx === currentImgIndex ? 1 : 0,
-              transition: "opacity 1s ease-in-out",
-              objectFit: "cover"
-            }}
-          />
-        ))}
+        {/* Only keep the father's photo, remove carousel */}
+        <img 
+          src="/profile.png" 
+          alt={SITE.name} 
+          className="hero-main-portrait"
+        />
       </div>
 
       <div className="hero-marquee">

@@ -9,7 +9,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { track } from "@vercel/analytics";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, Share2, Printer, Quote, Play } from "lucide-react";
+import { Eye, Share2, Printer, Quote, Play, X, ArrowLeft, ArrowRight, Download } from "lucide-react";
 import { useReveal } from "../hooks/useAnimations";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -162,19 +162,33 @@ function ArticleReader({
     >
       <motion.div 
         className="reader-panel goated"
-        initial={{ y: 50, scale: 0.98 }}
-        animate={{ y: 0, scale: 1 }}
-        exit={{ y: 50, scale: 0.98 }}
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
-        <div className="reader-progress-bar" style={{ width: `${readProgress}%` }} />
-        
-        <button className="reader-close" onClick={onClose}>✕</button>
+        {/* Persistent Topbar */}
+        <div className="reader-topbar">
+          <div className="reader-topbar-left">
+            <button className="reader-back-btn" onClick={onClose}><X size={20} /></button>
+            <div className="reader-topbar-title">{v.title}</div>
+          </div>
+          <div className="reader-topbar-right">
+             <div className="reader-topbar-progress">{readProgress}%</div>
+             <div className="reader-topbar-actions">
+                <button title="Print" onClick={() => window.print()}><Printer size={18} /></button>
+                <button title="Share" onClick={() => navigator.clipboard.writeText(window.location.href)}><Share2 size={18} /></button>
+             </div>
+          </div>
+        </div>
 
-        <div className="reader-content" ref={contentRef}>
-          <div className="reader-editorial-wrap">
+        <div className="reader-progress-bar-fixed" style={{ width: `${readProgress}%` }} />
+
+        <div className="reader-content-scroll" ref={contentRef}>
+          <div className="reader-editorial-wrap widened">
             <header className="reader-header">
               <div className="reader-eyebrow">Archive Video Entry · {v.id.toUpperCase()}</div>
-              <h1 className="reader-title">{v.title}</h1>
+              <h1 className="reader-title large">{v.title}</h1>
               <div className="reader-meta">
                 <div className="reader-meta-item"><span>Published</span><strong>{dateStr}</strong></div>
                 <div className="reader-meta-item"><span>Views</span><strong>{v.views || "—"}</strong></div>
@@ -183,61 +197,82 @@ function ArticleReader({
               </div>
             </header>
 
-            <div className="reader-hero-visual">
-              <div className="reader-yt-embed-wrap">
-                <iframe
-                  className="reader-yt-embed"
-                  src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1${startTime ? `&start=${startTime}` : ''}`}
-                  title={v.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+            <div className="reader-grid-layout">
+              <div className="reader-main-column">
+                <div className="reader-hero-visual">
+                  <div className="reader-yt-embed-wrap">
+                    <iframe
+                      className="reader-yt-embed"
+                      src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1${startTime ? `&start=${startTime}` : ''}`}
+                      title={v.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+
+                <div className="reader-actions-ribbon">
+                  <a href={v.url} target="_blank" rel="noopener noreferrer" className="reader-cta-btn youtube">
+                    <Play size={16} fill="currentColor" /> Watch on YouTube
+                  </a>
+                  <button className="reader-cta-btn secondary" onClick={() => {
+                    const text = `${v.title} — Dr. Praduman Khachar. ${new Date(v.publishedAt).getFullYear()}. YouTube. ${v.url}`;
+                    navigator.clipboard.writeText(text);
+                  }}>
+                    <Quote size={16} /> Copy Citation
+                  </button>
+                  <button className="reader-cta-btn secondary">
+                    <Download size={16} /> Offline Copy
+                  </button>
+                </div>
+
+                <div className="reader-main-body">
+                  <div className="reader-body-label">TRANSCRIPT & DESCRIPTION</div>
+                  {paras.length > 0 ? (
+                    <div className="reader-transcript">
+                      {paras.map((p, i) => (
+                        <motion.p 
+                          key={i} 
+                          className="reader-para"
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 }}
+                          viewport={{ once: true }}
+                        >
+                          {p}
+                        </motion.p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="reader-transcript empty">
+                      <p className="reader-para description">{cleanDescription(v.description) || "No transcript or description available."}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="reader-actions-ribbon">
-              <a href={v.url} target="_blank" rel="noopener noreferrer" className="reader-cta-btn youtube">
-                <Play size={16} fill="currentColor" /> Watch on YouTube
-              </a>
-              <button className="reader-cta-btn secondary" onClick={() => window.print()}>
-                <Printer size={16} /> Print
-              </button>
-              <button className="reader-cta-btn secondary" onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                track("article_share", { id: v.id });
-              }}>
-                <Share2 size={16} /> Share
-              </button>
-              <button className="reader-cta-btn secondary" onClick={() => {
-                const text = `${v.title} — Dr. Praduman Khachar. ${new Date(v.publishedAt).getFullYear()}. YouTube. ${v.url}`;
-                navigator.clipboard.writeText(text);
-              }}>
-                <Quote size={16} /> Cite
-              </button>
-            </div>
-
-            <div className="reader-main-body">
-              <div className="reader-body-label">TRANSCRIPT & DESCRIPTION</div>
-              {paras.length > 0 ? (
-                <div className="reader-transcript">
-                  {paras.map((p, i) => (
-                    <motion.p 
-                      key={i} 
-                      className="reader-para"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      viewport={{ once: true }}
-                    >
-                      {p}
-                    </motion.p>
-                  ))}
+              <aside className="reader-sidebar">
+                <div className="sidebar-section">
+                  <div className="sidebar-label">VIDEO TAGS</div>
+                  <div className="sidebar-tags">
+                    {v.tags.map(t => <span key={t} className="sidebar-tag">{t}</span>)}
+                  </div>
                 </div>
-              ) : (
-                <div className="reader-transcript empty">
-                  <p className="reader-para description">{cleanDescription(v.description) || "No transcript or description available."}</p>
-                </div>
-              )}
+                
+                {allVideos && (
+                  <div className="sidebar-section">
+                    <div className="sidebar-label">RELATED ENTRIES</div>
+                    <div className="sidebar-related-list">
+                      {allVideos.slice(0, 4).filter(x => x.id !== v.id).map(r => (
+                        <button key={r.id} className="sidebar-related-item" onClick={() => onRelated(r)}>
+                           <img src={r.thumbnailMq} alt="" />
+                           <div className="sidebar-related-title">{r.title}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </aside>
             </div>
 
             <footer className="reader-editorial-footer">
@@ -295,11 +330,11 @@ export default function ArticlesPage() {
         subtitle="Exploring the legacy of Saurashtra through primary visual records and transcripts."
       />
 
-      <main className="section articles-page">
+      <main className="section articles-page full-width">
         {!loaded ? (
           <div className="loading">Indexing archive…</div>
         ) : (
-          <div className="articles-grid">
+          <div className="articles-grid-large">
             {videos?.map((v, i) => (
               <ArticleCard key={v.id} v={v} index={i} onOpen={handleOpen} />
             ))}
@@ -326,19 +361,23 @@ function ArticleCard({ v, index, onOpen }: { v: VideoArticle; index: number; onO
   return (
     <motion.article
       ref={ref}
-      className="article-card-premium"
+      className="article-card-premium large"
       initial={{ opacity: 0, y: 20 }}
       animate={visible ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: (index % 6) * 0.05 }}
+      transition={{ delay: (index % 8) * 0.05 }}
       onClick={() => onOpen(v)}
     >
-      <div className="article-thumb-wrap">
+      <div className="article-thumb-wrap-large">
         <img src={v.thumbnailMq} alt={v.title} loading="lazy" />
-        <div className="article-thumb-overlay"><Play size={24} fill="white" /></div>
+        <div className="article-thumb-overlay"><Play size={32} fill="white" /></div>
+        <div className="article-badge-duration">{v.durationSeconds ? `${Math.floor(v.durationSeconds/60)}m` : "Video"}</div>
       </div>
       <div className="article-info">
-        <div className="article-date">{relativeDate(v.publishedAt)}</div>
-        <h3 className="article-title-sm">{v.title}</h3>
+        <div className="article-meta-row">
+          <span className="article-date">{relativeDate(v.publishedAt)}</span>
+          {v.transcriptLang && <span className="article-lang-badge">{v.transcriptLang.toUpperCase()}</span>}
+        </div>
+        <h3 className="article-title-lg">{v.title}</h3>
       </div>
     </motion.article>
   );

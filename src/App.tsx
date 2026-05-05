@@ -22,6 +22,8 @@ import AdminPage from "./pages/Admin";
 import PressPage from "./pages/Press";
 import LabsPage from "./pages/Labs";
 import LegalPage from "./pages/Legal";
+import TimelinePage from "./pages/Timeline";
+import CitationsPage from "./pages/Citations";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
@@ -53,6 +55,8 @@ function AppInner() {
         <Route path="/legal/:type" element={<LegalPage />} />
         <Route path="/topics" element={<TopicsPage />} />
         <Route path="/reading" element={<ReadingPage />} />
+        <Route path="/timeline" element={<TimelinePage />} />
+        <Route path="/citations" element={<CitationsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
