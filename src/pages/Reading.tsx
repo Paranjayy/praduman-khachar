@@ -102,7 +102,15 @@ export default function ReadingPage() {
   );
 }
 
-function ReadingCard({ title, author, note, link, index }) {
+interface ReadingCardProps {
+  title: string;
+  author: string;
+  note?: string;
+  link?: string;
+  index: number;
+}
+
+function ReadingCard({ title, author, note, link, index }: ReadingCardProps) {
   const [ref, visible] = useReveal(0.1);
   return (
     <div

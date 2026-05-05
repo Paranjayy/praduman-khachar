@@ -1,8 +1,9 @@
+import { useState, useEffect } from "react";
 import { STATS } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 
 interface StatItemProps {
-  number: string;
+  number: string | number;
   label: string;
   delay: number;
 }
@@ -26,10 +27,26 @@ function StatItem({ number, label, delay }: StatItemProps) {
 }
 
 export default function StatsRibbon() {
+  const [liveStats, setLiveStats] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/data/stats.json')
+      .then(r => r.json())
+      .then(data => setLiveStats(data))
+      .catch(() => {});
+  }, []);
+
+  const items = liveStats ? [
+    { number: liveStats.videos, label: "Videos Archived" },
+    { number: liveStats.totalDurationHours, label: "Hours of History" },
+    { number: (liveStats.youtube.views / 1000).toFixed(1) + 'K', label: "Total Reach" },
+    { number: liveStats.transcripts, label: "Transcripts OK" }
+  ] : STATS;
+
   return (
     <div className="stats-ribbon">
-      {STATS.map((s, i) => (
-        <StatItem key={i} {...s} delay={i * 0.1} />
+      {items.map((s, i) => (
+        <StatItem key={i} number={s.number} label={s.label} delay={i * 0.1} />
       ))}
     </div>
   );

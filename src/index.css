@@ -4415,3 +4415,315 @@ body { top: 0px !important; }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* --- Stripe Press Detail View --- */
+.book-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--c-bg);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 4rem 2rem;
+  font-family: var(--font-serif);
+}
+
+.book-detail-close {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1001;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.book-detail-close:hover {
+  opacity: 1;
+}
+
+.book-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.book-detail-visual {
+  perspective: 2000px;
+  display: flex;
+  justify-content: center;
+}
+
+.book-3d-canvas {
+  width: 350px;
+  height: 500px;
+  background: var(--c-bg-subtle);
+  box-shadow: 20px 20px 60px rgba(0,0,0,0.1), -5px -5px 20px rgba(255,255,255,0.05);
+  transform: rotateY(-25deg) rotateX(5deg);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.book-detail-visual:hover .book-3d-canvas {
+  transform: rotateY(-15deg) rotateX(2deg) scale(1.02);
+}
+
+.book-detail-info h1 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.book-detail-author {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--c-ink-muted);
+  margin-bottom: 2rem;
+}
+
+.book-detail-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--c-ink);
+  margin-bottom: 3rem;
+  max-width: 500px;
+}
+
+.book-purchase-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+}
+
+.purchase-link {
+  background: var(--c-bg);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.purchase-link:hover {
+  background: var(--c-bg-subtle);
+}
+
+.purchase-link-arrow {
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+/* Sidebar Indicators */
+.scroll-indicators {
+  position: fixed;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 100;
+}
+
+.indicator-dot {
+  width: 2px;
+  height: 12px;
+  background: var(--c-ink);
+  opacity: 0.1;
+  transition: opacity 0.3s;
+}
+
+.indicator-dot.active {
+  opacity: 0.8;
+  height: 24px;
+}
+
+/* Endorsements */
+.endorsements-section {
+  margin-top: 8rem;
+  padding: 6rem 0;
+  background: #f4f1ea; /* Stripe Tan */
+  color: #1a1a1a;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme='dark'] .endorsements-section {
+  background: #111;
+  color: #eee;
+}
+
+.endorsement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 4rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.endorsement-item {
+  border-top: 1px solid rgba(0,0,0,0.1);
+  padding-top: 1.5rem;
+}
+
+.endorsement-text {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.endorsement-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+/* --- Stripe-Inspired Goated Animations --- */
+:root {
+  --ease-stripe: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s var(--ease-stripe), transform 0.8s var(--ease-stripe);
+}
+
+.reveal-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 3D Book Spine Effect for Stacks */
+.book-spine-3d {
+  position: relative;
+  width: 400px;
+  height: 60px;
+  background: var(--c-bg-subtle);
+  transform-style: preserve-3d;
+  margin: -10px 0;
+  transition: transform 0.5s var(--ease-stripe);
+  cursor: pointer;
+}
+
+.book-spine-3d:hover {
+  transform: translateX(20px) rotateY(-5deg);
+}
+
+.book-spine-3d::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+  pointer-events: none;
+}
+
+/* Sticky layout for detail view */
+.detail-sticky-container {
+  display: flex;
+  gap: 6rem;
+  padding: 4rem 0;
+}
+
+.detail-left-sticky {
+  position: sticky;
+  top: 8rem;
+  height: fit-content;
+}
+
+.detail-right-content {
+  flex: 1;
+}
+
+/* Micro-interactions on links */
+.stripe-link {
+  position: relative;
+  text-decoration: none;
+  color: var(--c-ink);
+}
+
+.stripe-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--c-ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s var(--ease-stripe);
+}
+
+.stripe-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.books-stack-visual {
+  width: 450px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  perspective: 1000px;
+  margin-right: 4rem;
+}
+
+[data-theme='light'] .book-spine-3d {
+  background: #f0f0f0;
+  color: #1a1a1a;
+  border-left-color: #333;
+}
+
+/* --- Goated Brand Mark --- */
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--c-ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Scroll progress for detail view */
+.detail-progress-track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--c-border);
+}
+
+.detail-progress-thumb {
+  width: 3px;
+  background: var(--c-ink);
+  margin-left: -1px;
+  transition: height 0.1s linear;
+}

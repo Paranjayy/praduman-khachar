@@ -21,7 +21,7 @@ export default function NotFoundPage() {
         </div>
         
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--c-ink)' }}>Archive Entry Missing</h2>
-        <p style={{ color: 'var(--c-ink-soft)', maxWidth: '32rem', marginBottom: '2.5rem', fontSize: '1.1rem', line_height: '1.7' }}>
+        <p style={{ color: 'var(--c-ink-soft)', maxWidth: '32rem', marginBottom: '2.5rem', fontSize: '1.1rem', lineHeight: '1.7' }}>
           This specific manuscript or historical event seems to have slipped through the cracks of time. Even the most meticulous archives have their mysteries.
         </p>
         

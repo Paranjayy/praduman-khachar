@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, RefObject } from "react";
 
-export function useReveal(threshold = 0.12): [RefObject<HTMLElement>, boolean] {
-  const ref = useRef<HTMLElement>(null);
+export function useReveal(threshold = 0.12): [any, boolean] {
+  const ref = useRef<any>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function useReveal(threshold = 0.12): [RefObject<HTMLElement>, boolean] {
     return () => obs.disconnect();
   }, [threshold]);
 
-  return [ref, visible];
+  return [ref as any, visible];
 }
 
 export function useScrolled(offset = 20): boolean {

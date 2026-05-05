@@ -37,6 +37,7 @@ interface VideoArticle {
   transcriptSegments?: TranscriptSegment[];
   readMinutes: number;
   transcript: string;
+  durationSeconds?: number;
   url: string;
 }
 
@@ -119,7 +120,7 @@ function parseTimestamps(text: string, onSeek: (t: number) => void) {
   if (!text) return null;
   const regex = /(\d{1,2}:)?(\d{1,2}):(\d{2})/g;
   const parts = text.split(regex);
-  const elements: (string | JSX.Element)[] = [];
+  const elements: (string | React.ReactNode)[] = [];
   
   let match;
   let lastIndex = 0;
@@ -214,6 +215,49 @@ function computeSentenceStats(text: string) {
   const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^\w]/g, ''))).size;
   const vocabRichness = Math.round((uniqueWords / words.length) * 100);
   return { avg, min, max, total: sentences.length, sample, uniqueWords, vocabRichness };
+}
+
+/**
+ * Group raw segments into 30s chunks for cleaner UI
+ */
+function groupSegments(segs: TranscriptSegment[]): TranscriptSegment[] {
+  if (!segs.length) return [];
+  const grouped: TranscriptSegment[] = [];
+  let current: TranscriptSegment | null = null;
+  segs.forEach(s => {
+    if (!current || s.t - current.t > 30) {
+      if (current) grouped.push(current);
+      current = { ...s };
+    } else {
+      current.text += " " + s.text;
+    }
+  });
+  if (current) grouped.push(current);
+  return grouped;
+}
+
+/**
+ * Mock translation (simulates AI translation for local demo)
+ */
+async function translatePara(text: string, srcLang: string): Promise<string> {
+  // In production this would call an AI API
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(`[AI Translated from ${srcLang.toUpperCase()}]: ${text.slice(0, 100)}...`);
+    }, 300);
+  });
+}
+
+function findTranscriptSnippet(transcript: string, query: string, contextChars = 120): string | null {
+  if (!transcript || !query) return null;
+  const idx = transcript.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return null;
+  const start = Math.max(0, idx - contextChars / 2);
+  const end = Math.min(transcript.length, idx + query.length + contextChars / 2);
+  let snippet = transcript.substring(start, end);
+  if (start > 0) snippet = "…" + snippet;
+  if (end < transcript.length) snippet = snippet + "…";
+  return snippet;
 }
 
 // ─── Article Reader (full-screen panel) ──────────────────────────────────────

@@ -28,6 +28,25 @@ interface VideoArticle {
   url: string;
 }
 
+interface QuicklookProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  itemId?: string;
+  type?: 'video' | 'writing';
+  image?: string;
+  videoUrl?: string;
+  figures?: string[];
+  description?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
+  metadata?: {
+    format?: string;
+    size?: string;
+    date?: string;
+  };
+}
+
 interface UnifiedItem {
   id: string;
   type: "video" | "writing";
@@ -42,6 +61,7 @@ interface UnifiedItem {
   category?: string;
   lang?: string;
   transcriptSnippet?: string;
+  url?: string;
   score?: number;
 }
 
@@ -122,13 +142,43 @@ export default function ExplorePage() {
   // Quicklook State
   const [quicklookItem, setQuicklookItem] = useState<UnifiedItem | null>(null);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    setMousePos({ x: e.clientX, y: e.clientY });
-  };
-
   const handleQuicklook = (e: React.MouseEvent, item: UnifiedItem) => {
+    e.preventDefault();
     e.stopPropagation();
     setQuicklookItem(item);
+  };
+
+  const handleNext = () => {
+    if (!quicklookItem) return;
+    const idx = filteredItems.findIndex(i => i.id === quicklookItem.id);
+    if (idx < filteredItems.length - 1) {
+      setQuicklookItem(filteredItems[idx + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (!quicklookItem) return;
+    const idx = filteredItems.findIndex(i => i.id === quicklookItem.id);
+    if (idx > 0) {
+      setQuicklookItem(filteredItems[idx - 1]);
+    }
+  };
+
+  // CMS Hide Logic
+  const [hiddenIds, setHiddenIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem("archival_hidden_ids");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [isAdmin] = useState(() => localStorage.getItem("is_admin") === "true");
+
+  const toggleHide = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newHidden = hiddenIds.includes(id) 
+      ? hiddenIds.filter(i => i !== id)
+      : [...hiddenIds, id];
+    setHiddenIds(newHidden);
+    localStorage.setItem("archival_hidden_ids", JSON.stringify(newHidden));
   };
 
   // Auto-translate English queries to Gujarati for cross-lingual matching
@@ -179,6 +229,7 @@ export default function ExplorePage() {
       words: v.transcriptWordCount,
       views: v.views || undefined,
       lang: v.transcriptLang || "auto",
+      url: v.url,
     }));
 
     return [...writingsMapped, ...videosMapped];
@@ -186,8 +237,14 @@ export default function ExplorePage() {
 
   const filteredItems = useMemo(() => {
     let list = items;
+    
+    // Filter hidden items unless in admin mode
+    if (!isAdmin) {
+      list = list.filter(item => !hiddenIds.includes(item.id));
+    }
+
     if (typeFilter !== "all") {
-      list = list.filter(item => item.type === typeFilter);
+      list = list.filter(i => i.type === typeFilter);
     }
 
     if (search.trim()) {
@@ -238,11 +295,11 @@ export default function ExplorePage() {
           if (score === 0) return null;
           return { ...item, score, transcriptSnippet };
         })
-        .filter((i): i is UnifiedItem & { score: number } => i !== null)
-        .sort((a, b) => {
-          if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+        .filter((i: any): i is any => !!i && i.score !== undefined)
+        .sort((a: any, b: any) => {
+          if (b.score !== a.score) return b.score - a.score;
           return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
-        })) as UnifiedItem[];
+        }) as any[]) as UnifiedItem[];
     }
 
     // Default sort if no search
@@ -318,7 +375,10 @@ export default function ExplorePage() {
               <option value="title">Alphabetical</option>
             </select>
 
-            <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "var(--c-ink-muted)", cursor: "pointer", whiteSpace: "nowrap" }}>
+            <label 
+              style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "var(--c-ink-muted)", cursor: "pointer", whiteSpace: "nowrap" }}
+              title={`${transcriptSearchable} out of ${totalVideos} video transcripts are currently long enough (>100 characters) to be indexed for deep search. Short or missing transcripts are excluded for better result quality.`}
+            >
               <input
                 type="checkbox"
                 checked={searchInTranscripts}
@@ -339,6 +399,12 @@ export default function ExplorePage() {
                 </button>
               ))}
             </div>
+
+            {isAdmin && (
+              <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--c-terracotta)' }}>
+                ADMIN MODE ACTIVE
+              </div>
+            )}
           </div>
         </div>
 
@@ -352,8 +418,13 @@ export default function ExplorePage() {
         ) : viewMode === "grid" ? (
           <div className="explore-grid">
             {filteredItems.map(item => (
-              <div key={`${item.type}-${item.id}`} className="explore-card-container">
-                <Link to={item.slug} className="explore-card" data-cursor-text="View">
+              <div key={`${item.type}-${item.id}`} className={`explore-card-container ${hiddenIds.includes(item.id) ? 'is-hidden-admin' : ''}`}>
+                <div 
+                  className="explore-card" 
+                  data-cursor-text={item.type === 'video' ? 'Play' : 'View'}
+                  onClick={(e) => item.type === 'video' ? handleQuicklook(e, item) : navigate(item.slug)}
+                  style={{ cursor: 'pointer' }}
+                >
                   {item.thumbnail ? (
                     <div className="explore-card-thumb">
                       <img src={item.thumbnail} alt={item.title} loading="lazy" />
@@ -379,14 +450,27 @@ export default function ExplorePage() {
                       {item.views && <span className="explore-stat">👁 {item.views}</span>}
                     </div>
                   </div>
-                </Link>
-                <button 
-                  className="card-quicklook-trigger" 
-                  onClick={(e) => handleQuicklook(e, item)}
-                  data-cursor-text="Quick Look"
-                >
-                  <Eye size={16} />
-                </button>
+                </div>
+                
+                <div className="card-actions-overlay">
+                  <button 
+                    className="card-quicklook-trigger" 
+                    onClick={(e) => handleQuicklook(e, item)}
+                    data-cursor-text="Quick Look"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  
+                  {isAdmin && (
+                    <button 
+                      className="card-admin-hide-btn"
+                      onClick={(e) => toggleHide(e, item.id)}
+                      title={hiddenIds.includes(item.id) ? "Show" : "Hide"}
+                    >
+                      {hiddenIds.includes(item.id) ? "👁️" : "🗑️"}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -412,7 +496,7 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : (
-          <div className="explore-table-wrap" onMouseMove={handleMouseMove}>
+          <div className="explore-table-wrap">
             <table className="explore-table">
               <thead>
                 <tr>
@@ -450,6 +534,16 @@ export default function ExplorePage() {
                         >
                           <Eye size={18} />
                         </button>
+                        
+                        {isAdmin && (
+                          <button 
+                            className="table-admin-hide-btn"
+                            onClick={(e) => toggleHide(e, item.id)}
+                            title={hiddenIds.includes(item.id) ? "Show" : "Hide"}
+                          >
+                            {hiddenIds.includes(item.id) ? "👁️" : "🗑️"}
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -472,10 +566,15 @@ export default function ExplorePage() {
           onClose={() => setQuicklookItem(null)}
           title={quicklookItem?.title || ""}
           itemId={quicklookItem?.id.toUpperCase() || "ARC.001"}
+          type={quicklookItem?.type}
           image={quicklookItem?.thumbnail}
+          videoUrl={quicklookItem?.url}
           description={quicklookItem?.description}
+          transcript={quicklookItem?.type === 'video' ? videos.find(v => v.id === quicklookItem.id)?.transcript : undefined}
+          onNext={handleNext}
+          onPrev={handlePrev}
           figures={quicklookItem?.type === 'video' ? [
-            quicklookItem.thumbnail,
+            quicklookItem.thumbnail!,
             "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=300",
             "https://images.unsplash.com/photo-1454165833767-027ffea9e77b?auto=format&fit=crop&q=80&w=300"
           ] : []}

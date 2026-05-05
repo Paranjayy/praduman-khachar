@@ -424,6 +424,44 @@ async function main() {
     else finalMerged.push(nr);
   });
 
+  // ── Stats Generation ────────────────────────────────────────────────────────
+  console.log("📊 Phase 4: Generating Analytics & Statistics...");
+  
+  const totalSeconds = finalMerged.reduce((sum, v) => sum + (v.durationSec || 0), 0);
+  const totalWords = finalMerged.reduce((sum, v) => sum + (v.transcriptWordCount || 0), 0);
+  const transcriptCount = finalMerged.filter(v => v.transcript && v.transcript.length > 20).length;
+  
+  // Tag Cloud
+  const tagCounts = {};
+  finalMerged.forEach(v => {
+    (v.tags || []).forEach(t => {
+      tagCounts[t] = (tagCounts[t] || 0) + 1;
+    });
+  });
+  const topTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([name, count]) => ({ name, count }));
+
+  const stats = {
+    videos: finalMerged.length,
+    playlists: 33, // static for now
+    transcripts: transcriptCount,
+    totalDurationHours: Math.round(totalSeconds / 3600),
+    totalWords: totalWords,
+    avgWordsPerVid: Math.round(totalWords / (transcriptCount || 1)),
+    topTags,
+    lastUpdated: new Date().toISOString(),
+    youtube: {
+      subscribers: 0,
+      views: finalMerged.reduce((sum, v) => sum + parseInt((v.views || "0").replace(/,/g, "")), 0)
+    }
+  };
+
+  const STATS_PATH = join(ROOT, "public", "data", "stats.json");
+  writeFileSync(STATS_PATH, JSON.stringify(stats, null, 2), "utf8");
+  console.log(`✅ Stats saved to public/data/stats.json`);
+
   console.log("═".repeat(62));
   console.log(`\n✅ DONE — ${finalMerged.length} total videos in videos.json`);
   console.log(`   New: ${newResults.length} | Transcripts: ${transcriptOk}✅ ${transcriptFail}⚠️`);

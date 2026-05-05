@@ -47,7 +47,6 @@ export default function Career() {
         <div>
           <h3 style={{
             fontFamily: "var(--font-display)",
-            fontSize: "1.1rem",
             fontWeight: 600,
             marginBottom: "var(--space-lg)",
             color: "var(--c-ink-muted)",

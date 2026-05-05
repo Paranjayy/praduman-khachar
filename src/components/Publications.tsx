@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { useReveal } from "../hooks/useAnimations";
 
@@ -14,6 +15,11 @@ export default function Publications() {
   const [ref, visible] = useReveal();
   const [filter, setFilter] = useState("all");
   const [expanded, setExpanded] = useState(false);
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
   const filtered = filter === "all"
     ? BOOKS
@@ -22,28 +28,51 @@ export default function Publications() {
   const displayBooks = expanded ? filtered : filtered.slice(0, 12);
 
   return (
-    <section id="publications" className="section">
+    <section id="publications" className="section" ref={containerRef}>
       <div ref={ref} className={`reveal${visible ? " visible" : ""}`}>
-        <p className="section-label">Publications</p>
-        <h2 className="section-title">33 Books.<br />A Scholar's Legacy.</h2>
+        <div className="brand-mark">G</div>
+        <p className="section-label">Selected Works</p>
+        <h2 className="section-title">The Bibliographic Archive.</h2>
         <div className="section-divider" />
       </div>
 
-      <div className="books-intro">
-        <div>
-          <p style={{
-            fontSize: "clamp(1rem, 1.15vw, 1.1rem)",
-            color: "var(--c-ink-soft)",
-            maxWidth: "36rem",
-            lineHeight: 1.7,
-          }}>
-            A prolific author whose work spans the breadth of Saurashtra's
-            history — from ancient kingdoms and Nawabi courts to folk traditions
-            and architectural heritage. Each book represents years of primary
-            research, field documentation, and archival scholarship.
+      <div className="books-intro" style={{ marginBottom: '8rem' }}>
+        <div className="books-stack-visual">
+          {[0, 1, 2, 3].map((i) => {
+            const book = BOOKS[i];
+            return (
+              <motion.div
+                key={i}
+                className="book-spine-3d"
+                style={{
+                  y: useTransform(scrollYProgress, [0, 1], [i * 40, i * -40]),
+                  rotateX: useTransform(scrollYProgress, [0, 1], [20, -20]),
+                  zIndex: 10 - i,
+                  background: i % 2 === 0 ? '#2a2a2a' : '#3a3a3a',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 2rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                  borderLeft: '4px solid var(--c-accent)'
+                }}
+              >
+                {book.title}
+              </motion.div>
+            );
+          })}
+        </div>
+        
+        <div style={{ flex: 1, paddingTop: '2rem' }}>
+          <p className="reveal-up visible" style={{ fontSize: '1.25rem', lineHeight: 1.6, color: 'var(--c-ink-soft)' }}>
+            Dr. Praduman Khachar's publication record spans 33 seminal works, 
+            forming the bedrock of modern Saurashtra historiography. 
+            From the Library of Congress to the benches of the High Court, 
+            these volumes serve as the definitive records of a vanishing heritage.
           </p>
         </div>
-        <div className="books-count">33</div>
       </div>
 
       {/* Filter tabs */}
@@ -55,11 +84,6 @@ export default function Publications() {
             onClick={() => { setFilter(f.key); setExpanded(false); }}
           >
             {f.label}
-            {f.key !== "all" && (
-              <span className="filter-count">
-                {BOOKS.filter((b) => b.category === f.key).length}
-              </span>
-            )}
           </button>
         ))}
       </div>
@@ -70,6 +94,7 @@ export default function Publications() {
           <BookCard key={book.title} {...book} index={i} />
         ))}
       </div>
+
 
       {filtered.length > 12 && !expanded && (
         <div style={{ textAlign: "center", marginTop: "var(--space-lg)" }}>

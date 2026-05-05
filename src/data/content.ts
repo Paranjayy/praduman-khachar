@@ -8,6 +8,7 @@ export const SITE: SITE_INFO = {
   email: "pkhachar@gmail.com",
   designation: "Associate Professor & PhD Guide",
   institution: "Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh",
+  tagline: "Preserving the legacy of Saurashtra through scholarly research and storytelling.",
 };
 
 export const SOCIAL_STATS = {

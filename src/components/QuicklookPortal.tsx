@@ -7,9 +7,19 @@ interface QuicklookProps {
   onClose: () => void;
   title: string;
   itemId?: string;
+  type?: 'video' | 'writing';
   image?: string;
+  videoUrl?: string;
   figures?: string[];
   description?: string;
+  transcript?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
+  metadata?: {
+    format?: string;
+    size?: string;
+    date?: string;
+  };
 }
 
 export const QuicklookPortal: React.FC<QuicklookProps> = ({
@@ -17,12 +27,19 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
   onClose,
   title,
   itemId = "ARC.001",
+  type = 'writing',
   image,
+  videoUrl,
   figures = [],
   description,
+  transcript,
+  onPrev,
+  onNext,
+  metadata,
 }) => {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [activeFigure, setActiveFigure] = useState(image);
+  const [showTranscript, setShowTranscript] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -35,8 +52,10 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
       setActiveFigure(image);
       setZoom(1);
       setRotation(0);
-      // Center the window initially
-      setPosition({ x: 0, y: 0 });
+      // Don't reset position if already dragged
+      if (position.x === 0 && position.y === 0) {
+        // Initial center
+      }
     }
   }, [isOpen, image]);
 
@@ -47,6 +66,9 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
   const handleRotate = () => setRotation(prev => (prev + 90) % 360);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Only drag from header, not buttons
+    if ((e.target as HTMLElement).closest('.ql-nav-btn') || (e.target as HTMLElement).closest('.ql-icon-btn') || (e.target as HTMLElement).closest('.ql-dot')) return;
+    
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - position.x,
@@ -73,21 +95,31 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragOffset, position]);
+  }, [isDragging, dragOffset]);
 
   const handleAnimationEnd = () => {
     if (!isOpen) setShouldRender(false);
   };
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleKeys = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && onPrev) onPrev();
+      if (e.key === 'ArrowRight' && onNext) onNext();
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+    window.addEventListener('keydown', handleKeys);
+    return () => window.removeEventListener('keydown', handleKeys);
+  }, [onClose, onPrev, onNext]);
 
   if (!shouldRender) return null;
+
+  // Extract YouTube ID if it's a video
+  const getYoutubeId = (url?: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&]{11})/);
+    return match ? match[1] : null;
+  };
+  const videoId = type === 'video' ? getYoutubeId(videoUrl) : null;
 
   return createPortal(
     <div 
@@ -101,7 +133,7 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       >
         {/* Window Header */}
-        <div className="ql-header" onMouseDown={handleMouseDown}>
+        <div className="ql-header" onMouseDown={handleMouseDown} style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
           <div className="ql-controls">
             <div className="ql-dot close" onClick={onClose} />
             <div className="ql-dot minimize" />
@@ -111,14 +143,14 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
           <div className="ql-breadcrumbs">
             <span className="ql-bc-item">ARCHIVE</span>
             <span className="ql-bc-sep">/</span>
-            <span className="ql-bc-item">COLLECTION</span>
+            <span className="ql-bc-item">{type?.toUpperCase() || 'DOCUMENT'}</span>
             <span className="ql-bc-sep">/</span>
             <span className="ql-bc-item active">{itemId}</span>
           </div>
 
           <div className="ql-nav-group">
-            <button className="ql-nav-btn"><ChevronLeft size={16} /></button>
-            <button className="ql-nav-btn"><ChevronRight size={16} /></button>
+            <button className="ql-nav-btn" onClick={onPrev} disabled={!onPrev}><ChevronLeft size={16} /></button>
+            <button className="ql-nav-btn" onClick={onNext} disabled={!onNext}><ChevronRight size={16} /></button>
           </div>
 
           <div className="ql-actions">
@@ -132,7 +164,17 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
           {/* Main Content Area */}
           <div className="ql-main">
             <div className="ql-viewport">
-              {activeFigure ? (
+              {videoId ? (
+                <div className="ql-video-container">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                    title={title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : activeFigure ? (
                 <img 
                   src={activeFigure} 
                   alt={title} 
@@ -147,21 +189,23 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
               )}
             </div>
 
-            {/* Floating Zoom Controls */}
-            <div className="ql-zoom-hud">
-              <button onClick={() => handleZoom(0.2)}><ZoomIn size={14} /></button>
-              <div className="ql-zoom-level">{Math.round(zoom * 100)}%</div>
-              <button onClick={() => handleZoom(-0.2)}><ZoomOut size={14} /></button>
-              <div className="ql-hud-sep" />
-              <button onClick={handleRotate}><RotateCcw size={14} /></button>
-            </div>
+            {/* Floating Zoom Controls (Only for images) */}
+            {!videoId && (
+              <div className="ql-zoom-hud">
+                <button onClick={() => handleZoom(0.2)}><ZoomIn size={14} /></button>
+                <div className="ql-zoom-level">{Math.round(zoom * 100)}%</div>
+                <button onClick={() => handleZoom(-0.2)}><ZoomOut size={14} /></button>
+                <div className="ql-hud-sep" />
+                <button onClick={handleRotate}><RotateCcw size={14} /></button>
+              </div>
+            )}
           </div>
 
           {/* Sidebar Gallery */}
           <div className="ql-sidebar">
             <div className="ql-sidebar-header">
-              <span>FIGURES</span>
-              <button className="ql-save-btn">SAVE IMG</button>
+              <span>{videoId ? 'PLAYLIST' : 'FIGURES'}</span>
+              <button className="ql-save-btn">SAVE {videoId ? 'URL' : 'IMG'}</button>
             </div>
             <div className="ql-gallery">
               {[image, ...figures].filter(Boolean).map((fig, idx) => (
@@ -180,6 +224,22 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
               <h3 className="ql-item-title">{title}</h3>
               <p className="ql-item-desc">{description}</p>
               
+              {transcript && (
+                <div className="ql-transcript-section">
+                  <div className="ql-sidebar-header" style={{ marginTop: '10px', padding: '10px 0' }}>
+                    <span>TRANSCRIPT</span>
+                    <button className="ql-save-btn" onClick={() => setShowTranscript(!showTranscript)}>
+                      {showTranscript ? 'HIDE' : 'SHOW'}
+                    </button>
+                  </div>
+                  {showTranscript && (
+                    <div className="ql-transcript-box">
+                      {transcript}
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="ql-sidebar-header" style={{ marginTop: '10px', padding: '10px 0' }}>
                 <span>RELATED DOCUMENTS</span>
               </div>
@@ -195,9 +255,9 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
               </div>
 
               <div className="ql-metadata">
-                <div><span>FORMAT</span><span>JPEG</span></div>
-                <div><span>SIZE</span><span>2.4 MB</span></div>
-                <div><span>DATE</span><span>05/04/2026</span></div>
+                <div><span>FORMAT</span><span>{metadata?.format || (videoId ? 'MP4/YT' : 'JPEG')}</span></div>
+                <div><span>SIZE</span><span>{metadata?.size || (videoId ? 'NA' : '2.4 MB')}</span></div>
+                <div><span>DATE</span><span>{metadata?.date || '05/04/2026'}</span></div>
               </div>
             </div>
           </div>

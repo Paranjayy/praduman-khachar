@@ -22,6 +22,7 @@ export interface SITE_INFO {
   email: string;
   designation: string;
   institution: string;
+  tagline?: string;
 }
 
 export interface Achievement {

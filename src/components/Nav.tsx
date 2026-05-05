@@ -15,6 +15,44 @@ export default function Nav() {
   const { pathname } = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
   const moreRef = useRef<HTMLLIElement>(null);
+  const [currentLang, setCurrentLang] = useState('en');
+
+  useEffect(() => {
+    const syncLang = () => {
+      const cookies = document.cookie.split('; ');
+      const googtrans = cookies.find(c => c.startsWith('googtrans='));
+      if (googtrans) {
+        const val = googtrans.split('=')[1].split('/').pop();
+        if (val && ['en', 'gu', 'hi'].includes(val)) {
+          setCurrentLang(val);
+          const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+          if (select && select.value !== val) {
+            select.value = val;
+            select.dispatchEvent(new Event('change'));
+          }
+        }
+      }
+    };
+    syncLang();
+    const interval = setInterval(syncLang, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const lang = e.target.value;
+    setCurrentLang(lang);
+    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (select) {
+      select.value = lang;
+      select.dispatchEvent(new Event('change'));
+    }
+    document.cookie = `googtrans=/en/${lang === 'en' ? 'en' : lang}; path=/; domain=${window.location.hostname}`;
+    if (lang === 'en') {
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+      window.location.reload();
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,13 +65,11 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close everything on route change
   useEffect(() => {
     setOpen(false);
     setMoreOpen(false);
   }, [pathname]);
 
-  // Handle click outside for 'More' dropdown
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
@@ -44,7 +80,6 @@ export default function Nav() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Lock scroll when mobile menu is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -96,33 +131,33 @@ export default function Nav() {
             </li>
           ))}
           {links.length > 5 && (
-             <li className="nav-more-item" ref={moreRef}>
-                <button 
-                  className={`nav-more-trigger${moreOpen ? ' active' : ''}`}
-                  onClick={() => setMoreOpen(!moreOpen)}
-                >
-                  More ▾
-                </button>
-                <AnimatePresence>
-                  {moreOpen && (
-                    <motion.ul 
-                      className="nav-more-dropdown"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {links.slice(5).map(link => (
-                        <li key={link.to}>
-                          <Link to={link.to} className={pathname === link.to ? "active" : ""}>
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
-             </li>
+            <li className="nav-more-item" ref={moreRef}>
+              <button 
+                className={`nav-more-trigger${moreOpen ? ' active' : ''}`}
+                onClick={() => setMoreOpen(!moreOpen)}
+              >
+                More ▾
+              </button>
+              <AnimatePresence>
+                {moreOpen && (
+                  <motion.ul 
+                    className="nav-more-dropdown"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {links.slice(5).map(link => (
+                      <li key={link.to}>
+                        <Link to={link.to} className={pathname === link.to ? "active" : ""}>
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </li>
           )}
         </ul>
 
@@ -136,13 +171,8 @@ export default function Nav() {
             <Globe size={16} />
             <select
               className="lang-select-premium"
-              onChange={(e) => {
-                const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-                if (select) {
-                  select.value = e.target.value;
-                  select.dispatchEvent(new Event('change'));
-                }
-              }}
+              value={currentLang}
+              onChange={handleLangChange}
             >
               <option value="en">EN</option>
               <option value="gu">ગુજરાતી</option>
