@@ -12,24 +12,25 @@ import Support from "../components/Support";
 import Contact from "../components/Contact";
 
 import { useScrollReveal } from "../hooks/useScrollReveal";
+import HomeTOC from "../components/HomeTOC";
 
 export default function HomePage() {
   const revealRef = useScrollReveal();
 
   return (
     <div className="home-reveal-wrapper">
-      <section ref={revealRef}><Hero /></section>
-      <section ref={revealRef}><StatsRibbon /></section>
-      <section ref={revealRef}><OnThisDay /></section>
-      <section ref={revealRef}><FeaturedTalks /></section>
-      <section ref={revealRef}><About /></section>
-      <section ref={revealRef}><Achievements /></section>
-      <section ref={revealRef}><Testimonials /></section>
-      <section ref={revealRef}><Career /></section>
-      <section ref={revealRef}><Publications /></section>
-      <section ref={revealRef}><MediaSection /></section>
-      <section ref={revealRef}><Support /></section>
-      <section ref={revealRef}><Contact /></section>
+      <HomeTOC />
+      <section id="hero" ref={revealRef}><Hero /></section>
+      <section id="stats" ref={revealRef}><StatsRibbon /></section>
+      <section id="today" ref={revealRef}><OnThisDay /></section>
+      <section id="talks" ref={revealRef}><FeaturedTalks /></section>
+      <section id="about" ref={revealRef}><About /></section>
+      <section id="achievements" ref={revealRef}><Achievements /></section>
+      <section id="career" ref={revealRef}><Career /></section>
+      <section id="testimonials" ref={revealRef}><Testimonials /></section>
+      <section id="media" ref={revealRef}><MediaSection /></section>
+      <section id="support" ref={revealRef}><Support /></section>
+      <section id="contact" ref={revealRef}><Contact /></section>
     </div>
   );
 }

@@ -14,19 +14,23 @@ function TimelineItem({ period, title, place, desc, index }: TimelineItemProps) 
   return (
     <div
       ref={ref}
-      className="timeline-item"
+      className="career-item"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(16px)",
         transition: `all 0.6s ${index * 0.1}s ease`,
       }}
     >
-      <div className="timeline-year">{period}</div>
-      <h3 className="timeline-title">{title}</h3>
-      <p className="timeline-desc">
-        <em>{place}</em>
-        {desc && <><br />{desc}</>}
-      </p>
+      <div className="career-grid">
+        <div className="career-year">{period}</div>
+        <div className="career-info">
+          <h3 className="career-title">{title}</h3>
+          <p className="career-desc">
+            <em>{place}</em>
+            {desc && <><br />{desc}</>}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -56,7 +60,7 @@ export default function Career() {
           }}>
             Professional Experience
           </h3>
-          <div className="timeline">
+          <div className="career-timeline">
             {CAREER.map((item, i) => (
               <TimelineItem key={i} {...item} index={i} />
             ))}
@@ -77,7 +81,7 @@ export default function Career() {
               Education
             </h3>
           </div>
-          <div className="timeline">
+          <div className="career-timeline">
             {EDUCATION.map((item, i) => (
               <TimelineItem
                 key={i}

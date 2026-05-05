@@ -116,6 +116,11 @@ function findTranscriptSnippet(transcript: string, query: string, contextChars =
   let snippet = transcript.slice(start, end).trim();
   if (start > 0) snippet = "…" + snippet;
   if (end < transcript.length) snippet = snippet + "…";
+  
+  // Highlight the query
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  snippet = snippet.replace(regex, '<mark>$1</mark>');
+  
   return snippet;
 }
 
@@ -441,7 +446,7 @@ export default function ExplorePage() {
                     </div>
                     <h3 className="explore-card-title">{item.title}</h3>
                     {item.transcriptSnippet ? (
-                      <p className="transcript-snippet">{item.transcriptSnippet}</p>
+                      <p className="transcript-snippet" dangerouslySetInnerHTML={{ __html: item.transcriptSnippet }} />
                     ) : (
                       <p className="explore-card-desc">{item.description.slice(0, 110)}…</p>
                     )}
@@ -481,7 +486,7 @@ export default function ExplorePage() {
                 <span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span>
                 <div className="explore-compact-body">
                   <span className="explore-compact-title">{item.title}</span>
-                  {item.transcriptSnippet && <span className="transcript-snippet" style={{ display: "block", marginTop: "4px" }}>{item.transcriptSnippet}</span>}
+                  {item.transcriptSnippet && <span className="transcript-snippet" style={{ display: "block", marginTop: "4px" }} dangerouslySetInnerHTML={{ __html: item.transcriptSnippet }} />}
                 </div>
                 <div className="explore-compact-meta">
                   <button 
@@ -520,7 +525,7 @@ export default function ExplorePage() {
                     <td><span className={`explore-type-badge ${item.type}`}>{item.type === "video" ? "🎥" : "✍️"}</span></td>
                     <td className="explore-table-title">
                       {item.title}
-                      {item.transcriptSnippet && <p className="transcript-snippet" style={{ marginTop: "4px" }}>{item.transcriptSnippet}</p>}
+                      {item.transcriptSnippet && <p className="transcript-snippet" style={{ marginTop: "4px" }} dangerouslySetInnerHTML={{ __html: item.transcriptSnippet }} />}
                     </td>
                     <td>{relativeDate(item.date)}</td>
                     <td>{item.views || (item.words ? `${item.words}w` : "—")}</td>

@@ -137,6 +137,54 @@ function InteractiveCover({ book, index }: { book: Book; index: number }) {
   );
 }
 
+// ── Spine View Item ──────────────────────────────────────────────────────────
+function BookSpine({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
+  const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
+  return (
+    <motion.div
+      className="sp-spine"
+      style={{ "--sp-accent": accent } as React.CSSProperties}
+      onClick={onClick}
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ delay: index * 0.02 }}
+      whileHover={{ x: 10 }}
+    >
+      <div className="sp-spine-index">{String(index + 1).padStart(2, "0")}</div>
+      <div className="sp-spine-title-wrap">
+        <div className="sp-spine-title">{book.title}</div>
+        {book.titleGu && <div className="sp-spine-titlegu">{book.titleGu}</div>}
+      </div>
+      <div className="sp-spine-cat">{BOOK_CATEGORIES[book.category]}</div>
+      <div className="sp-spine-year">{book.year}</div>
+    </motion.div>
+  );
+}
+
+// ── Card View Item ──────────────────────────────────────────────────────────
+function BookCard({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
+  return (
+    <div className="sp-card" onClick={onClick}>
+      <div className="sp-card-visual">
+        {book.imageUrl ? (
+          <img src={book.imageUrl} alt={book.title} />
+        ) : (
+          <div className="sp-card-placeholder" style={{ background: book.themeColor || CATEGORY_COLORS[book.category] }}>
+             <span>{book.title.charAt(0)}</span>
+          </div>
+        )}
+      </div>
+      <div className="sp-card-body">
+        <div className="sp-card-meta">
+          <span className="sp-card-cat">{BOOK_CATEGORIES[book.category]}</span>
+          {book.year && <span className="sp-card-year">{book.year}</span>}
+        </div>
+        <h3 className="sp-card-title">{book.title}</h3>
+      </div>
+    </div>
+  );
+}
+
 // ── Section Item within Endless Scroll Detail ───────────────────────────────
 function DetailSection({ 
   book, 

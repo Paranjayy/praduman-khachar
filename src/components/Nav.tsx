@@ -100,6 +100,7 @@ export default function Nav() {
     { label: "Press", to: "/press" },
     { label: "Timeline", to: "/timeline" },
     { label: "Citations", to: "/citations" },
+    { label: "Map", to: "/map" },
     { label: "Labs", to: "/labs" },
   ];
 

@@ -237,6 +237,11 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
                       {transcript}
                     </div>
                   )}
+                  {!showTranscript && transcript.length > 200 && (
+                     <div className="ql-transcript-preview">
+                        <em>Deep Context:</em> {transcript.slice(0, 150)}...
+                     </div>
+                  )}
                 </div>
               )}
               

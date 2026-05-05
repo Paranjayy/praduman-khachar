@@ -17,48 +17,48 @@ export default function TimelinePage() {
   usePageTitle("Heritage Timeline");
 
   return (
-    <div className="timeline-page">
+    <div className="ht-page">
       <PageHeader 
         eyebrow="Chronicle of Research"
         title="Heritage Timeline"
         subtitle="A journey through decades of archival discovery and historical preservation."
       />
 
-      <main className="section timeline-container">
-        <div className="timeline-line" />
+      <main className="section ht-container">
+        <div className="ht-line" />
         
-        <div className="timeline-items">
+        <div className="ht-items">
           {MILESTONES.map((m, i) => (
             <motion.div 
               key={m.year}
-              className={`timeline-item ${i % 2 === 0 ? 'left' : 'right'}`}
+              className={`ht-item ${i % 2 === 0 ? 'left' : 'right'}`}
               initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: i * 0.1 }}
             >
-              <div className="timeline-dot" />
-              <div className="timeline-content">
-                <div className="timeline-year">{m.year}</div>
-                <p className="timeline-event">{m.event}</p>
+              <div className="ht-dot" />
+              <div className="ht-content">
+                <div className="ht-year">{m.year}</div>
+                <p className="ht-event">{m.event}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        <section className="timeline-books-milestones">
-          <h2 className="timeline-sub-title">Major Publications</h2>
-          <div className="timeline-grid">
+        <section className="ht-books-milestones">
+          <h2 className="ht-sub-title">Major Publications</h2>
+          <div className="ht-grid">
             {BOOKS.filter(b => b.year).sort((a,b) => parseInt(a.year || "0") - parseInt(b.year || "0")).map((b, i) => (
               <motion.div 
                 key={b.title}
-                className="timeline-book-card"
+                className="ht-book-card"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="timeline-book-year">{b.year}</div>
-                <div className="timeline-book-title">{b.title}</div>
+                <div className="ht-book-year">{b.year}</div>
+                <div className="ht-book-title">{b.title}</div>
               </motion.div>
             ))}
           </div>
