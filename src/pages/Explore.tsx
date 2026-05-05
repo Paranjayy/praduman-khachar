@@ -329,35 +329,35 @@ export default function ExplorePage() {
 
       <main className="section explore-page">
         {/* Search bar */}
-        <div className="explore-search-wrap" style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '-24px', right: '0', fontSize: '0.8rem', color: 'var(--c-terracotta)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '8px', height: '8px', background: 'var(--c-terracotta)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-            Semantic Engine V2
+        <div className="explore-search-container">
+          <div className="explore-search-wrap">
+            <div className="explore-engine-badge">
+              <span className="pulse-dot"></span>
+              Semantic Engine V2
+            </div>
+            <div className="explore-input-inner">
+              <Search className="explore-search-icon" size={20} />
+              <input
+                className="explore-search-input"
+                type="search"
+                placeholder={searchInTranscripts
+                  ? "Try: 'Saurashtra history', 'ભવનાથ મહાદેવ', or 'INTACH'…"
+                  : "Search titles and tags…"}
+                value={search}
+                onChange={e => { setSearch(e.target.value); (track as any)("explore_search", { q: e.target.value.slice(0, 30) }); }}
+                autoFocus
+              />
+              <div className="explore-search-kb">⌘K</div>
+            </div>
+            {search && (
+              <p className="explore-search-meta">
+                Showing <strong>{filteredItems.length}</strong> prioritized results
+                {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matches in transcript</>}
+                {isTranslating && <> · <em style={{color:'var(--c-terracotta)'}}>translating…</em></>}
+                {translatedQuery && !isTranslating && <> · cross-lingual: <em>{translatedQuery}</em></>}
+              </p>
+            )}
           </div>
-          <input
-            className="articles-search"
-            type="search"
-            placeholder={searchInTranscripts
-              ? "Try: 'Saurashtra history', 'ભવનાથ મહાદેવ', or 'INTACH'…"
-              : "Search titles and tags…"}
-            value={search}
-            onChange={e => { setSearch(e.target.value); (track as any)("explore_search", { q: e.target.value.slice(0, 30) }); }}
-            autoFocus
-            style={{ paddingLeft: '40px', border: '2px solid transparent', transition: 'border-color 0.3s' }}
-            onFocus={e => (e.target as any).style.borderColor = 'var(--c-terracotta)'}
-            onBlur={e => (e.target as any).style.borderColor = 'transparent'}
-          />
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          {search && (
-            <p className="explore-search-meta">
-              Showing <strong>{filteredItems.length}</strong> prioritized results
-              {transcriptMatches > 0 && <> · <strong>{transcriptMatches}</strong> matches in transcript</>}
-              {isTranslating && <> · <em style={{color:'var(--c-terracotta)'}}>translating…</em></>}
-              {translatedQuery && !isTranslating && <> · cross-lingual: <em>{translatedQuery}</em></>}
-            </p>
-          )}
         </div>
 
         {/* Controls */}
