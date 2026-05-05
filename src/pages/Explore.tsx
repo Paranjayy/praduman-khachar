@@ -6,7 +6,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { WRITINGS, WRITING_CATEGORIES } from "../data/writings";
 import { CONFIG } from "../config";
 import { QuicklookPortal } from "../components/QuicklookPortal";
-import { Eye } from "lucide-react";
+import { Eye, Search, X } from "lucide-react";
 
 interface VideoArticle {
   id: string;

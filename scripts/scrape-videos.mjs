@@ -36,14 +36,23 @@ const LIMIT = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : Infinity;
 const plIdx = args.indexOf("--playlist");
 const SINGLE_PLAYLIST = plIdx !== -1 ? args[plIdx + 1] : null;
 
+const HEAL = args.includes("--heal");
+
 // Polite delay between requests
-const DELAY_MS = 900;
+const DELAY_MS = HEAL ? 400 : 900;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // ── Channel fallback (RSS only gives 15) ─────────────────────────────────────
 const CHANNEL_ID = "UCcxFZ3XuZjB9eXyFZdrjDXQ";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+function isBroken(v) {
+  // A video is "broken" if it lacks a transcript OR has null metadata
+  if (!v.likes || !v.publishedAt || v.publishedAt === "NA") return true;
+  if (v.transcriptWordCount === 0 && !v.title.toLowerCase().includes("shorts")) return true;
+  return false;
+}
+
 function cleanText(str) {
   return (str || "")
     .replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"')
@@ -120,7 +129,7 @@ async function discoverVideoIds() {
       }
       playlistsDone++;
       process.stdout.write(`\r  🎬 Playlists scanned: ${playlistsDone}/${playlistIds.length} | Unique videos: ${seen.size}   `);
-      await sleep(300);
+      await sleep(150);
     } catch {
       // silently skip failed playlists
     }
@@ -161,7 +170,7 @@ async function fetchVideoPage(videoId) {
 
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log("🎬 Dr. Praduman Khachar — YouTube Scraper v2 (Playlist-Chained)");
+  console.log("🎬 Dr. Praduman Khachar — YouTube Scraper v2.1 (Heal-Enabled)");
   console.log("═".repeat(60));
 
   // ── Load existing data for resume ──────────────────────────────────────────
@@ -192,11 +201,22 @@ async function main() {
 
   console.log(`✅ Discovered ${allEntries.length} unique videos`);
 
-  // ── Filter already-scraped ─────────────────────────────────────────────────
-  const toProcess = allEntries.filter(e => !existing.has(e.videoId)).slice(0, LIMIT);
+  // ── Filter to process ──────────────────────────────────────────────────────
+  let toProcess = [];
+  if (HEAL) {
+    toProcess = allEntries.filter(e => {
+      const ex = existing.get(e.videoId);
+      return !ex || isBroken(ex);
+    });
+    console.log(`🩹 Heal mode: Re-processing ${toProcess.length} videos with broken metadata`);
+  } else {
+    toProcess = allEntries.filter(e => !existing.has(e.videoId));
+    if (toProcess.length > 0) console.log(`🔄 Processing ${toProcess.length} NEW videos...`);
+  }
+
+  toProcess = toProcess.slice(0, LIMIT);
   const skipped = allEntries.length - toProcess.length;
-  if (skipped > 0) console.log(`⏭️  Skipping ${skipped} already-scraped videos`);
-  console.log(`\n🔄 Processing ${toProcess.length} NEW videos...\n`);
+  console.log(`\n🔄 Starting processing queue...\n`);
 
   const newResults = [];
   let transcriptOk = 0, transcriptFail = 0;
