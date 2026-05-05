@@ -140,23 +140,28 @@ function InteractiveCover({ book, index }: { book: Book; index: number }) {
 // ── Spine View Item ──────────────────────────────────────────────────────────
 function BookSpine({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
+  const bg = BG_COLORS[book.category] || "#1a1a1a";
   return (
     <motion.div
-      className="sp-spine"
-      style={{ "--sp-accent": accent } as React.CSSProperties}
+      className="sp-spine-card"
+      style={{ "--sp-accent": accent, "--sp-bg": bg } as React.CSSProperties}
       onClick={onClick}
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: index * 0.02 }}
-      whileHover={{ x: 10 }}
+      transition={{ delay: index * 0.02, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="sp-spine-index">{String(index + 1).padStart(2, "0")}</div>
-      <div className="sp-spine-title-wrap">
-        <div className="sp-spine-title">{book.title}</div>
-        {book.titleGu && <div className="sp-spine-titlegu">{book.titleGu}</div>}
+      <div className="sp-spine-inner">
+        <div className="sp-spine-num">{String(index + 1).padStart(2, "0")}</div>
+        <div className="sp-spine-loc">LOC</div>
+        <div className="sp-spine-author">Dr. Praduman Khachar</div>
+        <div className="sp-spine-title-wrap">
+          <div className="sp-spine-title">{book.title}</div>
+          {book.titleGu && <div className="sp-spine-titlegu">{book.titleGu}</div>}
+        </div>
+        <div className="sp-spine-cat">{BOOK_CATEGORIES[book.category]}</div>
+        <div className="sp-spine-year">{book.year || "—"}</div>
+        <div className="sp-spine-arrow">→</div>
       </div>
-      <div className="sp-spine-cat">{BOOK_CATEGORIES[book.category]}</div>
-      <div className="sp-spine-year">{book.year}</div>
     </motion.div>
   );
 }

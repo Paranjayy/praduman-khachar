@@ -414,7 +414,20 @@ export default function ExplorePage() {
         </div>
 
         {!loaded ? (
-          <div className="articles-loading"><div className="articles-loading-spinner" /><p>Indexing archive…</p></div>
+          <div className="explore-grid">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="explore-card skeleton-card">
+                <div className="explore-card-thumb skeleton" style={{ height: '200px' }} />
+                <div className="explore-card-content">
+                  <div className="skeleton" style={{ height: '14px', width: '40%', marginBottom: '1rem' }} />
+                  <div className="skeleton" style={{ height: '24px', width: '90%', marginBottom: '0.8rem' }} />
+                  <div className="skeleton" style={{ height: '12px', width: '100%', marginBottom: '0.4rem' }} />
+                  <div className="skeleton" style={{ height: '12px', width: '100%', marginBottom: '0.4rem' }} />
+                  <div className="skeleton" style={{ height: '12px', width: '60%' }} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filteredItems.length === 0 ? (
           <div className="articles-empty">
             <h2>No matches found</h2>
