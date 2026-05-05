@@ -19,7 +19,9 @@ export default function Marquee({ items, speed = 60, separator = "·" }: Props) 
     let lastTs = 0;
 
     function step(ts: number) {
-      if (track.dataset.paused === "true") {
+      if (!trackRef.current) return;
+      const t = trackRef.current;
+      if (t.dataset.paused === "true") {
         start = ts - (pos * 1000) / speed;
         raf = requestAnimationFrame(step);
         return;
@@ -27,7 +29,7 @@ export default function Marquee({ items, speed = 60, separator = "·" }: Props) 
       if (start === null) start = ts;
       pos = ((ts - start) * speed) / 1000;
       if (pos >= fullWidth) start = ts;
-      track.style.transform = `translateX(-${pos % fullWidth}px)`;
+      t.style.transform = `translateX(-${pos % fullWidth}px)`;
       raf = requestAnimationFrame(step);
     }
     raf = requestAnimationFrame(step);

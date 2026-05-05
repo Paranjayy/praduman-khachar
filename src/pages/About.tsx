@@ -78,7 +78,7 @@ export default function AboutPage() {
       <section className="section">
         <h2 className="section-title">Career Timeline</h2>
         <div className="section-divider" />
-        <div className="timeline">
+        <div className="career-timeline">
           {CAREER.map((item, i) => (
             <TimelineItem key={i} {...item} index={i} />
           ))}
@@ -137,21 +137,25 @@ interface TimelineItemProps {
 
 function TimelineItem({ period, title, place, desc, index }: TimelineItemProps) {
   const [ref, visible] = useReveal(0.15);
+  
+  // Dynamic Year Logic
+  const displayPeriod = period.replace(/Present/gi, new Date().getFullYear().toString());
+
   return (
     <div
       ref={ref}
-      className="timeline-item"
+      className="career-item"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(16px)",
         transition: `all 0.6s ${index * 0.1}s ease`,
       }}
     >
-      <div className="timeline-year">{period}</div>
-      <h3 className="timeline-title">{title}</h3>
-      <p className="timeline-desc">
+      <div className="career-year">{displayPeriod}</div>
+      <h3 className="career-title">{title}</h3>
+      <p className="career-desc">
         <em>{place}</em>
-        {desc && <><br />{desc}</>}
+        {desc && <span>{desc}</span>}
       </p>
     </div>
   );

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export interface ChannelStats {
   subscribers: string;
   videoCount: string;
+  totalDurationHours: string;
   channelName: string;
   avatarUrl: string | null;
   cached: boolean;
@@ -11,6 +12,7 @@ export interface ChannelStats {
 const FALLBACK: ChannelStats = {
   subscribers: "42,600+",
   videoCount: "575+",
+  totalDurationHours: "350+",
   channelName: "Praduman Khachar",
   avatarUrl: null,
   cached: true,
@@ -21,11 +23,19 @@ export function useChannelStats(): { stats: ChannelStats; loading: boolean } {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/data/stats.json", { signal: AbortSignal.timeout(3000) })
+    fetch("/data/videos.json", { signal: AbortSignal.timeout(5000) })
       .then((r) => r.json())
       .then((data: any) => {
-        if (data.videos) {
-          setStats(prev => ({ ...prev, videoCount: `${data.videos}+` }));
+        const videos = data.videos || [];
+        if (videos.length > 0) {
+          const totalSecs = videos.reduce((acc: number, v: any) => acc + (v.durationSeconds || 0), 0);
+          const hours = Math.floor(totalSecs / 3600);
+          setStats({
+            ...FALLBACK,
+            videoCount: videos.length.toString(),
+            totalDurationHours: hours.toLocaleString(),
+            cached: false
+          });
         }
       })
       .catch(() => {})

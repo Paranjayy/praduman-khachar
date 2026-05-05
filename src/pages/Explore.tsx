@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { track } from "@vercel/analytics";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -26,25 +26,7 @@ interface VideoArticle {
   readMinutes: number;
   transcript: string;
   url: string;
-}
-
-interface QuicklookProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  itemId?: string;
-  type?: 'video' | 'writing';
-  image?: string;
-  videoUrl?: string;
-  figures?: string[];
-  description?: string;
-  onPrev?: () => void;
-  onNext?: () => void;
-  metadata?: {
-    format?: string;
-    size?: string;
-    date?: string;
-  };
+  durationSeconds?: number;
 }
 
 interface UnifiedItem {
@@ -63,6 +45,7 @@ interface UnifiedItem {
   transcriptSnippet?: string;
   url?: string;
   score?: number;
+  duration?: number;
 }
 
 // ─── Data loader ──────────────────────────────────────────────────────────────
@@ -127,11 +110,12 @@ function findTranscriptSnippet(transcript: string, query: string, contextChars =
 export default function ExplorePage() {
   usePageTitle("Explore");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [videos, setVideos] = useState<VideoArticle[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   // Search & Filters
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("q") || "");
   const [typeFilter, setTypeFilter] = useState<"all" | "video" | "writing">("all");
   const [viewMode, setViewMode] = useState<"grid" | "table" | "compact">("grid");
   const [sortBy, setSortBy] = useState<"date" | "title" | "words" | "views">("date");
@@ -235,6 +219,7 @@ export default function ExplorePage() {
       views: v.views || undefined,
       lang: v.transcriptLang || "auto",
       url: v.url,
+      duration: v.durationSeconds,
     }));
 
     return [...writingsMapped, ...videosMapped];
@@ -541,7 +526,16 @@ export default function ExplorePage() {
                       {item.transcriptSnippet && <p className="transcript-snippet" style={{ marginTop: "4px" }} dangerouslySetInnerHTML={{ __html: item.transcriptSnippet }} />}
                     </td>
                     <td>{relativeDate(item.date)}</td>
-                    <td>{item.views || (item.words ? `${item.words}w` : "—")}</td>
+                    <td>
+                      {item.type === "video" ? (
+                        <div className="explore-stat-cell">
+                          <span>👁 {item.views || "—"}</span>
+                          {item.duration && <span className="explore-duration-tag">{Math.floor(item.duration/60)}m</span>}
+                        </div>
+                      ) : (
+                        <span>{item.words ? `${item.words}w` : "—"}</span>
+                      )}
+                    </td>
                     <td>
                       <div className="explore-table-actions">
                         <button 

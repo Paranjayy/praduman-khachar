@@ -117,8 +117,10 @@ function WritingArticlePage({ writing }: { writing: Writing }) {
 
             <p className="writing-article-excerpt">{writing.excerpt}</p>
 
-            <div className="writing-article-divider" />
           </header>
+          {writing.imageUrl && (
+            <img src={writing.imageUrl} alt={writing.title} className="writing-header-img" />
+          )}
 
           {/* Content */}
           <div className="writing-article-content">
@@ -208,31 +210,36 @@ function WritingCard({ w }: { w: Writing }) {
         transition: "all 0.5s ease",
       }}
     >
-      <div className="writing-card-meta">
-        <span className="writing-lang-pill">{w.lang.toUpperCase()}</span>
-        <span
-          className="writing-cat-pill"
-          style={{ color: cat?.color || "var(--c-terracotta)" }}
-        >
-          {cat?.label || w.category}
-        </span>
-        <time className="writing-date">{dateStr}</time>
-      </div>
-      <h2 className="writing-title">{w.title}</h2>
-      {w.titleEn && <p className="writing-title-en">{w.titleEn}</p>}
-      <p className="writing-excerpt">{w.excerpt}</p>
-      <div className="writing-tags">
-        {w.tags.slice(0, 5).map(t => <span key={t} className="writing-tag">{t}</span>)}
-      </div>
-      <div className="writing-card-footer">
-        <Link
-          to={`/writings/${w.id}`}
-          className="writing-read-cta"
-          onClick={() => track("writing_open", { id: w.id })}
-        >
-          Read article →
-        </Link>
-        {w.featured && <span className="writing-featured-badge">Featured</span>}
+      {w.imageUrl && (
+        <img src={w.imageUrl} alt={w.title} className="writing-card-img" />
+      )}
+      <div className="writing-card-content" style={{ padding: 'var(--space-md)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', flex: 1 }}>
+        <div className="writing-card-meta">
+          <span className="writing-lang-pill">{w.lang.toUpperCase()}</span>
+          <span
+            className="writing-cat-pill"
+            style={{ color: cat?.color || "var(--c-terracotta)" }}
+          >
+            {cat?.label || w.category}
+          </span>
+          <time className="writing-date">{dateStr}</time>
+        </div>
+        <h2 className="writing-title">{w.title}</h2>
+        {w.titleEn && <p className="writing-title-en">{w.titleEn}</p>}
+        <p className="writing-excerpt">{w.excerpt}</p>
+        <div className="writing-tags">
+          {w.tags.slice(0, 5).map(t => <span key={t} className="writing-tag">{t}</span>)}
+        </div>
+        <div className="writing-card-footer">
+          <Link
+            to={`/writings/${w.id}`}
+            className="writing-read-cta"
+            onClick={() => track("writing_open", { id: w.id })}
+          >
+            Read article →
+          </Link>
+          {w.featured && <span className="writing-featured-badge">Featured</span>}
+        </div>
       </div>
     </article>
   );
@@ -247,7 +254,7 @@ function WritingsGrid() {
   const [sortBy, setSortBy] = useState<"date" | "title">("date");
 
   const filtered = useMemo(() => {
-    let list = [...WRITINGS];
+    let list = WRITINGS.filter(w => !w.hidden);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(w =>

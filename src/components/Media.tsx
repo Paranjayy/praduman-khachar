@@ -34,6 +34,9 @@ export default function Media() {
     if (s.label.toLowerCase().includes("video")) {
       return { ...s, number: stats.videoCount };
     }
+    if (s.label.toLowerCase().includes("duration") || s.label.toLowerCase().includes("hour")) {
+      return { ...s, number: stats.totalDurationHours + "h" };
+    }
     return s;
   });
 

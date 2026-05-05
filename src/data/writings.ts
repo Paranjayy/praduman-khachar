@@ -28,6 +28,8 @@ export interface Writing {
   content: string[];
   featured?: boolean;
   lang: "gu" | "hi" | "en";
+  imageUrl?: string;
+  hidden?: boolean;
 }
 
 export const WRITING_CATEGORIES: Record<string, { label: string; labelGu?: string; color: string }> = {

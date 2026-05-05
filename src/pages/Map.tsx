@@ -18,16 +18,22 @@ L.Icon.Default.mergeOptions({
 });
 
 const LOCATIONS = [
-  { name: "Junagadh", lat: 21.5222, lng: 70.4579, keywords: ["Junagadh", "Girnar", "Bhavnath", "Narsinh Mehta", "Uparkot"] },
-  { name: "Somnath", lat: 20.8880, lng: 70.4012, keywords: ["Somnath", "Prabhas Patan", "Patan", "Veraval"] },
-  { name: "Porbandar", lat: 21.6417, lng: 69.6093, keywords: ["Porbandar", "Gandhi", "Kirti Mandir"] },
-  { name: "Bhavnagar", lat: 21.7645, lng: 72.1519, keywords: ["Bhavnagar", "Gohilwad", "Palitana", "Sihor"] },
-  { name: "Rajkot", lat: 22.3039, lng: 70.8022, keywords: ["Rajkot", "Saurashtra University"] },
-  { name: "Gondal", lat: 21.9619, lng: 70.7981, keywords: ["Gondal", "Sangramji"] },
-  { name: "Morbi", lat: 22.8120, lng: 70.8236, keywords: ["Morbi"] },
-  { name: "Jamnagar", lat: 22.4707, lng: 70.0577, keywords: ["Jamnagar", "Halar", "Nawanagar"] },
-  { name: "Amreli", lat: 21.6031, lng: 71.2223, keywords: ["Amreli", "Lathi", "Kalaapi"] },
-  { name: "Dwarka", lat: 22.2442, lng: 68.9685, keywords: ["Dwarka", "Okhamandal"] },
+  { name: "Junagadh", lat: 21.5222, lng: 70.4579, keywords: ["Junagadh State", "Girnar", "Bhavnath", "Uparkot Fort", "Nawab of Junagadh", "Ashoka Edicts"] },
+  { name: "Somnath", lat: 20.8880, lng: 70.4012, keywords: ["Somnath Temple", "Prabhas Patan", "Triveni Sangam", "Veraval", "Ahilyabai Temple"] },
+  { name: "Porbandar", lat: 21.6417, lng: 69.6093, keywords: ["Sudamapuri", "Kirti Mandir", "Mahatma Gandhi", "Huzoor Palace", "Bird Sanctuary"] },
+  { name: "Bhavnagar", lat: 21.7645, lng: 72.1519, keywords: ["Gohilwad", "Nilambag Palace", "Takhteshwar", "Alang", "Bhavnagar State"] },
+  { name: "Rajkot", lat: 22.3039, lng: 70.8022, keywords: ["Watson Museum", "Rajkumar College", "Alfred High School", "Aji Dam"] },
+  { name: "Gondal", lat: 21.9619, lng: 70.7981, keywords: ["Naulakha Palace", "Sangramji High School", "Bhuvaneshwari Temple", "Vintage Car Museum"] },
+  { name: "Morbi", lat: 22.8120, lng: 70.8236, keywords: ["Mani Mandir", "Wellington Secretariat", "Art Deco Palace", "Suspension Bridge"] },
+  { name: "Jamnagar", lat: 22.4707, lng: 70.0577, keywords: ["Nawanagar", "Lakhota Lake", "Darbargadh", "Khijadiya", "Marine National Park"] },
+  { name: "Amreli", lat: 21.6031, lng: 71.2223, keywords: ["Gaekwad State", "Lathi", "Kalaapi Teerth", "Amreli Tower"] },
+  { name: "Dwarka", lat: 22.2442, lng: 68.9685, keywords: ["Dwarkadhish Temple", "Bet Dwarka", "Gopi Talav", "Nageshwar Jyotirlinga"] },
+  { name: "Palitana", lat: 21.5055, lng: 71.8273, keywords: ["Shatrunjaya Hills", "Jain Temples", "Shetrunji River", "Gohilwad History"] },
+  { name: "Wadhwan", lat: 22.7000, lng: 71.6833, keywords: ["Wadhwan State", "Hawa Mahal", "Ancient Stepwells", "Surendranagar"] },
+  { name: "Dhrangadhra", lat: 22.9833, lng: 71.4667, keywords: ["Jhala Dynasty", "Desert Sanctuary", "Salt Mines", "Historical Palace"] },
+  { name: "Muli", lat: 22.6167, lng: 71.4333, keywords: ["Muli State", "Mandavrayji Temple", "Pramila Raje Palace"] },
+  { name: "Wankaner", lat: 22.6167, lng: 70.9333, keywords: ["Ranjit Vilas Palace", "Machhu River", "Wankaner State History"] },
+  { name: "Limbdi", lat: 22.5667, lng: 71.8000, keywords: ["Limbdi State", "Digvijay Niwas", "Freedom Struggle"] },
 ];
 
 function ThemeLayer() {
@@ -46,9 +52,14 @@ function ThemeLayer() {
 
 const customIcon = L.divIcon({
   className: 'custom-map-marker',
-  html: '<div class="marker-pin"></div>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
+  html: `
+    <div class="marker-goo-wrap">
+      <div class="marker-pin"></div>
+      <div class="marker-pulse"></div>
+    </div>
+  `,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15]
 });
 
 export default function MapPage() {
@@ -57,6 +68,13 @@ export default function MapPage() {
 
   return (
     <div className="map-page">
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+          <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+      </svg>
       <PageHeader 
         eyebrow="Geographic Intelligence"
         title="Archival Map of Saurashtra"
@@ -136,7 +154,12 @@ export default function MapPage() {
           box-shadow: 0 10px 30px rgba(0,0,0,0.1);
           border: 1px solid var(--c-border);
         }
-        .custom-map-marker {
+        .marker-goo-wrap {
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           filter: url('#goo');
         }
         .marker-pin {
@@ -144,14 +167,31 @@ export default function MapPage() {
           height: 14px;
           background: var(--c-terracotta);
           border-radius: 50%;
-          border: 2px solid white;
+          z-index: 2;
           box-shadow: 0 0 10px var(--c-terracotta);
+        }
+        .marker-pulse {
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          background: var(--c-terracotta);
+          opacity: 0.3;
+          border-radius: 50%;
+          animation: map-pulse 2s infinite ease-out;
+        }
+        @keyframes map-pulse {
+          0% { transform: scale(0.5); opacity: 0.8; }
+          100% { transform: scale(2); opacity: 0; }
         }
         .map-sidebar {
           background: var(--c-parchment-deep);
-          padding: 2rem;
+          padding: 2.5rem;
           border-radius: 12px;
           border: 1px solid var(--c-border);
+          display: flex;
+          flex-direction: column;
+          box-shadow: var(--shadow-sm);
+        }
           display: flex;
           flex-direction: column;
         }

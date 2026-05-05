@@ -19,7 +19,6 @@ export default function HomePage() {
 
   return (
     <div className="home-reveal-wrapper">
-      <HomeTOC />
       <section id="hero" ref={revealRef}><Hero /></section>
       <section id="stats" ref={revealRef}><StatsRibbon /></section>
       <section id="today" ref={revealRef}><OnThisDay /></section>

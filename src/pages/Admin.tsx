@@ -51,6 +51,8 @@ function generateTS(w: Writing): string {
     lang: "${w.lang}",
     tags: [${tags}],
     featured: ${w.featured ? "true" : "false"},
+    ${w.imageUrl ? `imageUrl: "${w.imageUrl}",` : ""}
+    ${w.hidden ? `hidden: true,` : ""}
     excerpt: "${w.excerpt.replace(/"/g, '\\"')}",
     content: [
 ${content}
@@ -107,6 +109,8 @@ const EMPTY: Writing = {
   excerpt: "",
   content: [""],
   featured: false,
+  imageUrl: "",
+  hidden: false,
 };
 
 function EditorForm({
@@ -209,6 +213,11 @@ function EditorForm({
           </div>
           <h1 className="writing-article-title">{form.title || "—"}</h1>
           {form.titleEn && <p className="writing-article-title-en">{form.titleEn}</p>}
+          {form.imageUrl && (
+            <div className="admin-preview-img-wrap" style={{ margin: '1.5rem 0', borderRadius: '12px', overflow: 'hidden' }}>
+              <img src={form.imageUrl} alt="Article Header" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
+            </div>
+          )}
           <p className="writing-article-excerpt">{form.excerpt}</p>
           <div className="writing-article-divider" />
           <div className="writing-article-content">
@@ -305,9 +314,31 @@ function EditorForm({
                   checked={form.featured || false}
                   onChange={(e) => update("featured", e.target.checked)}
                 />
-                <span>Show on homepage</span>
+                <span>Home</span>
               </label>
             </div>
+            <div className="admin-field">
+              <label className="admin-label">Hidden?</label>
+              <label className="admin-checkbox">
+                <input
+                  type="checkbox"
+                  checked={form.hidden || false}
+                  onChange={(e) => update("hidden", e.target.checked)}
+                />
+                <span>Hide</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Image */}
+          <div className="admin-field">
+            <label className="admin-label">Image URL (Article Header)</label>
+            <input
+              className="admin-input"
+              value={form.imageUrl || ""}
+              onChange={(e) => update("imageUrl", e.target.value)}
+              placeholder="https://images.unsplash.com/..."
+            />
           </div>
 
           {/* Tags */}
@@ -434,27 +465,50 @@ function AdminDashboard({
 
           {/* Published */}
           <section className="admin-section">
-            <h2 className="admin-section-title">Published Writings ({published})</h2>
+            <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 className="admin-section-title">Published Writings ({published})</h2>
+              <div className="admin-search-wrap" style={{ position: 'relative' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search articles..." 
+                  className="admin-input" 
+                  style={{ width: '250px', paddingLeft: '2.5rem' }}
+                  onChange={(e) => {/* Add local filter state if needed */}}
+                />
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
+              </div>
+            </div>
             <div className="admin-articles-list">
-              {WRITINGS.map((w) => (
-                <div key={w.id} className="admin-article-row">
-                  <div>
-                    <span className="admin-article-cat" style={{ color: WRITING_CATEGORIES[w.category]?.color }}>
-                      {WRITING_CATEGORIES[w.category]?.label}
-                    </span>
-                    <span className="admin-article-title">{w.title}</span>
-                    {w.titleEn && <span className="admin-article-en"> — {w.titleEn}</span>}
+              {WRITINGS.map((w) => {
+                const hasDraft = drafts.some(d => d.id === w.id);
+                return (
+                  <div key={w.id} className="admin-article-row">
+                    <div>
+                      <span className="admin-article-cat" style={{ color: WRITING_CATEGORIES[w.category]?.color }}>
+                        {WRITING_CATEGORIES[w.category]?.label}
+                      </span>
+                      <span className="admin-article-title">{w.title}</span>
+                      {hasDraft && <span className="admin-draft-indicator"> (Draft Saved)</span>}
+                    </div>
+                    <div className="admin-article-meta">
+                      <time>{w.date}</time>
+                      <span>{w.lang.toUpperCase()}</span>
+                      <Link to={`/writings/${w.id}`} className="admin-article-view" target="_blank">
+                        View →
+                      </Link>
+                      <button 
+                        className={`admin-article-edit ${hasDraft ? 'has-draft' : ''}`} 
+                        onClick={() => {
+                          const existingDraft = drafts.find(d => d.id === w.id);
+                          onEdit(existingDraft || w);
+                        }}
+                      >
+                        {hasDraft ? "Edit Draft" : "Create Edit Draft"}
+                      </button>
+                    </div>
                   </div>
-                  <div className="admin-article-meta">
-                    <time>{w.date}</time>
-                    <span>{w.lang.toUpperCase()}</span>
-                    <span>{w.content.join(" ").split(/\s+/).length} words</span>
-                    <Link to={`/writings/${w.id}`} className="admin-article-view" target="_blank">
-                      View →
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
