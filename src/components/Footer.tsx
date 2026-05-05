@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SITE, SOCIALS } from "../data/content";
 
@@ -24,6 +25,19 @@ const SOCIAL_LABELS: Record<string, string> = {
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [ingestionStats, setIngestionStats] = useState<{ ok: number; total: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/data/videos.json')
+      .then(r => r.json())
+      .then(data => {
+        setIngestionStats({
+          ok: data.transcript_ok || 0,
+          total: data.total || 0
+        });
+      })
+      .catch((err) => {});
+  }, []);
 
   return (
     <footer className="site-footer">
@@ -76,10 +90,10 @@ export default function Footer() {
           </div>
           
           <div className="footer-status-pills">
-            {stats && (
+            {ingestionStats && (
               <div className="footer-status-pill" title="Transcript Ingestion Status">
                 <span className="status-dot pulse" />
-                <span>{stats.ok}/{stats.total} Transcripts</span>
+                <span>{ingestionStats.ok}/{ingestionStats.total} Transcripts</span>
               </div>
             )}
             <div className="footer-build-info" title="Deployment Telemetry">

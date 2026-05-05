@@ -30,7 +30,7 @@ const DRAFTS_KEY = "admin_writing_drafts";
 function loadDrafts(): Writing[] {
   try {
     return JSON.parse(localStorage.getItem(DRAFTS_KEY) || "[]");
-  } catch {
+  } catch (err) {
     return [];
   }
 }

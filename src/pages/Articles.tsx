@@ -60,7 +60,7 @@ async function loadVideos(): Promise<VideosJson | null> {
     if (!res.ok) return null;
     cachedData = await res.json();
     return cachedData;
-  } catch {
+  } catch (err) {
     return null;
   }
 }

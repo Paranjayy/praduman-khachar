@@ -75,7 +75,7 @@ async function loadVideos(): Promise<VideoArticle[]> {
     const data = await res.json();
     _cachedVideos = data.videos || [];
     return _cachedVideos!;
-  } catch {
+  } catch (err) {
     return [];
   }
 }
@@ -101,7 +101,7 @@ async function translateQuery(text: string, targetLang: 'gu' | 'hi'): Promise<st
     );
     const data = await res.json();
     return (data.responseData as any)?.translatedText || text;
-  } catch {
+  } catch (err) {
     return text;
   }
 }

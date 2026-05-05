@@ -41,7 +41,7 @@ function load(): CustomizerState {
   try {
     const s = localStorage.getItem(KEY);
     if (s) return { ...DEFAULTS, ...JSON.parse(s) };
-  } catch {}
+  } catch (err) {}
   return DEFAULTS;
 }
 
