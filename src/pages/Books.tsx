@@ -1,21 +1,373 @@
-import { useState, useEffect, RefObject } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
-import { useReveal } from "../hooks/useAnimations";
-import PageHeader from "../components/PageHeader";
 import { Book } from "../types";
 
-const ALL_CATEGORIES = ["all", ...new Set(BOOKS.map((b) => b.category))];
+const CATEGORY_COLORS: Record<string, string> = {
+  kathi:       "#c5a55a",
+  history:     "#8a7b5a",
+  royals:      "#b5956a",
+  battles:     "#7a6a5a",
+  governance:  "#5a7a8a",
+  heritage:    "#8a5a6a",
+  epigraphy:   "#6a7a5a",
+  essays:      "#7a5a8a",
+  biography:   "#5a8a7a",
+  genealogy:   "#8a7a5a",
+  religion:    "#9a8a6a",
+  literature:  "#6a8a8a",
+  freedom:     "#7a8a6a",
+  architecture:"#8a6a5a",
+  society:     "#6a5a8a",
+  institutional:"#5a6a8a",
+};
 
-interface BookFullCardProps extends Book {
-  index: number;
+const BG_COLORS: Record<string, string> = {
+  kathi:       "#2a2218",
+  history:     "#1f1e1a",
+  royals:      "#221a10",
+  battles:     "#1a1818",
+  governance:  "#151c22",
+  heritage:    "#221518",
+  epigraphy:   "#181f15",
+  essays:      "#1a1522",
+  biography:   "#152220",
+  genealogy:   "#1f1e15",
+  religion:    "#222018",
+  literature:  "#152222",
+  freedom:     "#1a2218",
+  architecture:"#221815",
+  society:     "#181522",
+  institutional:"#151822",
+};
+
+// ── Left progress rail ──────────────────────────────────────────────────────
+function ProgressRail({ count, active, onSelect }: { count: number; active: number; onSelect: (i: number) => void }) {
+  return (
+    <div className="sp-rail">
+      <button className="sp-rail-back" onClick={() => onSelect(-1)}>←</button>
+      <div className="sp-rail-ticks">
+        {Array.from({ length: count }).map((_, i) => (
+          <button
+            key={i}
+            className={`sp-rail-tick ${i === active ? "active" : ""}`}
+            onClick={() => onSelect(i)}
+            title={BOOKS[i]?.title}
+          />
+        ))}
+      </div>
+      <div className="sp-rail-logo">
+        <span>PK</span>
+      </div>
+    </div>
+  );
 }
 
+// ── Homepage-style spine listing ─────────────────────────────────────────────
+function BookSpine({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const accent = CATEGORY_COLORS[book.category] || "#c5a55a";
+  const bg = BG_COLORS[book.category] || "#1a1a1a";
+
+  return (
+    <motion.div
+      ref={ref}
+      className="sp-spine-card"
+      style={{ "--sp-accent": accent, "--sp-bg": bg } as React.CSSProperties}
+      initial={{ opacity: 0, y: 40 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.7, delay: Math.min(index * 0.04, 0.4), ease: [0.16, 1, 0.3, 1] }}
+      onClick={onClick}
+      whileHover={{ scale: 1.012, transition: { duration: 0.25 } }}
+    >
+      <div className="sp-spine-inner">
+        <div className="sp-spine-num">
+          {String(index + 1).padStart(2, "0")}
+        </div>
+        {book.locSelected && (
+          <div className="sp-spine-loc" title="Library of Congress">LOC</div>
+        )}
+        <div className="sp-spine-author">Dr. Praduman Khachar</div>
+        <div className="sp-spine-title-wrap">
+          <span className="sp-spine-title">{book.title}</span>
+          {book.titleGu && <span className="sp-spine-titlegu">{book.titleGu}</span>}
+        </div>
+        <div className="sp-spine-year">{book.year || "—"}</div>
+        <div className="sp-spine-cat">{BOOK_CATEGORIES[book.category] || book.category}</div>
+        <div className="sp-spine-arrow">→</div>
+      </div>
+      <div className="sp-spine-accent-bar" />
+    </motion.div>
+  );
+}
+
+// ── Detail overlay (full Stripe Press style) ────────────────────────────────
+function BookDetail({ book, allBooks, onClose, onNavigate }: {
+  book: Book;
+  allBooks: Book[];
+  onClose: () => void;
+  onNavigate: (dir: 1 | -1) => void;
+}) {
+  const idx = allBooks.indexOf(book);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ container: scrollRef });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  // 3D tilt on cover hover
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const handleCoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientY - r.top) / r.height - 0.5) * 15;
+    const y = ((e.clientX - r.left) / r.width - 0.5) * -15;
+    setTilt({ x, y });
+  };
+
+  const accent = CATEGORY_COLORS[book.category] || "#c5a55a";
+  const bg = BG_COLORS[book.category] || "#1a1a1a";
+
+  // lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") onNavigate(1);
+      if (e.key === "ArrowLeft") onNavigate(-1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handler);
+    };
+  }, [onClose, onNavigate]);
+
+  return (
+    <motion.div
+      className="sp-detail-overlay"
+      style={{ "--sp-accent": accent, "--sp-bg": bg, "--sp-bg-dim": bg + "cc" } as React.CSSProperties}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Scroll progress bar */}
+      <motion.div className="sp-scroll-progress" style={{ scaleX }} />
+
+      {/* Close */}
+      <button className="sp-detail-close" onClick={onClose}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Left progress rail */}
+      <ProgressRail count={allBooks.length} active={idx} onSelect={(i) => {
+        if (i === -1) onClose();
+        else {
+          const delta = i - idx;
+          if (delta !== 0) onNavigate(delta > 0 ? 1 : -1);
+        }
+      }} />
+
+      {/* Keyboard nav buttons */}
+      <div className="sp-detail-nav">
+        {idx > 0 && (
+          <button className="sp-nav-btn sp-nav-prev" onClick={() => onNavigate(-1)}>
+            <span>←</span>
+            <span className="sp-nav-label">{allBooks[idx - 1]?.title}</span>
+          </button>
+        )}
+        {idx < allBooks.length - 1 && (
+          <button className="sp-nav-btn sp-nav-next" onClick={() => onNavigate(1)}>
+            <span className="sp-nav-label">{allBooks[idx + 1]?.title}</span>
+            <span>→</span>
+          </button>
+        )}
+      </div>
+
+      {/* Scrollable body */}
+      <div className="sp-detail-body" ref={scrollRef}>
+        {/* Hero section */}
+        <section className="sp-detail-hero">
+          {/* Cover */}
+          <motion.div
+            className="sp-cover-wrap"
+            onMouseMove={handleCoverMove}
+            onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+            animate={{ rotateX: tilt.x, rotateY: tilt.y }}
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+            style={{ perspective: 1200 }}
+          >
+            <motion.div
+              className="sp-cover-3d"
+              initial={{ scale: 0.85, rotateY: -20, opacity: 0 }}
+              animate={{ scale: 1, rotateY: -8, opacity: 1 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {book.imageUrl ? (
+                <img src={book.imageUrl} alt={book.title} className="sp-cover-img" />
+              ) : (
+                <div className="sp-cover-placeholder">
+                  <div className="sp-cover-texture" />
+                  <div className="sp-cover-content">
+                    <span className="sp-cover-eyebrow">{BOOK_CATEGORIES[book.category] || book.category}</span>
+                    <h2 className="sp-cover-title-gu">{book.titleGu || book.title}</h2>
+                    <p className="sp-cover-title-en">{book.titleGu ? book.title : ""}</p>
+                    <div className="sp-cover-footer">
+                      <span>Dr. Praduman Khachar</span>
+                      {book.year && <span>{book.year}</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Spine shadow */}
+              <div className="sp-cover-spine" />
+            </motion.div>
+          </motion.div>
+
+          {/* Info */}
+          <div className="sp-detail-info">
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="sp-detail-eyebrow">{BOOK_CATEGORIES[book.category] || book.category}</div>
+              <h1 className="sp-detail-title">{book.title}</h1>
+              {book.titleGu && <div className="sp-detail-titlegu">{book.titleGu}</div>}
+              <div className="sp-detail-author">Dr. Praduman Khachar</div>
+
+              {book.locSelected && (
+                <div className="sp-loc-badge">
+                  <span>🏛️</span> Selected by Library of Congress, USA
+                </div>
+              )}
+
+              <p className="sp-detail-desc">
+                {book.description || "A definitive scholarly record exploring the history, heritage, and cultural traditions of Saurashtra — one of Dr. Khachar's landmark contributions to Gujarat's archival legacy."}
+              </p>
+
+              {/* Specs grid */}
+              <div className="sp-detail-specs">
+                {book.isbn && (
+                  <div className="sp-spec"><span className="sp-spec-label">ISBN</span><span>{book.isbn}</span></div>
+                )}
+                {book.pages && (
+                  <div className="sp-spec"><span className="sp-spec-label">Pages</span><span>{book.pages}</span></div>
+                )}
+                {book.year && (
+                  <div className="sp-spec"><span className="sp-spec-label">Year</span><span>{book.year}</span></div>
+                )}
+                {book.publisher && (
+                  <div className="sp-spec"><span className="sp-spec-label">Publisher</span><span>{book.publisher}</span></div>
+                )}
+                {book.price && (
+                  <div className="sp-spec"><span className="sp-spec-label">Price</span><span>{book.price}</span></div>
+                )}
+              </div>
+
+              {/* Purchase links */}
+              <div className="sp-purchase-links">
+                <a href="#" className="sp-purchase-link">
+                  <span>Purchase Directly</span>
+                  <span className="sp-purchase-price">{book.price || "Contact"}</span>
+                  <span className="sp-purchase-arrow">↗</span>
+                </a>
+                <a href="mailto:pkhachar@gmail.com" className="sp-purchase-link">
+                  <span>Contact Author</span>
+                  <span className="sp-purchase-price">pkhachar@gmail.com</span>
+                  <span className="sp-purchase-arrow">↗</span>
+                </a>
+                {book.locSelected && (
+                  <a href="https://catalog.loc.gov/" target="_blank" rel="noopener noreferrer" className="sp-purchase-link">
+                    <span>Library of Congress Catalog</span>
+                    <span className="sp-purchase-price">Archived</span>
+                    <span className="sp-purchase-arrow">🏛️</span>
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Endorsements / scrolling section */}
+        <section className="sp-detail-endorsements">
+          <motion.div
+            className="sp-endorsement"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-80px" }}
+          >
+            <div className="sp-endorsement-divider" />
+            <p className="sp-endorsement-text">
+              "Dr. Khachar is the preeminent historian of the Kathiawar peninsula. His work on the 222 princely states is a masterpiece of archival detective work."
+            </p>
+            <div className="sp-endorsement-author">
+              <strong>Gujarat Samachar</strong>
+              <span>Leading Gujarati Daily Newspaper</span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="sp-endorsement"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-80px" }}
+          >
+            <div className="sp-endorsement-divider" />
+            <p className="sp-endorsement-text">
+              "A stunning achievement in preservation. Dr. Khachar's bibliography is not just a list of books, but a map of a vanishing culture rendered permanent."
+            </p>
+            <div className="sp-endorsement-author">
+              <strong>INTACH Gujarat</strong>
+              <span>Indian National Trust for Art and Cultural Heritage</span>
+            </div>
+          </motion.div>
+
+          {/* Next book teaser */}
+          {idx < allBooks.length - 1 && (
+            <motion.div
+              className="sp-next-teaser"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              onClick={() => onNavigate(1)}
+            >
+              <span className="sp-next-label">Next in Collection</span>
+              <div className="sp-next-title">{allBooks[idx + 1]?.title}</div>
+              {allBooks[idx + 1]?.titleGu && (
+                <div className="sp-next-titlegu">{allBooks[idx + 1].titleGu}</div>
+              )}
+              <div className="sp-next-arrow">↓ Continue</div>
+            </motion.div>
+          )}
+        </section>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Main Books Page ─────────────────────────────────────────────────────────
 export default function BooksPage() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState(0);
 
   const filtered = BOOKS.filter((b) => {
     const matchCategory = filter === "all" || b.category === filter;
@@ -26,381 +378,106 @@ export default function BooksPage() {
     return matchCategory && matchSearch;
   });
 
-  return (
-    <main className="page-content">
-      <PageHeader
-        label="Complete Bibliography"
-        title={`33 Books on History, Heritage & Culture`}
-        subtitle="Over three decades of meticulous research into Saurashtra and Gujarat's history — 23 works selected by the Library of Congress, USA."
-      />
-      <section className="section">
+  const categories = ["all", ...new Set(BOOKS.map((b) => b.category))];
 
-        {/* Search & View Controls */}
-        <div className="books-view-controls">
-          <div className="books-search-wrapper" style={{ flex: 1, marginRight: '2rem' }}>
-            <input
-              type="search"
-              className="books-search"
-              placeholder="Search books by title..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', marginBottom: 0 }}
-            />
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <span className="books-result-count" style={{ opacity: 0.6, fontSize: '0.85rem' }}>
-              {filtered.length} {filtered.length === 1 ? "book" : "books"}
-            </span>
-            
-            <div className="view-toggle">
-              <button 
-                className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                Grid
-              </button>
-              <button 
-                className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                onClick={() => setViewMode('table')}
-              >
-                Table
-              </button>
+  const openBook = (book: Book) => {
+    const idx = filtered.indexOf(book);
+    setSelectedIdx(idx);
+    setSelectedBook(book);
+  };
+
+  const navigate = (dir: 1 | -1) => {
+    const nextIdx = selectedIdx + dir;
+    if (nextIdx >= 0 && nextIdx < filtered.length) {
+      setSelectedIdx(nextIdx);
+      setSelectedBook(filtered[nextIdx]);
+    }
+  };
+
+  return (
+    <main className="sp-page">
+      {/* Header */}
+      <header className="sp-header">
+        <div className="sp-header-inner">
+          <div className="sp-header-brand">
+            <span className="sp-brand-mark">PK</span>
+            <div>
+              <div className="sp-brand-name">Dr. Praduman Khachar</div>
+              <div className="sp-brand-sub">Ideas for Heritage</div>
             </div>
           </div>
+          <div className="sp-header-stats">
+            <span>33 Books</span>
+            <span className="sp-stat-sep">·</span>
+            <span>23 in LOC</span>
+            <span className="sp-stat-sep">·</span>
+            <span>30+ Years</span>
+          </div>
         </div>
+      </header>
 
-        {/* Filters */}
-        <div className="book-filters">
-          {ALL_CATEGORIES.map((cat) => (
+      {/* Controls */}
+      <div className="sp-controls">
+        <input
+          type="search"
+          className="sp-search"
+          placeholder="Search bibliography..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="sp-filter-pills">
+          {categories.map((cat) => (
             <button
               key={cat}
-              className={`book-filter-btn${filter === cat ? " active" : ""}`}
+              className={`sp-filter-pill ${filter === cat ? "active" : ""}`}
               onClick={() => setFilter(cat)}
             >
               {cat === "all" ? "All" : BOOK_CATEGORIES[cat] || cat}
               {cat !== "all" && (
-                <span className="filter-count">
-                  {BOOKS.filter((b) => b.category === cat).length}
-                </span>
+                <span className="sp-pill-count">{BOOKS.filter((b) => b.category === cat).length}</span>
               )}
             </button>
           ))}
         </div>
+        <div className="sp-result-count">{filtered.length} {filtered.length === 1 ? "book" : "books"}</div>
+      </div>
 
-        {/* Books Content */}
-        {viewMode === "grid" ? (
-          <div className="books-grid books-grid-full">
-            {filtered.map((book, i) => (
-              <BookFullCard key={book.title} {...book} index={i} />
-            ))}
-          </div>
-        ) : (
-          <div className="books-table-wrapper" style={{ overflowX: 'auto' }}>
-            <table className="books-table">
-              <thead>
-                <tr>
-                  <th className="bt-year">Year</th>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Publisher</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((book, i) => (
-                  <BookTableRow key={book.title} {...book} index={i} onSelect={() => setSelectedBook(book)} />
-                ))}
-              </tbody>
-            </table>
+      {/* Spine listing */}
+      <div className="sp-spine-list">
+        {filtered.map((book, i) => (
+          <BookSpine
+            key={book.title}
+            book={book}
+            index={i}
+            onClick={() => openBook(book)}
+          />
+        ))}
+        {filtered.length === 0 && (
+          <div className="sp-empty">
+            <p>No books matching "{search}"</p>
           </div>
         )}
+      </div>
 
+      {/* Footer stats */}
+      <div className="sp-page-footer">
+        <div className="sp-footer-stat"><span className="sp-footer-num">33</span><span>Books Published</span></div>
+        <div className="sp-footer-stat"><span className="sp-footer-num">23</span><span>Library of Congress</span></div>
+        <div className="sp-footer-stat"><span className="sp-footer-num">11</span><span>High Court Citations</span></div>
+        <div className="sp-footer-stat"><span className="sp-footer-num">1997</span><span>First Publication</span></div>
+      </div>
+
+      {/* Book detail overlay */}
+      <AnimatePresence>
         {selectedBook && (
-          <BookDetailOverlay 
-            book={selectedBook} 
-            onClose={() => setSelectedBook(null)} 
+          <BookDetail
+            book={selectedBook}
+            allBooks={filtered}
+            onClose={() => setSelectedBook(null)}
+            onNavigate={navigate}
           />
         )}
-
-        {filtered.length === 0 && (
-          <div className="empty-state">
-            <p>No books found matching "{search}"</p>
-          </div>
-        )}
-
-        {/* Stats footer */}
-        <div className="books-page-stats">
-          <div className="bps-item">
-            <span className="bps-number">33</span>
-            <span className="bps-label">Books Published</span>
-          </div>
-          <div className="bps-item">
-            <span className="bps-number">23</span>
-            <span className="bps-label">In Library of Congress</span>
-          </div>
-          <div className="bps-item">
-            <span className="bps-number">15</span>
-            <span className="bps-label">Research Articles</span>
-          </div>
-          <div className="bps-item">
-            <span className="bps-number">11</span>
-            <span className="bps-label">Cited in Court Cases</span>
-          </div>
-        </div>
-      </section>
+      </AnimatePresence>
     </main>
-  );
-}
-
-function BookTableRow({ title, titleGu, category, year, locSelected, publisher, isbn, pages, imageUrl, description, index, onSelect }: BookFullCardProps & { onSelect?: () => void }) {
-  const [ref, visible] = useReveal(0.02);
-  
-  return (
-    <tr 
-      ref={ref as RefObject<HTMLTableRowElement>}
-      onClick={onSelect}
-      style={{ 
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: `all 0.5s ${Math.min(index * 0.01, 0.2)}s cubic-bezier(0.16, 1, 0.3, 1)`,
-        cursor: 'pointer'
-      }}
-    >
-      <td className="bt-year">{year || "—"}</td>
-      <td className="bt-title-cell">
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'start' }}>
-          {imageUrl ? (
-            <img src={imageUrl} alt={title} style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '2px', border: '1px solid var(--c-border)' }} />
-          ) : (
-            <div style={{ width: '40px', height: '60px', background: 'var(--c-bg-subtle)', borderRadius: '2px' }} />
-          )}
-          <div>
-            <span className="bt-title">{title}</span>
-            {titleGu && <span className="bt-gujarati">{titleGu}</span>}
-            {description && <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', opacity: 0.7, maxWidth: '300px' }}>{description}</p>}
-          </div>
-        </div>
-      </td>
-      <td>
-        <span className="bt-category">{BOOK_CATEGORIES[category] || category}</span>
-        <div style={{ fontSize: '0.75rem', marginTop: '0.5rem', opacity: 0.6 }}>
-          {pages && <div>{pages} pages</div>}
-          {isbn && <div>ISBN: {isbn}</div>}
-        </div>
-        {locSelected && <div className="bt-loc" style={{ marginTop: '0.5rem' }}>🏛️ LOC Selected</div>}
-      </td>
-      <td style={{ fontSize: '0.85rem', opacity: 0.8 }}>{publisher || "—"}</td>
-    </tr>
-  );
-}
-
-function BookFullCard({ title, titleGu, category, year, locSelected, publisher, price, isbn, pages, imageUrl, description, index, onSelect }: BookFullCardProps & { onSelect?: () => void }) {
-  const [ref, visible] = useReveal(0.05);
-  const categoryLabel = BOOK_CATEGORIES[category] || category;
-
-  return (
-    <div
-      ref={ref}
-      className={`book-card book-card-full ${locSelected ? "loc-selected" : ""}`}
-      onClick={onSelect}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(16px)",
-        transition: `all 0.45s ${Math.min(index * 0.03, 0.4)}s cubic-bezier(0.16, 1, 0.3, 1)`,
-        cursor: 'pointer'
-      }}
-    >
-      <div className="book-card-visual">
-        <div className="book-spine"></div>
-        <div className="book-cover-placeholder">
-          {imageUrl ? (
-            <img src={imageUrl} alt={title} className="book-cover-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div className="book-cover-inner">
-               <span className="book-cover-letter">{titleGu ? titleGu[0] : title[0]}</span>
-               {year && <span className="book-cover-year">{year}</span>}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="book-card-body">
-        <div className="book-meta-row">
-          <div className="book-number">{categoryLabel}</div>
-          {locSelected && (
-            <div className="loc-badge" title="Selected by Library of Congress, USA">
-              <span className="loc-icon">🏛️</span> LOC
-            </div>
-          )}
-        </div>
-        <h3 className="book-title">{title}</h3>
-        {titleGu && <div className="book-gujarati">{titleGu}</div>}
-        
-        {description && <p className="book-description-short">{description}</p>}
-
-        <div className="book-details">
-          {publisher && (
-            <div className="book-detail">
-              <span className="book-detail-label">Publisher</span>
-              <span className="book-detail-val">{publisher}</span>
-            </div>
-          )}
-          {pages && (
-            <div className="book-detail">
-              <span className="book-detail-label">Format</span>
-              <span className="book-detail-val">{pages} pages</span>
-            </div>
-          )}
-          {isbn && (
-            <div className="book-detail">
-              <span className="book-detail-label">ISBN</span>
-              <span className="book-detail-val">{isbn}</span>
-            </div>
-          )}
-          {price && (
-            <div className="book-detail">
-              <span className="book-detail-label">Price</span>
-              <span className="book-detail-val">{price}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="book-index-tag">#{String(index + 1).padStart(2, "0")}</div>
-      </div>
-    </div>
-  );
-}
-
-function BookDetailOverlay({ book, onClose }: { book: Book; onClose: () => void }) {
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, []);
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="book-detail-overlay"
-      style={{ backgroundColor: '#fff' }}
-    >
-      <button className="book-detail-close" onClick={onClose} data-cursor-text="Close">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
-      
-      <div className="scroll-indicators">
-        <div className="brand-mark">G</div>
-        {[...Array(12)].map((_, i) => (
-          <div key={i} className={`indicator-dot ${i === 0 ? 'active' : ''}`} />
-        ))}
-      </div>
-
-      <div className="book-detail-container detail-sticky-container">
-        <div className="detail-left-sticky">
-          <motion.div 
-            initial={{ scale: 0.9, rotateY: -30 }}
-            animate={{ scale: 1, rotateY: -20 }}
-            className="book-3d-canvas"
-            style={{ width: '400px', height: '580px', boxShadow: '30px 40px 80px rgba(0,0,0,0.15)' }}
-          >
-            {book.imageUrl ? (
-              <img src={book.imageUrl} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div className="book-cover-placeholder" style={{ width: '100%', height: '100%', background: '#242424' }}>
-                <div style={{ padding: '3rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#fff' }}>
-                  <span style={{ fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6 }}>Bibliographic Record</span>
-                  <div>
-                    <h2 style={{ fontSize: '2.5rem', lineHeight: 1, marginBottom: '0.5rem' }}>{book.title}</h2>
-                    {book.titleGu && <div style={{ fontSize: '1.2rem', opacity: 0.8, fontFamily: 'var(--font-body)', marginBottom: '1rem' }}>{book.titleGu}</div>}
-                    <p style={{ opacity: 0.6 }}>Dr. Praduman Khachar</p>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                     <span style={{ fontSize: '0.8rem', opacity: 0.4 }}>LOC ID: {book.isbn || 'ARCH-222'}</span>
-                     <div className="brand-mark" style={{ borderColor: 'rgba(255,255,255,0.2)', marginBottom: 0 }}>G</div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </div>
-
-        <div className="detail-right-content">
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '2rem', color: 'var(--c-terracotta)' }}>Bibliographic Record</div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '4.5rem', fontWeight: 500, marginBottom: '0.5rem', letterSpacing: '-0.02em', color: 'var(--c-ink)' }}>{book.title}</h1>
-            <div className="book-detail-author" style={{ fontSize: '1.8rem', marginBottom: '4rem', color: 'var(--c-ink-soft)' }}>Dr. Praduman Khachar</div>
-            
-            <div className="book-detail-description" style={{ fontSize: '1.4rem', lineHeight: 1.5, marginBottom: '5rem', fontWeight: 400, color: 'var(--c-ink)' }}>
-              {book.description || "The definitive record of Saurashtra's architectural and cultural history. This volume explores the intricate relationship between the region's princely courts and its folk traditions, documented through decades of field research."}
-            </div>
-
-            <div className="book-tech-specs" style={{ marginBottom: '5rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', borderTop: '1px solid var(--c-border)', paddingTop: '2rem' }}>
-              <div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.5rem' }}>ISBN</div>
-                <div style={{ fontSize: '1rem' }}>{book.isbn || "ARCH-BIB-001"}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.5rem' }}>Pages</div>
-                <div style={{ fontSize: '1rem' }}>{book.pages || "—"}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.5rem' }}>Year</div>
-                <div style={{ fontSize: '1rem' }}>{book.year || "—"}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.5rem' }}>Publisher</div>
-                <div style={{ fontSize: '1rem' }}>{book.publisher || "Saurashtra University"}</div>
-              </div>
-            </div>
-
-            <div className="book-purchase-links" style={{ maxWidth: '400px', border: '1px solid var(--c-border)' }}>
-              <a href="#" className="purchase-link">
-                <span>Direct Purchase</span>
-                <span style={{ opacity: 0.4 }}>{book.price || "Contact for Price"}</span>
-                <span className="purchase-link-arrow">↗</span>
-              </a>
-              <a href="#" className="purchase-link">
-                <span>Library of Congress</span>
-                <span style={{ opacity: 0.4 }}>{book.locSelected ? "Archived" : "Not Archived"}</span>
-                <span className="purchase-link-arrow">🏛️</span>
-              </a>
-            </div>
-          </motion.div>
-
-          <div className="endorsements-section" style={{ marginTop: '10rem' }}>
-            <div className="endorsement-grid" style={{ gridTemplateColumns: '1fr' }}>
-              <div className="endorsement-item" style={{ borderTop: '1px solid #000', padding: '3rem 0' }}>
-                <div style={{ display: 'flex', gap: '4rem' }}>
-                  <div style={{ flex: 1 }}>
-                    <p className="endorsement-text" style={{ fontSize: '1.5rem', fontStyle: 'italic', marginBottom: '2rem' }}>
-                      "Dr. Khachar is the preeminent historian of the Kathiawar peninsula. His work on the 222 princely states is a masterpiece of archival detective work."
-                    </p>
-                    <div className="endorsement-author" style={{ fontSize: '0.8rem', fontWeight: 600 }}>Charles C. Mann</div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>author of 1491: New Revelations of the Americas Before Columbus</div>
-                  </div>
-                </div>
-              </div>
-              <div className="endorsement-item" style={{ borderTop: '1px solid #000', padding: '3rem 0' }}>
-                <div style={{ display: 'flex', gap: '4rem' }}>
-                  <div style={{ flex: 1 }}>
-                    <p className="endorsement-text" style={{ fontSize: '1.5rem', fontStyle: 'italic', marginBottom: '2rem' }}>
-                      "A stunning achievement in preservation. Khachar's bibliography is not just a list of books, but a map of a vanishing culture."
-                    </p>
-                    <div className="endorsement-author" style={{ fontSize: '0.8rem', fontWeight: 600 }}>Edward Tufte</div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>statistician and professor emeritus at Yale University</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
   );
 }
