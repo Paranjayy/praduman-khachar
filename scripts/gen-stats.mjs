@@ -105,26 +105,55 @@ async function main() {
   try {
     let videosCount = 0;
     let transcriptsOk = 0;
+    let totalDurationSeconds = 0;
+    
     if (fs.existsSync(VIDEOS_PATH)) {
       const vData = JSON.parse(fs.readFileSync(VIDEOS_PATH, 'utf-8'));
-      // Use actual array length — the 'total' field can get stale
-      videosCount = Array.isArray(vData.videos) ? vData.videos.length : (vData.total || 0);
-      // Count transcripts by checking actual text length
-      transcriptsOk = Array.isArray(vData.videos)
-        ? vData.videos.filter(v => v.transcript && v.transcript.length > 50).length
-        : (vData.transcript_ok || 0);
-      // Keep total field in sync
-      if (Array.isArray(vData.videos) && vData.total !== videosCount) {
-        vData.total = videosCount;
-        vData.transcript_ok = transcriptsOk;
-        fs.writeFileSync(VIDEOS_PATH, JSON.stringify(vData, null, 2));
-      }
+      const vids = Array.isArray(vData.videos) ? vData.videos : [];
+      
+      // Use unique IDs for count
+      const uniqueIds = new Set(vids.map(v => v.id));
+      videosCount = uniqueIds.size;
+      
+      // Count transcripts
+      transcriptsOk = vids.filter(v => v.transcript && v.transcript.length > 50).length;
+      
+      // Calculate duration
+      totalDurationSeconds = vids.reduce((acc, v) => acc + (v.durationSeconds || 0), 0);
+      
+      // Sync back to videos.json
+      vData.total = videosCount;
+      vData.transcript_ok = transcriptsOk;
+      fs.writeFileSync(VIDEOS_PATH, JSON.stringify(vData, null, 2));
     }
 
     let playlistsCount = 0;
     if (fs.existsSync(PLAYLISTS_PATH)) {
       const pData = JSON.parse(fs.readFileSync(PLAYLISTS_PATH, 'utf-8'));
-      playlistsCount = pData.total || 0;
+      playlistsCount = Array.isArray(pData.playlists) ? pData.playlists.length : (pData.total || 0);
+      
+      // Inject durations into playlists if we have video data
+      if (fs.existsSync(VIDEOS_PATH) && Array.isArray(pData.playlists)) {
+        const vData = JSON.parse(fs.readFileSync(VIDEOS_PATH, 'utf-8'));
+        const vids = vData.videos || [];
+        const videoDurationMap = new Map(vids.map(v => [v.id, v.durationSeconds || 0]));
+        
+        pData.playlists.forEach(pl => {
+          // If the playlist doesn't have a duration, we might estimate it or use recentVideos
+          // For now, let's sum up recentVideos durations if available, or just use a placeholder
+          // Ideally we'd have all video IDs for the playlist
+          let totalPlSec = 0;
+          if (pl.recentVideos) {
+            pl.recentVideos.forEach(rv => {
+              totalPlSec += (videoDurationMap.get(rv.videoId) || 0);
+            });
+            // If recentVideos is only a subset, we could scale it, but that's risky.
+            // Let's just store what we found.
+            pl.totalDurationSeconds = totalPlSec;
+          }
+        });
+        fs.writeFileSync(PLAYLISTS_PATH, JSON.stringify(pData, null, 2));
+      }
     }
 
     const igData = await getInstagramData('PradumanKhachar');
@@ -135,6 +164,7 @@ async function main() {
       videos: videosCount,
       playlists: playlistsCount,
       transcripts: transcriptsOk,
+      totalDurationHours: Math.round(totalDurationSeconds / 3600),
       instagram: { followers: igData.followers, posts: igData.postsCount },
       facebook: fb,
       youtube: yt,

@@ -4916,9 +4916,9 @@ body { top: 0px !important; }
   gap: 1rem;
 }
 .sp-search {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #e8e4dc;
+  background: var(--c-bg-soft);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
   padding: 0.6rem 1.2rem;
   font-family: var(--font-sans);
   font-size: 0.88rem;
@@ -4926,16 +4926,16 @@ body { top: 0px !important; }
   width: 280px;
   transition: border-color 0.2s;
 }
-.sp-search:focus { border-color: rgba(255,255,255,0.35); }
-.sp-search::placeholder { color: rgba(255,255,255,0.3); }
+.sp-search:focus { border-color: var(--c-terracotta); }
+.sp-search::placeholder { color: var(--c-text-muted); opacity: 0.5; }
 .sp-filter-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1; }
 .sp-filter-pill {
   font-family: var(--font-sans);
   font-size: 0.75rem;
   padding: 0.35rem 0.8rem;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.5);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 0.03em;
@@ -4943,10 +4943,10 @@ body { top: 0px !important; }
   align-items: center;
   gap: 0.4rem;
 }
-.sp-filter-pill:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.85); }
-.sp-filter-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
-.sp-pill-count { opacity: 0.5; font-size: 0.7rem; }
-.sp-result-count { font-family: var(--font-sans); font-size: 0.78rem; opacity: 0.4; margin-left: auto; }
+.sp-filter-pill:hover { border-color: var(--c-terracotta); color: var(--c-text); }
+.sp-filter-pill.active { background: var(--c-terracotta); border-color: var(--c-terracotta); color: #fff; }
+.sp-pill-count { opacity: 0.7; font-size: 0.7rem; }
+.sp-result-count { font-family: var(--font-sans); font-size: 0.78rem; opacity: 0.6; margin-left: auto; color: var(--c-text-muted); }
 
 /* ── Spine list ── */
 .sp-spine-list {
@@ -5576,7 +5576,7 @@ body { top: 0px !important; }
 .sp-card-placeholder-text {
   font-family: var(--font-display);
   font-size: 3rem;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.4);
 }
 
 .sp-card-loc {
@@ -5592,9 +5592,12 @@ body { top: 0px !important; }
 
 .sp-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .sp-card-cat { font-family: var(--font-sans); font-size: 0.65rem; color: var(--c-terracotta); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-.sp-card-title { font-family: var(--font-serif); font-size: 1.25rem; color: #e8e4dc; margin-bottom: 0.4rem; line-height: 1.2; }
-.sp-card-titlegu { font-size: 0.9rem; color: rgba(232, 228, 220, 0.4); margin-bottom: 1rem; }
-.sp-card-footer { font-family: var(--font-sans); font-size: 0.75rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px; }
+.sp-card-title { font-family: var(--font-serif); font-size: 1.25rem; color: var(--c-text); margin-bottom: 0.4rem; line-height: 1.2; }
+[data-theme="dark"] .sp-card-title { color: #e8e4dc; }
+.sp-card-titlegu { font-size: 0.9rem; color: var(--c-text-muted); margin-bottom: 1rem; }
+[data-theme="dark"] .sp-card-titlegu { color: rgba(232, 228, 220, 0.4); }
+.sp-card-footer { font-family: var(--font-sans); font-size: 0.75rem; color: var(--c-text-muted); display: flex; align-items: center; gap: 8px; }
+[data-theme="dark"] .sp-card-footer { color: rgba(255,255,255,0.3); }
 .sp-card-sep { opacity: 0.2; }
 
 /* ── Endless Scroll Detail ── */
@@ -6536,17 +6539,12 @@ body { top: 0px !important; }
 }
 
 .career-year {
-  position: absolute;
-  left: -8.5rem;
-  top: 6px;
-  width: 5rem;
-  text-align: right;
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
   font-weight: 800;
   color: var(--c-terracotta);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .career-title {
@@ -6728,19 +6726,20 @@ mark {
 
 .career-grid {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 2rem;
+  grid-template-columns: 160px 1fr;
+  gap: 3rem;
   align-items: start;
 }
 
 .career-year {
   white-space: nowrap;
+  padding-top: 0.2rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .career-grid {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 }
 

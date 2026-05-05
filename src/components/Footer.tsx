@@ -98,7 +98,7 @@ export default function Footer() {
             )}
             <div className="footer-build-info" title="Deployment Telemetry">
               <span className="build-dot"></span>
-              <span>Last Updated {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+              <span>Last Updated 6 May 2026 03:16</span>
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 {
-  "videos": 595,
+  "videos": 575,
   "playlists": 33,
-  "transcripts": 260,
+  "transcripts": 259,
+  "totalDurationHours": 35,
   "instagram": {
     "followers": 0,
     "posts": 0
@@ -11,7 +12,7 @@
   },
   "youtube": {
     "subscribers": 0,
-    "views": 0
+    "views": 447882
   },
-  "lastUpdated": "2026-05-05T19:40:06.996Z"
+  "lastUpdated": "2026-05-05T22:33:35.287Z"
 }

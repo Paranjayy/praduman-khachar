@@ -30,6 +30,7 @@ interface PlaylistEntry {
   thumbnailMq: string;
   firstVideoId: string;
   videoCount: number;
+  totalDurationSeconds?: number;
   recentVideos: { videoId: string; title: string; publishedAt: string; views: string }[];
 }
 
@@ -548,11 +549,18 @@ function PlaylistCard({ pl, index }: { pl: PlaylistEntry; index: number }) {
           {latestDate && <span className="playlist-meta-item">Updated {latestDate}</span>}
           <span className="playlist-meta-sep">•</span>
           <span className="playlist-meta-item">{pl.videoCount} videos</span>
-          {totalViews > 0 && (
+          {pl.totalDurationSeconds && pl.totalDurationSeconds > 0 ? (
             <>
               <span className="playlist-meta-sep">•</span>
-              <span className="playlist-meta-item">{totalViews.toLocaleString("en-IN")} views</span>
+              <span className="playlist-meta-item">{formatDuration(pl.totalDurationSeconds)} depth</span>
             </>
+          ) : (
+            totalViews > 0 && (
+              <>
+                <span className="playlist-meta-sep">•</span>
+                <span className="playlist-meta-item">{totalViews.toLocaleString("en-IN")} views</span>
+              </>
+            )
           )}
         </div>
 

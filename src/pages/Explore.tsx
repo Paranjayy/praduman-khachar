@@ -408,7 +408,7 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {filteredItems.length > 0 && (searchQuery || category !== "all" || typeFilter !== "all") && (
+          {filteredItems.length > 0 && (search || typeFilter !== "all") && (
             <div className="explore-results-stats">
               <div className="stat-pill">
                 <span className="stat-label">Results</span>

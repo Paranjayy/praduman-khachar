@@ -39,7 +39,7 @@ export default function StatsRibbon() {
   const items = liveStats ? [
     { number: liveStats.videos, label: "Videos Archived" },
     { number: liveStats.totalDurationHours, label: "Hours of History" },
-    { number: (liveStats.youtube.views / 1000).toFixed(1) + 'K', label: "Total Reach" },
+    { number: ((liveStats.youtube?.views || 0) / 1000).toFixed(1) + 'K', label: "Total Reach" },
     { number: liveStats.transcripts, label: "Transcripts OK" }
   ] : STATS;
 
