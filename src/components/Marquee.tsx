@@ -16,12 +16,18 @@ export default function Marquee({ items, speed = 60, separator = "·" }: Props) 
     let start: number | null = null;
     let pos = 0;
     let raf: number;
+    let lastTs = 0;
 
     function step(ts: number) {
+      if (track.dataset.paused === "true") {
+        start = ts - (pos * 1000) / speed;
+        raf = requestAnimationFrame(step);
+        return;
+      }
       if (start === null) start = ts;
       pos = ((ts - start) * speed) / 1000;
-      if (pos >= fullWidth) start = ts; // loop
-      if (track) track.style.transform = `translateX(-${pos % fullWidth}px)`;
+      if (pos >= fullWidth) start = ts;
+      track.style.transform = `translateX(-${pos % fullWidth}px)`;
       raf = requestAnimationFrame(step);
     }
     raf = requestAnimationFrame(step);
@@ -31,7 +37,12 @@ export default function Marquee({ items, speed = 60, separator = "·" }: Props) 
   const all = [...items, ...items]; // duplicate for seamless loop
 
   return (
-    <div className="marquee-outer" aria-hidden="true">
+    <div 
+      className="marquee-outer" 
+      aria-hidden="true"
+      onMouseEnter={() => { if (trackRef.current) trackRef.current.dataset.paused = "true"; }}
+      onMouseLeave={() => { if (trackRef.current) trackRef.current.dataset.paused = "false"; }}
+    >
       <div className="marquee-track" ref={trackRef}>
         {all.map((item, i) => (
           <span key={i} className="marquee-item">

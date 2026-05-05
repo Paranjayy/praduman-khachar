@@ -18,22 +18,31 @@ const MARQUEE_ITEMS = [
 ];
 
 // Split title into words, then chars — Lando-style character animation
+import { motion } from "framer-motion";
+
 function SplitTitle({ text }: { text: string }) {
+  const words = text.split(" ");
   return (
     <span aria-label={text} className="split-title notranslate" translate="no">
-      {text.split(" ").map((word, wi) => (
-        <span key={wi} className="split-word">
+      {words.map((word, wi) => (
+        <span key={wi} className="split-word" style={{ whiteSpace: 'nowrap' }}>
           {word.split("").map((char, ci) => (
-            <span
+            <motion.span
               key={ci}
               className="split-char"
-              style={{ animationDelay: `${0.5 + (wi * 4 + ci) * 0.035}s` }}
+              initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ 
+                duration: 0.8, 
+                delay: 0.5 + (wi * 4 + ci) * 0.05,
+                ease: [0.16, 1, 0.3, 1]
+              }}
               aria-hidden="true"
             >
               {char}
-            </span>
+            </motion.span>
           ))}
-          {wi < text.split(" ").length - 1 && (
+          {wi < words.length - 1 && (
             <span className="split-char split-space" aria-hidden="true"> </span>
           )}
         </span>

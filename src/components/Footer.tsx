@@ -75,9 +75,17 @@ export default function Footer() {
             <span>{SITE.location}</span>
           </div>
           
-          <div className="footer-build-info" title="Deployment Telemetry">
-            <span className="build-dot"></span>
-            <span>Last Updated {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+          <div className="footer-status-pills">
+            {stats && (
+              <div className="footer-status-pill" title="Transcript Ingestion Status">
+                <span className="status-dot pulse" />
+                <span>{stats.ok}/{stats.total} Transcripts</span>
+              </div>
+            )}
+            <div className="footer-build-info" title="Deployment Telemetry">
+              <span className="build-dot"></span>
+              <span>Last Updated {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
           </div>
         </div>
       </div>

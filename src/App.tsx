@@ -31,17 +31,24 @@ import ReadingPage from "./pages/Reading";
 import NotFoundPage from "./pages/NotFound";
 import { CONFIG } from "./config";
 
+import HistoryPulse from "./components/HistoryPulse";
+
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
 
   useEffect(() => {
     const art = [
-      "  ____  ____    ____  ____  ____  __  __  __  __  ____  _  _ ",
-      " (  _ \\(  _ \\  (  _ \\(  _ \\(  _ \\(  )(  )(  \\/  )(  _ \\( \\/ )",
-      "  )___/ )   /   )___/ )   / ) _ ( )(__)(  )    (  ) _ ( \\  / ",
-      " (__)  (_)\\_)  (__)  (_)\\_)(____/(______)(_\\/\\/_)(____/ (__) ",
-      "                                                              ",
-      " Archive Workstation v2.1.0-GOD  |  Dr. Praduman Khachar      ",
+      "       _________       ",
+      "      /        /|      ",
+      "     /________/ |      ",
+      "    |        |  |      ",
+      "    | DR. PK |  |      ",
+      "    | ARCHIVE|  |      ",
+      "    |________| /       ",
+      "                       ",
+      " DR. PRADUMAN KHACHAR  ",
+      " v2.1.0-GOD WORKSTATION",
+      " [GOD BUILD INITIALIZED] ",
     ];
     console.log(`%c${art.join('\n')}`, "color: #e26a4b; font-weight: bold; font-family: monospace;");
     const quotes = [
@@ -51,10 +58,12 @@ function AppInner() {
       "Every transcript is a bridge between generations.",
     ];
     console.log(`%c[System]: ${quotes[Math.floor(Math.random() * quotes.length)]}`, "color: #888; font-style: italic;");
+    console.log("%c[Status]: Scraper ingest running in background (354/442 videos indexed)", "color: #555;");
   }, []);
 
   return (
     <>
+      <HistoryPulse />
       <ScrollProgress />
       <Nav />
       <Routes>
