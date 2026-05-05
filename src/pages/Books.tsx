@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useTheme } from "../hooks/useTheme";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { LayoutGrid, List, Columns, BookOpen, ChevronDown } from "lucide-react";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { Book } from "../types";
+import { FlipBookPortal } from "../components/FlipBookPortal";
 
 const CATEGORY_COLORS: Record<string, string> = {
   kathi:       "#c5a55a",
@@ -139,8 +141,12 @@ function InteractiveCover({ book, index }: { book: Book; index: number }) {
 
 // ── Spine View Item ──────────────────────────────────────────────────────────
 function BookSpine({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
+  const { theme } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
-  const bg = BG_COLORS[book.category] || "#1a1a1a";
+  const bg = theme === 'dark' 
+    ? (BG_COLORS[book.category] || "#1a1a1a")
+    : "#ffffff";
+    
   return (
     <motion.div
       className="sp-spine-card"
@@ -194,11 +200,13 @@ function BookCard({ book, index, onClick }: { book: Book; index: number; onClick
 function DetailSection({ 
   book, 
   index, 
-  onVisible 
+  onVisible,
+  setPreviewBook
 }: { 
   book: Book; 
   index: number; 
-  onVisible: (i: number) => void 
+  onVisible: (i: number) => void;
+  setPreviewBook: (b: { title: string, pages: string[] } | null) => void;
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -213,8 +221,11 @@ function DetailSection({
     return () => obs.disconnect();
   }, [index, onVisible]);
 
+  const { theme } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
-  const bg = BG_COLORS[book.category] || "#1a1a1a";
+  const bg = theme === 'dark' 
+    ? (BG_COLORS[book.category] || "#1a1a1a")
+    : "var(--c-parchment)";
 
   return (
     <section 
@@ -261,11 +272,24 @@ function DetailSection({
             </div>
 
             <div className="sp-purchase-links">
-              <a href="#" className="sp-purchase-link">
-                <span>Purchase Directly</span>
-                <span className="sp-purchase-price">{book.price || "Contact"}</span>
-                <span className="sp-purchase-arrow">↗</span>
-              </a>
+              <button 
+                className="sp-purchase-link preview-btn" 
+                onClick={() => {
+                  setPreviewBook({
+                    title: book.title,
+                    pages: [
+                      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600",
+                      "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600",
+                      "/brain/06f09628-5ede-4195-bac6-2d3a0f5986f8/manuscript_page_1_1778007942085.png",
+                      "/brain/06f09628-5ede-4195-bac6-2d3a0f5986f8/manuscript_page_2_1778007965588.png"
+                    ]
+                  });
+                }}
+              >
+                <span>Preview Archive</span>
+                <span className="sp-purchase-price">Visuals</span>
+                <span className="sp-purchase-arrow">📖</span>
+              </button>
               <a href="mailto:pkhachar@gmail.com" className="sp-purchase-link">
                 <span>Contact Author</span>
                 <span className="sp-purchase-price">pkhachar@gmail.com</span>
@@ -315,6 +339,7 @@ function EndlessBookDetail({
   onClose: () => void 
 }) {
   const [activeIdx, setActiveIdx] = useState(initialIdx);
+  const [previewBook, setPreviewBook] = useState<{ title: string, pages: string[] } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: containerRef });
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
@@ -362,6 +387,7 @@ function EndlessBookDetail({
             book={book} 
             index={i} 
             onVisible={setActiveIdx} 
+            setPreviewBook={setPreviewBook}
           />
         ))}
         <div className="sp-endless-footer">
@@ -371,6 +397,13 @@ function EndlessBookDetail({
           </button>
         </div>
       </div>
+
+      <FlipBookPortal 
+        isOpen={!!previewBook}
+        onClose={() => setPreviewBook(null)}
+        title={previewBook?.title || ""}
+        pages={previewBook?.pages || []}
+      />
     </motion.div>
   );
 }

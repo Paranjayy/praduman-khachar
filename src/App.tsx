@@ -28,6 +28,7 @@ import CitationsPage from "./pages/Citations";
 import MapPage from "./pages/Map";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
+import Redirector from "./pages/Redirector";
 import NotFoundPage from "./pages/NotFound";
 import { CONFIG } from "./config";
 
@@ -89,6 +90,11 @@ function AppInner() {
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/citations" element={<CitationsPage />} />
         <Route path="/map" element={<MapPage />} />
+        
+        {/* Shortlinks */}
+        <Route path="/v/:id" element={<Redirector type="video" />} />
+        <Route path="/a/:slug" element={<Redirector type="article" />} />
+        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

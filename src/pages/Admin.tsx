@@ -389,9 +389,17 @@ function EditorForm({
                 </button>
               </div>
             ))}
-            <button className="admin-btn-secondary admin-add-para" onClick={addPara}>
-              + Add Paragraph
-            </button>
+            <div className="admin-editor-para-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button className="admin-btn-secondary admin-add-para" onClick={addPara}>
+                + Add Paragraph
+              </button>
+              <button 
+                className="admin-btn-secondary admin-add-img" 
+                onClick={() => setForm(f => ({ ...f, content: [...f.content, "[img:URL_HERE]"] }))}
+              >
+                + Add Image Block
+              </button>
+            </div>
           </div>
 
           {/* Export instructions */}
@@ -399,6 +407,9 @@ function EditorForm({
             <strong>How to publish:</strong> Click "Export TypeScript" → paste into{" "}
             <code>src/data/writings.ts</code> inside the <code>WRITINGS</code> array →
             commit and push to GitHub → Vercel deploys automatically.
+            <div style={{ marginTop: '0.8rem', opacity: 0.8, fontSize: '0.8rem' }}>
+              <strong>Roadmap:</strong> In v3.0, we plan to integrate a direct-to-GitHub API for one-click publishing.
+            </div>
           </div>
         </div>
       )}
@@ -419,7 +430,16 @@ function AdminDashboard({
   onDelete: (id: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState<"writings" | "books" | "design" | "analytics" | "settings">("writings");
-  const published = WRITINGS.length;
+  const [searchQuery, setSearchQuery] = useState("");
+  const publishedCount = WRITINGS.length;
+
+  const filteredPublished = useMemo(() => {
+    return WRITINGS.filter(w => 
+      w.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (w.titleEn && w.titleEn.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      w.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   return (
     <div className="admin-dashboard">
@@ -448,7 +468,7 @@ function AdminDashboard({
           {/* Stats */}
           <div className="admin-stats-row">
             <div className="admin-stat-card">
-              <span className="admin-stat-num">{published}</span>
+              <span className="admin-stat-num">{publishedCount}</span>
               <span className="admin-stat-label">Published Articles</span>
             </div>
             <div className="admin-stat-card">
@@ -466,20 +486,23 @@ function AdminDashboard({
           {/* Published */}
           <section className="admin-section">
             <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 className="admin-section-title">Published Writings ({published})</h2>
+              <h2 className="admin-section-title">Published Writings ({publishedCount})</h2>
               <div className="admin-search-wrap" style={{ position: 'relative' }}>
                 <input 
                   type="text" 
                   placeholder="Search articles..." 
                   className="admin-input" 
-                  style={{ width: '250px', paddingLeft: '2.5rem' }}
-                  onChange={(e) => {/* Add local filter state if needed */}}
+                  style={{ width: '300px', paddingLeft: '2.5rem' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
               </div>
             </div>
             <div className="admin-articles-list">
-              {WRITINGS.map((w) => {
+              {filteredPublished.length === 0 ? (
+                <div className="admin-empty-small">No articles match "{searchQuery}"</div>
+              ) : filteredPublished.map((w) => {
                 const hasDraft = drafts.some(d => d.id === w.id);
                 return (
                   <div key={w.id} className="admin-article-row">

@@ -174,6 +174,17 @@ export default function ExplorePage() {
   const isLikelyEnglish = (q: string) => /^[a-zA-Z\s]+$/.test(q) && q.trim().length > 2;
 
   useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) setSearch(q);
+    
+    const vId = searchParams.get("v");
+    if (vId && items.length > 0) {
+      const item = items.find(i => i.id === vId && i.type === 'video');
+      if (item) setQuicklookItem(item);
+    }
+  }, [searchParams, items]);
+
+  useEffect(() => {
     if (!search.trim() || !searchInTranscripts) { setTranslatedQuery(""); return; }
     if (!isLikelyEnglish(search)) { setTranslatedQuery(""); return; }
     const timer = setTimeout(async () => {
@@ -392,10 +403,35 @@ export default function ExplorePage() {
 
             {isAdmin && (
               <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--c-terracotta)' }}>
-                ADMIN MODE ACTIVE
-              </div>
-            )}
           </div>
+
+          {filteredItems.length > 0 && (searchQuery || category !== "all" || typeFilter !== "all") && (
+            <div className="explore-results-stats">
+              <div className="stat-pill">
+                <span className="stat-label">Results</span>
+                <span className="stat-value">{filteredItems.length}</span>
+              </div>
+              {filteredItems.some(i => i.duration) && (
+                <div className="stat-pill">
+                  <span className="stat-label">Total Duration</span>
+                  <span className="stat-value">
+                    {(() => {
+                      const totalSec = filteredItems.reduce((acc, curr) => acc + (curr.duration || 0), 0);
+                      const hours = Math.floor(totalSec / 3600);
+                      const mins = Math.floor((totalSec % 3600) / 60);
+                      return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                    })()}
+                  </span>
+                </div>
+              )}
+              <div className="stat-pill">
+                <span className="stat-label">Avg. Depth</span>
+                <span className="stat-value">
+                  {Math.round(filteredItems.reduce((acc, curr) => acc + (curr.words || 0), 0) / filteredItems.length / 100) * 100}w
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {!loaded ? (
@@ -449,8 +485,18 @@ export default function ExplorePage() {
                       <p className="explore-card-desc">{item.description.slice(0, 110)}…</p>
                     )}
                     <div className="explore-card-footer">
-                      {item.words && item.words > 0 && <span className="explore-stat">{item.words.toLocaleString()} words</span>}
-                      {item.views && <span className="explore-stat">👁 {item.views}</span>}
+                      {item.type === "video" ? (
+                        <>
+                          <span className="explore-stat">👁 {item.views || "0"}</span>
+                          {item.duration && (
+                            <span className="explore-stat duration">
+                              🕒 {Math.floor(item.duration / 60)}:{String(item.duration % 60).padStart(2, '0')}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="explore-stat">{item.words?.toLocaleString() || "0"} words</span>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -124,16 +124,26 @@ function WritingArticlePage({ writing }: { writing: Writing }) {
 
           {/* Content */}
           <div className="writing-article-content">
-            {writing.content.map((para, i) => (
-              <p
-                key={i}
-                id={`para-${i}`}
-                data-para={i}
-                className="writing-article-para"
-              >
-                {para}
-              </p>
-            ))}
+            {writing.content.map((para, i) => {
+              if (para.startsWith("[img:") && para.endsWith("]")) {
+                const url = para.slice(5, -1);
+                return (
+                  <div key={i} className="writing-inline-img-wrap" style={{ margin: '2.5rem 0' }}>
+                    <img src={url} alt="Article Content" style={{ width: '100%', borderRadius: '12px' }} />
+                  </div>
+                );
+              }
+              return (
+                <p
+                  key={i}
+                  id={`para-${i}`}
+                  data-para={i}
+                  className="writing-article-para"
+                >
+                  {para}
+                </p>
+              );
+            })}
           </div>
 
           {/* Tags */}

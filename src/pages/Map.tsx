@@ -126,7 +126,7 @@ export default function MapPage() {
                     {selectedLoc.keywords.map(k => <span key={k} className="map-keyword">{k}</span>)}
                   </div>
                   <Link to={`/explore?q=${selectedLoc.name}`} className="map-loc-btn">
-                     Explore {selectedLoc.name} Records →
+                     Explore {selectedLoc.name} Archives →
                   </Link>
                </motion.div>
              ) : (

@@ -12,7 +12,6 @@ import Support from "../components/Support";
 import Contact from "../components/Contact";
 
 import { useScrollReveal } from "../hooks/useScrollReveal";
-import HomeTOC from "../components/HomeTOC";
 
 export default function HomePage() {
   const revealRef = useScrollReveal();
