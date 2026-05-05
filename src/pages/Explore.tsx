@@ -403,6 +403,9 @@ export default function ExplorePage() {
 
             {isAdmin && (
               <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--c-terracotta)' }}>
+                ADMIN MODE ACTIVE
+              </div>
+            )}
           </div>
 
           {filteredItems.length > 0 && (searchQuery || category !== "all" || typeFilter !== "all") && (
