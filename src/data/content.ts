@@ -81,7 +81,9 @@ export const BOOKS: Book[] = [
     price: "અપ્રાપ્ય",
     isbn: "978-81-9005-01-1",
     pages: 420,
-    description: "A comprehensive study of the history, culture, and traditions of the Kathi community of Saurashtra."
+    description: "A comprehensive study of the history, culture, and traditions of the Kathi community of Saurashtra.",
+    themeColor: "#c5a55a",
+    imageUrl: "https://picsum.photos/800/1200?random=1"
   },
   { 
     title: "Prachin Bharat Na Videshi Yatri", 
@@ -93,7 +95,9 @@ export const BOOKS: Book[] = [
     price: "અપ્રાપ્ય",
     isbn: "978-93-8123-45-2",
     pages: 310,
-    description: "An analysis of historical accounts of foreign travelers who visited ancient India."
+    description: "An analysis of historical accounts of foreign travelers who visited ancient India.",
+    themeColor: "#8a7b5a",
+    imageUrl: "https://picsum.photos/800/1200?random=2"
   },
   { 
     title: "Bhuchar Mori Ni Ladai", 
@@ -105,7 +109,9 @@ export const BOOKS: Book[] = [
     price: "અપ્રાપ્ય",
     isbn: "978-81-7654-12-3",
     pages: 185,
-    description: "A detailed military and historical analysis of the Battle of Bhuchar Mori (1591)."
+    description: "A detailed military and historical analysis of the Battle of Bhuchar Mori (1591).",
+    themeColor: "#7a6a5a",
+    imageUrl: "https://picsum.photos/800/1200?random=3"
   },
   { 
     title: "Itihas Suman", 

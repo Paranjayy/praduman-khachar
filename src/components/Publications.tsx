@@ -30,7 +30,7 @@ export default function Publications() {
   return (
     <section id="publications" className="section" ref={containerRef}>
       <div ref={ref} className={`reveal${visible ? " visible" : ""}`}>
-        <div className="brand-mark">G</div>
+        <div className="brand-mark">PK</div>
         <p className="section-label">Selected Works</p>
         <h2 className="section-title">The Bibliographic Archive.</h2>
         <div className="section-divider" />

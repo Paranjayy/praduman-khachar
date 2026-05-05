@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
+import { LayoutGrid, List, Columns } from "lucide-react";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { Book } from "../types";
 
@@ -79,7 +80,7 @@ function BookSpine({ book, index, onClick }: { book: Book; index: number; onClic
     return () => obs.disconnect();
   }, []);
 
-  const accent = CATEGORY_COLORS[book.category] || "#c5a55a";
+  const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
   const bg = BG_COLORS[book.category] || "#1a1a1a";
 
   return (
@@ -135,7 +136,7 @@ function BookDetail({ book, allBooks, onClose, onNavigate }: {
     setTilt({ x, y });
   };
 
-  const accent = CATEGORY_COLORS[book.category] || "#c5a55a";
+  const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
   const bg = BG_COLORS[book.category] || "#1a1a1a";
 
   // lock body scroll
@@ -156,7 +157,12 @@ function BookDetail({ book, allBooks, onClose, onNavigate }: {
   return (
     <motion.div
       className="sp-detail-overlay"
-      style={{ "--sp-accent": accent, "--sp-bg": bg, "--sp-bg-dim": bg + "cc" } as React.CSSProperties}
+      style={{ 
+        "--sp-accent": accent, 
+        "--sp-bg": bg, 
+        "--sp-bg-dim": bg + "cc",
+        fontFamily: book.fontFamily || "var(--font-serif)"
+      } as React.CSSProperties}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -366,6 +372,7 @@ function BookDetail({ book, allBooks, onClose, onNavigate }: {
 export default function BooksPage() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"stripe" | "grid" | "table">("stripe");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
 
@@ -418,13 +425,40 @@ export default function BooksPage() {
 
       {/* Controls */}
       <div className="sp-controls">
-        <input
-          type="search"
-          className="sp-search"
-          placeholder="Search bibliography..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="sp-controls-top">
+          <input
+            type="search"
+            className="sp-search"
+            placeholder="Search bibliography..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          
+          <div className="sp-view-toggles">
+            <button 
+              className={`sp-view-toggle ${viewMode === 'stripe' ? 'active' : ''}`}
+              onClick={() => setViewMode('stripe')}
+              title="Stripe View"
+            >
+              <Columns size={16} />
+            </button>
+            <button 
+              className={`sp-view-toggle ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title="Grid View"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button 
+              className={`sp-view-toggle ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title="Table View"
+            >
+              <List size={16} />
+            </button>
+          </div>
+        </div>
+
         <div className="sp-filter-pills">
           {categories.map((cat) => (
             <button
@@ -442,16 +476,78 @@ export default function BooksPage() {
         <div className="sp-result-count">{filtered.length} {filtered.length === 1 ? "book" : "books"}</div>
       </div>
 
-      {/* Spine listing */}
-      <div className="sp-spine-list">
-        {filtered.map((book, i) => (
-          <BookSpine
-            key={book.title}
-            book={book}
-            index={i}
-            onClick={() => openBook(book)}
-          />
-        ))}
+      {/* Conditional Rendering based on ViewMode */}
+      <div className="sp-view-content">
+        {viewMode === "stripe" && (
+          <div className="sp-spine-list">
+            {filtered.map((book, i) => (
+              <BookSpine
+                key={book.title}
+                book={book}
+                index={i}
+                onClick={() => openBook(book)}
+              />
+            ))}
+          </div>
+        )}
+
+        {viewMode === "grid" && (
+          <div className="sp-grid-list">
+            {filtered.map((book, i) => (
+              <motion.div 
+                key={book.title}
+                className="sp-grid-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                onClick={() => openBook(book)}
+              >
+                <div className="sp-grid-cover">
+                  {book.imageUrl ? (
+                    <img src={book.imageUrl} alt={book.title} />
+                  ) : (
+                    <div className="sp-grid-placeholder" style={{ background: book.themeColor || CATEGORY_COLORS[book.category] }}>
+                      <span>{book.title.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="sp-grid-info">
+                  <div className="sp-grid-title">{book.title}</div>
+                  <div className="sp-grid-cat">{BOOK_CATEGORIES[book.category]}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {viewMode === "table" && (
+          <div className="sp-table-wrapper">
+            <table className="sp-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Year</th>
+                  <th>Publisher</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((book) => (
+                  <tr key={book.title} onClick={() => openBook(book)}>
+                    <td>
+                      <div className="sp-table-title">{book.title}</div>
+                      {book.titleGu && <div className="sp-table-titlegu">{book.titleGu}</div>}
+                    </td>
+                    <td>{BOOK_CATEGORIES[book.category]}</td>
+                    <td>{book.year}</td>
+                    <td>{book.publisher}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {filtered.length === 0 && (
           <div className="sp-empty">
             <p>No books matching "{search}"</p>
