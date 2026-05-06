@@ -13,10 +13,10 @@ import CommandPalette from "./components/CommandPalette";
 import SurpriseMe from "./components/SurpriseMe";
 import CustomCursor from "./components/CustomCursor";
 import WhatsAppShare from "./components/WhatsAppShare";
-// import HelpModal from "./components/HelpModal"; // Missing file
+import HelpModal from "./components/HelpModal";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
-import BookDetail from "./pages/Books"; // Fallback to Books for now if slug is used
+import BookDetailPage from "./pages/BookDetail";
 import MediaPage from "./pages/Media";
 import AboutPage from "./pages/About";
 import ArticlesPage from "./pages/Articles";
@@ -42,6 +42,7 @@ import HistoryPulse from "./components/HistoryPulse";
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
   const navigate = useNavigate();
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     const art = [
@@ -80,6 +81,7 @@ function AppInner() {
         else if (key === "m") { navigate("/media"); lastKey = ""; }
         else if (key === "e") { navigate("/explore"); lastKey = ""; }
         else if (key === "l") { navigate("/lineage"); lastKey = ""; }
+        else if (key === "?" || key === "/") { setHelpOpen(true); lastKey = ""; }
         else { lastKey = ""; }
       } else if (key === "g") {
         lastKey = "g";
@@ -98,7 +100,7 @@ function AppInner() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/books" element={<BooksPage />} />
-        <Route path="/books/:slug" element={<BooksPage />} />
+        <Route path="/books/:slug" element={<BookDetailPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
         
@@ -134,7 +136,7 @@ function AppInner() {
       <SurpriseMe />
       <DesignCustomizer />
       <WhatsAppShare />
-      {/* <HelpModal /> */}
+      <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
       <CustomCursor />
