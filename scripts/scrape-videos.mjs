@@ -276,7 +276,10 @@ async function main() {
   }
 
   // ── Merge with existing and save ──────────────────────────────────────────
-  const merged = [...existing.values(), ...newResults];
+  const finalMap = new Map(existing);
+  newResults.forEach(v => finalMap.set(v.id, v));
+  const merged = [...finalMap.values()];
+
   // Sort by published date (newest first)
   merged.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
 

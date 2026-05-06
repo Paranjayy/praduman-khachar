@@ -153,6 +153,10 @@ export default function ExplorePage() {
     }
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
+
   // CMS Hide Logic
   const [hiddenIds, setHiddenIds] = useState<string[]>(() => {
     const saved = localStorage.getItem("archival_hidden_ids");
@@ -172,36 +176,6 @@ export default function ExplorePage() {
 
   // Auto-translate English queries to Gujarati for cross-lingual matching
   const isLikelyEnglish = (q: string) => /^[a-zA-Z\s]+$/.test(q) && q.trim().length > 2;
-
-  useEffect(() => {
-    const q = searchParams.get("q");
-    if (q) setSearch(q);
-    
-    const vId = searchParams.get("v");
-    if (vId && items.length > 0) {
-      const item = items.find(i => i.id === vId && i.type === 'video');
-      if (item) setQuicklookItem(item);
-    }
-  }, [searchParams, items]);
-
-  useEffect(() => {
-    if (!search.trim() || !searchInTranscripts) { setTranslatedQuery(""); return; }
-    if (!isLikelyEnglish(search)) { setTranslatedQuery(""); return; }
-    const timer = setTimeout(async () => {
-      setIsTranslating(true);
-      const guQuery = await translateQuery(search.trim(), 'gu');
-      setTranslatedQuery(guQuery !== search.trim() ? guQuery : "");
-      setIsTranslating(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [search, searchInTranscripts]);
-
-  useEffect(() => {
-    loadVideos().then(v => {
-      setVideos(v);
-      setLoaded(true);
-    });
-  }, []);
 
   const items: UnifiedItem[] = useMemo(() => {
     const writingsMapped: UnifiedItem[] = WRITINGS.map(w => ({
@@ -235,6 +209,36 @@ export default function ExplorePage() {
 
     return [...writingsMapped, ...videosMapped];
   }, [videos]);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) setSearch(q);
+    
+    const vId = searchParams.get("v");
+    if (vId && items.length > 0) {
+      const item = items.find(i => i.id === vId && i.type === 'video');
+      if (item) setQuicklookItem(item);
+    }
+  }, [searchParams, items]);
+
+  useEffect(() => {
+    if (!search.trim() || !searchInTranscripts) { setTranslatedQuery(""); return; }
+    if (!isLikelyEnglish(search)) { setTranslatedQuery(""); return; }
+    const timer = setTimeout(async () => {
+      setIsTranslating(true);
+      const guQuery = await translateQuery(search.trim(), 'gu');
+      setTranslatedQuery(guQuery !== search.trim() ? guQuery : "");
+      setIsTranslating(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [search, searchInTranscripts]);
+
+  useEffect(() => {
+    loadVideos().then(v => {
+      setVideos(v);
+      setLoaded(true);
+    });
+  }, []);
 
   const filteredItems = useMemo(() => {
     let list = items;
@@ -328,7 +332,7 @@ export default function ExplorePage() {
         subtitle={`${totalVideos} videos · ${WRITINGS.length} writings · ${transcriptSearchable} transcripts indexed`}
       />
 
-      <main className="section explore-page">
+      <main className="section explore-page" onMouseMove={handleMouseMove}>
         {/* Search bar */}
         <div className="explore-search-container">
           <div className="explore-search-wrap">

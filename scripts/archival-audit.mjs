@@ -25,8 +25,12 @@ function audit() {
     }
     unique.add(v.id);
 
-    if (!v.durationSeconds || v.durationSeconds === 0) missingDuration++;
-    if (!v.publishedAt || v.publishedAt.includes('NA')) missingDate++;
+    const hasDuration = v.durationSeconds && v.durationSeconds > 0;
+    const hasValidDate = v.publishedAt && !v.publishedAt.includes('NA');
+    const hasTranscript = v.transcript && v.transcript.length > 100;
+
+    if (!hasDuration) missingDuration++;
+    if (!hasValidDate) missingDate++;
     if (!v.transcript) {
       missingTranscript++;
     } else if (v.transcript.length < 100) {
@@ -34,14 +38,25 @@ function audit() {
     }
   });
 
+  const totalVids = vids.length;
+  const healthScore = ((totalVids - (missingDuration + missingDate + missingTranscript) / 3) / totalVids * 100).toFixed(1);
+
   console.log('--- Archival Audit Results ---');
-  console.log(`Total Records: ${vids.length}`);
-  console.log(`Unique Videos: ${unique.size}`);
-  console.log(`Duplicates:    ${dups.length}`);
-  console.log(`Missing Duration: ${missingDuration}`);
-  console.log(`Corrupted Date:   ${missingDate}`);
-  console.log(`Missing Transcript: ${missingTranscript}`);
-  console.log(`Short Transcript (<100 chars): ${shortTranscript}`);
+  console.log(`Total Records:   ${totalVids}`);
+  console.log(`Unique Videos:   ${unique.size}`);
+  console.log(`Duplicates:      ${dups.length}`);
+  console.log(`Health Score:    ${healthScore}%`);
+  console.log('------------------------------');
+  console.log(`Metadata Status:`);
+  console.log(`  - Durations OK:  ${totalVids - missingDuration} (${((totalVids - missingDuration)/totalVids*100).toFixed(1)}%)`);
+  console.log(`  - Dates OK:      ${totalVids - missingDate} (${((totalVids - missingDate)/totalVids*100).toFixed(1)}%)`);
+  console.log(`  - Transcripts OK:${totalVids - missingTranscript} (${((totalVids - missingTranscript)/totalVids*100).toFixed(1)}%)`);
+  console.log('------------------------------');
+  console.log(`Critical Issues:`);
+  console.log(`  - Missing Duration: ${missingDuration}`);
+  console.log(`  - Corrupted Date:   ${missingDate}`);
+  console.log(`  - Missing Trans:    ${missingTranscript}`);
+  console.log(`  - Short Trans (<100): ${shortTranscript}`);
   console.log('------------------------------');
   
   if (dups.length > 0) {

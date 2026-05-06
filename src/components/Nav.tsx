@@ -101,6 +101,7 @@ export default function Nav() {
     { label: "Timeline", to: "/timeline" },
     { label: "Citations", to: "/citations" },
     { label: "Map", to: "/map" },
+    { label: "Lineage", to: "/lineage" },
     { label: "Labs", to: "/labs" },
   ];
 

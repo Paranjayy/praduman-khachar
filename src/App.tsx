@@ -12,6 +12,7 @@ import DesignCustomizer from "./components/DesignCustomizer";
 import CommandPalette from "./components/CommandPalette";
 import SurpriseMe from "./components/SurpriseMe";
 import CustomCursor from "./components/CustomCursor";
+import WhatsAppShare from "./components/WhatsAppShare";
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
 import MediaPage from "./pages/Media";
@@ -28,6 +29,7 @@ import CitationsPage from "./pages/Citations";
 import MapPage from "./pages/Map";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
+import LineagePage from "./pages/Lineage";
 import Redirector from "./pages/Redirector";
 import NotFoundPage from "./pages/NotFound";
 import { CONFIG } from "./config";
@@ -90,6 +92,7 @@ function AppInner() {
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/citations" element={<CitationsPage />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/lineage" element={<LineagePage />} />
         
         {/* Shortlinks */}
         <Route path="/v/:id" element={<Redirector type="video" />} />
@@ -102,6 +105,7 @@ function AppInner() {
       <CommandPalette />
       <SurpriseMe />
       <DesignCustomizer />
+      <WhatsAppShare />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
       <CustomCursor />

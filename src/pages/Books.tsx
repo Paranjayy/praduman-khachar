@@ -141,9 +141,9 @@ function InteractiveCover({ book, index }: { book: Book; index: number }) {
 
 // ── Spine View Item ──────────────────────────────────────────────────────────
 function BookSpine({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
-  const { theme } = useTheme();
+  const { dark } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
-  const bg = theme === 'dark' 
+  const bg = dark 
     ? (BG_COLORS[book.category] || "#1a1a1a")
     : "#ffffff";
     
@@ -221,9 +221,9 @@ function DetailSection({
     return () => obs.disconnect();
   }, [index, onVisible]);
 
-  const { theme } = useTheme();
+  const { dark } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
-  const bg = theme === 'dark' 
+  const bg = dark 
     ? (BG_COLORS[book.category] || "#1a1a1a")
     : "var(--c-parchment)";
 
