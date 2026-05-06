@@ -180,7 +180,7 @@ function BookCard({ book, index, onClick }: { book: Book; index: number; onClick
         {book.imageUrl ? (
           <img src={book.imageUrl} alt={book.title} />
         ) : (
-          <div className="sp-card-placeholder" style={{ background: book.themeColor || CATEGORY_COLORS[book.category] }}>
+          <div className="sp-card-placeholder" style={{ "--sp-accent": book.themeColor || CATEGORY_COLORS[book.category] } as React.CSSProperties}>
              <span>{book.title.charAt(0)}</span>
           </div>
         )}
@@ -565,7 +565,7 @@ export default function BooksPage() {
                   {book.imageUrl ? (
                     <img src={book.imageUrl} alt={book.title} />
                   ) : (
-                    <div className="sp-grid-placeholder" style={{ background: book.themeColor || CATEGORY_COLORS[book.category] }}>
+                    <div className="sp-grid-placeholder" style={{ "--sp-accent": book.themeColor || CATEGORY_COLORS[book.category] } as React.CSSProperties}>
                       <span>{book.title.charAt(0)}</span>
                     </div>
                   )}

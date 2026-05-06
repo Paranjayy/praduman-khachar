@@ -630,6 +630,7 @@ export default function ExplorePage() {
           isOpen={!!quicklookItem}
           onClose={() => setQuicklookItem(null)}
           title={quicklookItem?.title || ""}
+          id={quicklookItem?.id}
           itemId={quicklookItem?.id.toUpperCase() || "ARC.001"}
           type={quicklookItem?.type}
           image={quicklookItem?.thumbnail}

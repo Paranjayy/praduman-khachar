@@ -14,6 +14,7 @@ export interface Book {
   price?: string;
   themeColor?: string;
   fontFamily?: string;
+  slug?: string;
 }
 
 export interface SITE_INFO {

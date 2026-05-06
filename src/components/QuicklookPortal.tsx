@@ -20,6 +20,7 @@ interface QuicklookProps {
     size?: string;
     date?: string;
   };
+  id?: string;
 }
 
 export const QuicklookPortal: React.FC<QuicklookProps> = ({
@@ -36,6 +37,7 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
   onPrev,
   onNext,
   metadata,
+  id,
 }) => {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [activeFigure, setActiveFigure] = useState(image);
@@ -228,9 +230,14 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
                 <div className="ql-transcript-section">
                   <div className="ql-sidebar-header" style={{ marginTop: '10px', padding: '10px 0' }}>
                     <span>TRANSCRIPT</span>
-                    <button className="ql-save-btn" onClick={() => setShowTranscript(!showTranscript)}>
-                      {showTranscript ? 'HIDE' : 'SHOW'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="ql-save-btn" onClick={() => setShowTranscript(!showTranscript)}>
+                        {showTranscript ? 'HIDE' : 'SHOW'}
+                      </button>
+                      <a href={`/read/${id}`} className="ql-save-btn immersive-link" style={{ background: 'var(--c-terracotta)', color: 'white', textDecoration: 'none' }}>
+                        IMMERSIVE
+                      </a>
+                    </div>
                   </div>
                   {showTranscript && (
                     <div className="ql-transcript-box">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CustomizerProvider } from "./hooks/useCustomizer";
@@ -13,8 +13,10 @@ import CommandPalette from "./components/CommandPalette";
 import SurpriseMe from "./components/SurpriseMe";
 import CustomCursor from "./components/CustomCursor";
 import WhatsAppShare from "./components/WhatsAppShare";
+// import HelpModal from "./components/HelpModal"; // Missing file
 import HomePage from "./pages/Home";
 import BooksPage from "./pages/Books";
+import BookDetail from "./pages/Books"; // Fallback to Books for now if slug is used
 import MediaPage from "./pages/Media";
 import AboutPage from "./pages/About";
 import ArticlesPage from "./pages/Articles";
@@ -30,6 +32,7 @@ import MapPage from "./pages/Map";
 import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import LineagePage from "./pages/Lineage";
+// import TranscriptReader from "./pages/TranscriptReader"; // Missing file
 import Redirector from "./pages/Redirector";
 import NotFoundPage from "./pages/NotFound";
 import { CONFIG } from "./config";
@@ -38,6 +41,7 @@ import HistoryPulse from "./components/HistoryPulse";
 
 function AppInner() {
   usePageTitle(); // Updates document.title on every route change
+  const navigate = useNavigate();
 
   useEffect(() => {
     const art = [
@@ -64,6 +68,28 @@ function AppInner() {
     console.log("%c[Status]: Scraper ingest running in background (354/442 videos indexed)", "color: #555;");
   }, []);
 
+  useEffect(() => {
+    let lastKey = "";
+    const handleNavShortcuts = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
+      
+      const key = e.key.toLowerCase();
+      if (lastKey === "g") {
+        if (key === "h") { navigate("/"); lastKey = ""; }
+        else if (key === "b") { navigate("/books"); lastKey = ""; }
+        else if (key === "m") { navigate("/media"); lastKey = ""; }
+        else if (key === "e") { navigate("/explore"); lastKey = ""; }
+        else if (key === "l") { navigate("/lineage"); lastKey = ""; }
+        else { lastKey = ""; }
+      } else if (key === "g") {
+        lastKey = "g";
+        setTimeout(() => { lastKey = ""; }, 1000); // Reset after 1s
+      }
+    };
+    window.addEventListener("keydown", handleNavShortcuts);
+    return () => window.removeEventListener("keydown", handleNavShortcuts);
+  }, [navigate]);
+
   return (
     <>
       <HistoryPulse />
@@ -72,6 +98,7 @@ function AppInner() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/books" element={<BooksPage />} />
+        <Route path="/books/:slug" element={<BooksPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/about" element={<AboutPage />} />
         
@@ -93,6 +120,7 @@ function AppInner() {
         <Route path="/citations" element={<CitationsPage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/lineage" element={<LineagePage />} />
+        <Route path="/read/:id" element={<ExplorePage />} />
         
         {/* Shortlinks */}
         <Route path="/v/:id" element={<Redirector type="video" />} />
@@ -106,6 +134,7 @@ function AppInner() {
       <SurpriseMe />
       <DesignCustomizer />
       <WhatsAppShare />
+      {/* <HelpModal /> */}
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
       <CustomCursor />
