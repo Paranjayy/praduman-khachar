@@ -15,11 +15,13 @@
 - [x] GitHub repo: https://github.com/Paranjayy/praduman-khachar
 - [x] Manual slug editing in Admin editor
 - [x] Premium Bibliography view with LOC badges
+- [x] **27 of 33 book covers** scanned, renamed, and integrated into website
 
 ### 📚 Content to Add
 - [ ] **Verify which 23 books** are selected by Library of Congress
-- [ ] **Book cover photographs** — scan or photograph each book
-- [ ] **ISBN & Page Counts** — for all 33+ books
+- [x] **Book cover photographs** — 27 of 33 covers scanned and integrated
+- [ ] **6 missing book covers** — Bhule Bisre Aaine, Sanshodhak Parichay, Swaminarayan Revised, Kathiyavad Ni Rasdhar, Sorath Ane Barda, Itihas Ni Atarie Thi
+- [ ] **ISBN & Page Counts** — for all 33+ books (web research shows limited online presence; need physical books or father's input)
 - [ ] **Individual book pages** — detailed page per book with excerpts
 - [ ] **Research articles list** — 15 articles with journal names and links
 - [ ] **PhD scholars section** — names and thesis topics of guided students

@@ -4,9 +4,11 @@ interface Props {
   target: number;
   suffix?: string;
   duration?: number;
+  /** Number of decimal places to display (0 = integer, 1 = one decimal like 1.2K) */
+  decimal?: number;
 }
 
-export default function AnimatedCounter({ target, suffix = "", duration = 1800 }: Props) {
+export default function AnimatedCounter({ target, suffix = "", duration = 1800, decimal = 0 }: Props) {
   const [count, setCount] = useState(0);
   const [started, setStarted] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
@@ -29,23 +31,29 @@ export default function AnimatedCounter({ target, suffix = "", duration = 1800 }
 
   useEffect(() => {
     if (!started) return;
-    let start = 0;
-    const step = target / (duration / 16);
+    let frame = 0;
+    const totalFrames = duration / 16;
     const timer = setInterval(() => {
-      start += step;
-      if (start >= target) {
+      frame++;
+      // Ease-out curve
+      const progress = 1 - Math.pow(1 - frame / totalFrames, 3);
+      const current = Math.round(target * progress);
+      setCount(current);
+      if (frame >= totalFrames) {
         setCount(target);
         clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
       }
     }, 16);
     return () => clearInterval(timer);
   }, [started, target, duration]);
 
+  const displayValue = decimal > 0
+    ? (count / Math.pow(10, decimal)).toFixed(decimal)
+    : count.toLocaleString();
+
   return (
     <span ref={ref}>
-      {count.toLocaleString()}
+      {displayValue}
       {suffix}
     </span>
   );

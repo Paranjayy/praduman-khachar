@@ -83,7 +83,7 @@ export const BOOKS: Book[] = [
     pages: 420,
     description: "A comprehensive study of the history, culture, and traditions of the Kathi community of Saurashtra.",
     themeColor: "#c5a55a",
-    imageUrl: "https://picsum.photos/800/1200?random=1"
+    imageUrl: "/books/covers/kathi-itihas-ane-sanskriti.jpg"
   },
   { 
     title: "Prachin Bharat Na Videshi Yatri", 
@@ -97,7 +97,7 @@ export const BOOKS: Book[] = [
     pages: 310,
     description: "An analysis of historical accounts of foreign travelers who visited ancient India.",
     themeColor: "#8a7b5a",
-    imageUrl: "https://picsum.photos/800/1200?random=2"
+    imageUrl: "/books/covers/prachin-bharat-na-videshi-yatri.jpg"
   },
   { 
     title: "Bhuchar Mori Ni Ladai", 
@@ -111,7 +111,7 @@ export const BOOKS: Book[] = [
     pages: 185,
     description: "A detailed military and historical analysis of the Battle of Bhuchar Mori (1591).",
     themeColor: "#7a6a5a",
-    imageUrl: "https://picsum.photos/800/1200?random=3"
+    imageUrl: "/books/covers/bhuchar-mori-ni-ladai.jpg"
   },
   { 
     title: "Itihas Suman", 
@@ -123,7 +123,8 @@ export const BOOKS: Book[] = [
     price: "રૂ.૪૦",
     isbn: "978-81-9005-02-4",
     pages: 250,
-    description: "A collection of research articles on various aspects of Gujarat's regional history."
+    description: "A collection of research articles on various aspects of Gujarat's regional history.",
+    imageUrl: "/books/covers/itihas-suman.jpg"
   },
   { 
     title: "Bahauddin College: Ek Aitihasik Adhyayan", 
@@ -135,33 +136,34 @@ export const BOOKS: Book[] = [
     price: "રૂ.૧૧૧",
     isbn: "978-93-5123-11-5",
     pages: 340,
-    description: "The historical legacy and academic impact of Bahauddin College, Junagadh."
+    description: "The historical legacy and academic impact of Bahauddin College, Junagadh.",
+    imageUrl: "/books/covers/bahauddin-college.jpg"
   },
-  { title: "Itihas Etale ?", titleGu: "ઈતિહાસ એટલે ?", year: "2003", category: "history", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "રૂ.૧૫૦" },
-  { title: "Grantho Ane Shilalekho", titleGu: "ગ્રંથો અને શિલાલેખો", year: "2003", category: "epigraphy", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૧૧" },
+  { title: "Itihas Etale ?", titleGu: "ઈતિહાસ એટલે ?", year: "2003", category: "history", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "રૂ.૧૫૦", imageUrl: "/books/covers/itihas-etale.jpg" },
+  { title: "Grantho Ane Shilalekho", titleGu: "ગ્રંથો અને શિલાલેખો", year: "2003", category: "epigraphy", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૧૧", imageUrl: "/books/covers/grantho-ane-shilalekho.jpg" },
   { title: "Bhule Bisre Aaine", titleGu: "ભૂલે બિસરે આઈને", year: "2004", category: "history", locSelected: true, publisher: "કાઠી અભ્યુદય, જૂનાગઢ", price: "અપ્રાપ્ય" },
-  { title: "Tavarikh", titleGu: "તવારીખ", year: "2004", category: "essays", locSelected: true, publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", price: "રૂ.૯૦" },
-  { title: "Shashko Ni Vanshavalio", titleGu: "સૌરાષ્ટ્ર ગુજરાતના શાસકોની વંશાવળીઓ", year: "2005", category: "genealogy", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૫૬" },
-  { title: "Kathiyavad Sarvasangrah", titleGu: "કાઠિયાવાડ સર્વસંગ્રહ - કર્નલ વોટસન કૃત", year: "2005", category: "history", locSelected: true, publisher: "પ્રા.સુરેશભાઈ સી.પારેખ, જૂનાગઢ", price: "રૂ.૫૦૦" },
-  { title: "Kathiyavad Na Rajvio", titleGu: "કાઠિયાવાડના રાજવીઓ", year: "2005", category: "royals", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "અપ્રાપ્ય" },
-  { title: "Swaminarayan Sampraday Ma Kathi Darbaro", titleGu: "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન", year: "2006", category: "religion", locSelected: true, publisher: "કાઠી અભ્યુદય, જૂનાગઢ", price: "અપ્રાપ્ય" },
-  { title: "Kathio Ane Kathiyavad", titleGu: "કાઠીઓ અને કાઠિયાવાડ (પીએચ.ડી.મહાનિબંધ)", year: "2006", category: "kathi", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "રૂ.૪૦૦" },
-  { title: "Babi Rajvansh Na Gito", titleGu: "બાબી રાજવંશના ગીતો", year: "2007", category: "heritage", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૪૦" },
-  { title: "Itihas Manjusha", titleGu: "ઈતિહાસ મંજૂષા", year: "2008", category: "essays", locSelected: true, publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", price: "રૂ.૭૦" },
-  { title: "Dr. Shambhuprasad Desai", titleGu: "શતદલ વ્યક્તિત્વ ડૉ.શંભુપ્રસાદ દેસાઈ", year: "2008", category: "biography", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "—" },
-  { title: "Girnar No Itihas", titleGu: "ગિરનારનો ઈતિહાસ", year: "2009", category: "history", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૩૦૦" },
-  { title: "Saurashtra No Gauravvanto Itihas", titleGu: "સૌરાષ્ટ્રનો ગૌરવવંતો ઈતિહાસ", year: "2010", category: "history", locSelected: true, publisher: "પ્રવીણ પ્રકાશન, રાજકોટ", price: "અપ્રાપ્ય" },
-  { title: "Tasviroma Junagadh", titleGu: "તસવીરોમાં જૂનાગઢ", year: "2011", category: "history", locSelected: true, publisher: "પ્રવીણ પ્રકાશન, રાજકોટ", price: "રૂ.૭૫૦" },
-  { title: "Sorath Sarkar", titleGu: "સોરઠ સરકાર નવાબ મહાબતખાનજી", year: "2012", category: "governance", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૨૦૦" },
+  { title: "Tavarikh", titleGu: "તવારીખ", year: "2004", category: "essays", locSelected: true, publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", price: "રૂ.૯૦", imageUrl: "/books/covers/tavarikh.jpg" },
+  { title: "Shashko Ni Vanshavalio", titleGu: "સૌરાષ્ટ્ર ગુજરાતના શાસકોની વંશાવળીઓ", year: "2005", category: "genealogy", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૫૬", imageUrl: "/books/covers/shashko-ni-vanshavalio.jpg" },
+  { title: "Kathiyavad Sarvasangrah", titleGu: "કાઠિયાવાડ સર્વસંગ્રહ - કર્નલ વોટસન કૃત", year: "2005", category: "history", locSelected: true, publisher: "પ્રા.સુરેશભાઈ સી.પારેખ, જૂનાગઢ", price: "રૂ.૫૦૦", imageUrl: "/books/covers/kathiyavad-sarvasangrah.jpg" },
+  { title: "Kathiyavad Na Rajvio", titleGu: "કાઠિયાવાડના રાજવીઓ", year: "2005", category: "royals", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "અપ્રાપ્ય", imageUrl: "/books/covers/kathiyavad-na-rajvio.jpg" },
+  { title: "Swaminarayan Sampraday Ma Kathi Darbaro", titleGu: "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન", year: "2006", category: "religion", locSelected: true, publisher: "કાઠી અભ્યુદય, જૂનાગઢ", price: "અપ્રાપ્ય", imageUrl: "/books/covers/swaminarayan-sampraday.jpg" },
+  { title: "Kathio Ane Kathiyavad", titleGu: "કાઠીઓ અને કાઠિયાવાડ (પીએચ.ડી.મહાનિબંધ)", year: "2006", category: "kathi", locSelected: true, publisher: "પુષ્પરાજ આર. ધાધલ, સણોસરા", price: "રૂ.૪૦૦", imageUrl: "/books/covers/kathio-ane-kathiyavad.jpg" },
+  { title: "Babi Rajvansh Na Gito", titleGu: "બાબી રાજવંશના ગીતો", year: "2007", category: "heritage", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૪૦", imageUrl: "/books/covers/babi-rajvansh-na-gito.jpg" },
+  { title: "Itihas Manjusha", titleGu: "ઈતિહાસ મંજૂષા", year: "2008", category: "essays", locSelected: true, publisher: "ગુ. સાહિત્ય અકાદમી, ગાંધીનગર", price: "રૂ.૭૦", imageUrl: "/books/covers/itihas-manjusha.jpg" },
+  { title: "Dr. Shambhuprasad Desai", titleGu: "શતદલ વ્યક્તિત્વ ડૉ.શંભુપ્રસાદ દેસાઈ", year: "2008", category: "biography", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "—", imageUrl: "/books/covers/dr-shambhuprasad-desai.jpg" },
+  { title: "Girnar No Itihas", titleGu: "ગિરનારનો ઈતિહાસ", year: "2009", category: "history", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૩૦૦", imageUrl: "/books/covers/girnar-no-itihas.jpg" },
+  { title: "Saurashtra No Gauravvanto Itihas", titleGu: "સૌરાષ્ટ્રનો ગૌરવવંતો ઈતિહાસ", year: "2010", category: "history", locSelected: true, publisher: "પ્રવીણ પ્રકાશન, રાજકોટ", price: "અપ્રાપ્ય", imageUrl: "/books/covers/saurashtra-no-gauravvanto-itihas.jpg" },
+  { title: "Tasviroma Junagadh", titleGu: "તસવીરોમાં જૂનાગઢ", year: "2011", category: "history", locSelected: true, publisher: "પ્રવીણ પ્રકાશન, રાજકોટ", price: "રૂ.૭૫૦", imageUrl: "/books/covers/tasviroma-junagadh.jpg" },
+  { title: "Sorath Sarkar", titleGu: "સોરઠ સરકાર નવાબ મહાબતખાનજી", year: "2012", category: "governance", locSelected: true, publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૨૦૦", imageUrl: "/books/covers/sorath-sarkar.jpg" },
   { title: "Sanshodhak Parichay", titleGu: "સંશોધક પરિચય", year: "2012", category: "history", locSelected: true, publisher: "સૌ. કચ્છ ઈતિહાસ પરિષદ, જૂનાગઢ", price: "રૂ.૫૬" },
   { title: "Gir Girnar Na Mandiro", titleGu: "ગિર ગિરનારના મંદિરો", year: "2013", category: "architecture", locSelected: true, publisher: "કલેકટર કચેરી, જૂનાગઢ", price: "અમૂલ્ય" },
-  { title: "Itihas Ni Ajani Vato", titleGu: "ઈતિહાસની અજાણી વાતો", year: "2015", category: "history", publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", price: "અપ્રાપ્ય" },
-  { title: "Itihas Varidhi", titleGu: "ઈતિહાસ વારિધિ", year: "2016", category: "history", publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", price: "રૂ.૭૦" },
+  { title: "Itihas Ni Ajani Vato", titleGu: "ઈતિહાસની અજાણી વાતો", year: "2015", category: "history", publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", price: "અપ્રાપ્ય", imageUrl: "/books/covers/itihas-ni-ajani-vato.jpg" },
+  { title: "Itihas Varidhi", titleGu: "ઈતિહાસ વારિધિ", year: "2016", category: "history", publisher: "સૌરાષ્ટ્ર યુનિવર્સિટી, રાજકોટ", price: "રૂ.૭૦", imageUrl: "/books/covers/itihas-varidhi.jpg" },
   { title: "Swaminarayan Sampraday (Revised)", titleGu: "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન (સંવર્ધિત આવૃત્તિ)", year: "2017", category: "religion", publisher: "ડો.પ્રદ્યુમ્ન ભ.ખાચર, જૂનાગઢ", price: "રૂ.૧૨૦" },
-  { title: "Kathio No Itihas", titleGu: "કાઠીઓનો ઈતિહાસ (ગુજરાતી) કર્નલ વોટસન કૃત", year: "2019", category: "kathi", publisher: "ડૉ.પ્રદ્યુમ્ન ખાચર જૂનાગઢ", price: "રૂ. ૧૫૦" },
-  { title: "History of Kathi", titleGu: "હિસ્ટ્રી ઓફ કાઠી (અંગ્રેજી) કર્નલ વોટસન કૃત", year: "2019", category: "kathi", publisher: "ડૉ.પ્રદ્યુમ્ન ખાચર જૂનાગઢ", price: "રૂ. ૨૦૦" },
-  { title: "Saurashtra Na Prasiddh Rajvio", titleGu: "સૌરાષ્ટ્રના પ્રસિદ્ધ રાજવીઓ", year: "2020", category: "royals", publisher: "યુનિવર્સીટી ગ્રંથ નિર્માણ બોર્ડ", price: "રૂ.૧૬૦" },
-  { title: "Gir Somnath Historical Places", titleGu: "ગિર સોમનાથ જીલ્લાના ઐતિહાસિક સ્થળો", year: "2020", category: "history", publisher: "ડાયેટ જૂનાગઢ", price: "અમૂલ્ય" },
+  { title: "Kathio No Itihas", titleGu: "કાઠીઓનો ઈતિહાસ (ગુજરાતી) કર્નલ વોટસન કૃત", year: "2019", category: "kathi", publisher: "ડૉ.પ્રદ્યુમ્ન ખાચર જૂનાગઢ", price: "રૂ. ૧૫૦", imageUrl: "/books/covers/kathio-no-itihas.jpg" },
+  { title: "History of Kathi", titleGu: "હિસ્ટ્રી ઓફ કાઠી (અંગ્રેજી) કર્નલ વોટસન કૃત", year: "2019", category: "kathi", publisher: "ડૉ.પ્રદ્યુમ્ન ખાચર જૂનાગઢ", price: "રૂ. ૨૦૦", imageUrl: "/books/covers/history-of-kathi.jpg" },
+  { title: "Saurashtra Na Prasiddh Rajvio", titleGu: "સૌરાષ્ટ્રના પ્રસિદ્ધ રાજવીઓ", year: "2020", category: "royals", publisher: "યુનિવર્સીટી ગ્રંથ નિર્માણ બોર્ડ", price: "રૂ.૧૬૦", imageUrl: "/books/covers/saurashtra-na-prasiddh-rajvio.jpg" },
+  { title: "Gir Somnath Historical Places", titleGu: "ગિર સોમનાથ જીલ્લાના ઐતિહાસિક સ્થળો", year: "2020", category: "history", publisher: "ડાયેટ જૂનાગઢ", price: "અમૂલ્ય", imageUrl: "/books/covers/gir-somnath-historical-places.jpg" },
   { title: "Kathiyavad Ni Rasdhar", titleGu: "કાઠિયાવાડની રસધાર", year: "2021", category: "literature", publisher: "નવયુગ પુસ્તક ભંડાર રાજકોટ", price: "રૂ.૪૦૦" },
   { title: "Sorath Ane Barda Region History", titleGu: "સોરઠ અને બરડા પ્રદેશનો ઈતિહાસ", year: "2022", category: "history", publisher: "પ્રાચ્યવિદ્યા મંદિર વડોદરા", price: "રૂ.૮૪૪" },
   { title: "Itihas Ni Atarie Thi", titleGu: "ઈતિહાસની અટારીએથી", year: "2024", category: "history", publisher: "નવયુગ પુસ્તક ભંડાર રાજકોટ", price: "રૂ.૧૪૦૦" },

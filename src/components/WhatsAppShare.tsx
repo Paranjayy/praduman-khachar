@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
 export default function WhatsAppShare() {
-  const handleShare = () => {
-    const url = window.location.href;
-    const title = document.title;
-    const text = `Check out this historical record from the Dr. Praduman Khachar Archival Workstation: ${title}\n\n${url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  const handleContact = () => {
+    // Pre-filled contact message — opens WhatsApp with professional greeting
+    const msg = `Namaste Dr. Praduman Khachar 🙏\n\nI visited your portfolio at praduman-khachar.vercel.app and would love to connect regarding your historical research on Saurashtra.\n\nCurrent page: ${window.location.href}`;
+    // Opens to your WhatsApp — replace 91XXXXXXXXXX with actual number if available
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   return (
@@ -15,7 +15,7 @@ export default function WhatsAppShare() {
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
-      onClick={handleShare}
+      onClick={handleContact}
       className="wa-share-btn"
       title="Share on WhatsApp"
       aria-label="Share on WhatsApp"

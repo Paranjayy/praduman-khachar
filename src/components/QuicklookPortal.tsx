@@ -123,6 +123,49 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
   };
   const videoId = type === 'video' ? getYoutubeId(videoUrl) : null;
 
+  const seekTo = (seconds: number) => {
+    const iframe = document.querySelector('.ql-video-container iframe') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(JSON.stringify({
+        event: 'command',
+        func: 'seekTo',
+        args: [seconds, true]
+      }), '*');
+    }
+  };
+
+  const parseTimestamp = (text: string) => {
+    const match = text.match(/(\d+):(\d+)(?::(\d+))?/);
+    if (!match) return 0;
+    const parts = match.slice(1).filter(Boolean).map(Number);
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    return parts[0];
+  };
+
+  const renderTranscriptWithAnchors = (text: string) => {
+    // Regex to find timestamps like [01:23], 01:23, or 1:23:45
+    const parts = text.split(/(\[?\d{1,2}:\d{2}(?::\d{2})?\]?)/g);
+    return parts.map((part, i) => {
+      const isTimestamp = /^\[?\d{1,2}:\d{2}(?::\d{2})?\]?$/.test(part);
+      if (isTimestamp) {
+        const cleanPart = part.replace(/[\[\]]/g, '');
+        const seconds = parseTimestamp(cleanPart);
+        return (
+          <button 
+            key={i} 
+            className="ql-timestamp-anchor" 
+            onClick={() => seekTo(seconds)}
+            title={`Seek to ${cleanPart}`}
+          >
+            {part}
+          </button>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   return createPortal(
     <div 
       className={`quicklook-overlay ${isOpen ? 'open' : 'closing'}`}
@@ -169,7 +212,7 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
               {videoId ? (
                 <div className="ql-video-container">
                   <iframe
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`}
                     title={title}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -241,7 +284,7 @@ export const QuicklookPortal: React.FC<QuicklookProps> = ({
                   </div>
                   {showTranscript && (
                     <div className="ql-transcript-box">
-                      {transcript}
+                      {renderTranscriptWithAnchors(transcript)}
                     </div>
                   )}
                   {!showTranscript && transcript.length > 200 && (
