@@ -25,7 +25,7 @@ Interactive scrollable timeline showing all 33 books plotted by publication year
 ## 🔬 Medium Impact / Medium Effort
 
 ### 6. Scholarly Impact Dashboard
-Per book, show: number of court citations (you have 11 High Court cases), LOC selection status, research articles that cited this book, academic endorsements. Turn each book page into a mini impact report.
+Per book, show: number of legal citations (books found useful in 11 different types of disputes and legal battles in courts, government offices & sarkari kacheris), LOC selection status, research articles that cited this book, academic endorsements. Turn each book page into a mini impact report.
 
 ### 7. Book → Video Connection
 Each book has related YouTube lectures. Auto-link: "Watch Dr. Khachar discuss this topic" with embedded video thumbnails. Use YouTube playlist data to match videos to books by keyword.
@@ -103,7 +103,7 @@ Track which books get the most views, which videos are watched most, which pages
 Auto-rotate featured books based on view count or recency. "This week's most viewed: Girnar No Itihas."
 
 ### 28. Academic Network Graph
-Visualize connections between books → videos → articles → court cases. Interactive force-directed graph showing the scholarly ecosystem.
+Visualize connections between books → videos → articles → disputes & legal battles. Interactive force-directed graph showing the scholarly ecosystem.
 
 ---
 

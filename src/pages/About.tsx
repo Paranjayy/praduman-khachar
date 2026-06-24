@@ -11,32 +11,34 @@ export default function AboutPage() {
         subtitle="Historian · Author · Researcher · PhD Guide"
       />
       <section className="section">
-
         <div className="about-page-grid">
           <div className="about-page-main">
             <p className="about-lead">
               One of Saurashtra's most celebrated historians — a prolific author
-              of 33 books, a renowned orator, and a dedicated academic whose work
-              has earned recognition from the Library of Congress in America to the
-              courts of Gujarat.
+              of 33 books, a renowned orator, and a dedicated academic whose
+              work has earned recognition from the Library of Congress in
+              America to the courts, government offices and sarkari kacheris
+              (સરકારી કચેરીઓ) of Gujarat.
             </p>
             <p>
               Based in Junagadh, at the foothills of the sacred Girnar mountain,
               Dr. Khachar has spent over three decades at {SITE.institution},
-              combining rigorous scholarship with passionate storytelling.
-              His historical exhibitions across Gujarat have brought forgotten
+              combining rigorous scholarship with passionate storytelling. His
+              historical exhibitions across Gujarat have brought forgotten
               chapters of regional heritage to life for thousands.
             </p>
             <p>
               Beyond the written word, he has embraced modern media — uploading
               485+ educational videos to YouTube, appearing on All India Radio
-              and Doordarshan, and contributing as a columnist to Mumbai Samachar
-              and Fulchhab. He serves as Convener of INTACH's Junagadh chapter,
-              safeguarding the region's architectural and cultural legacy.
+              and Doordarshan, and contributing as a columnist to Mumbai
+              Samachar and Fulchhab. He serves as Convener of INTACH's Junagadh
+              chapter, safeguarding the region's architectural and cultural
+              legacy.
             </p>
             <p>
               As a PhD guide, he continues to mentor the next generation of
-              historians, while his books — cited in 11 court cases — stand as
+              historians, while his books — found useful in as many as 11
+              different types of disputes and legal battles — stand as
               authoritative references on the history of Gujarat.
             </p>
           </div>
@@ -135,11 +137,20 @@ interface TimelineItemProps {
   index: number;
 }
 
-function TimelineItem({ period, title, place, desc, index }: TimelineItemProps) {
+function TimelineItem({
+  period,
+  title,
+  place,
+  desc,
+  index,
+}: TimelineItemProps) {
   const [ref, visible] = useReveal(0.15);
-  
+
   // Dynamic Year Logic
-  const displayPeriod = period.replace(/Present/gi, new Date().getFullYear().toString());
+  const displayPeriod = period.replace(
+    /Present/gi,
+    new Date().getFullYear().toString(),
+  );
 
   return (
     <div
@@ -184,7 +195,7 @@ function AchievementItem({ icon, text, index }: AchievementItemProps) {
       <span className="achievement-icon">{icon}</span>
       <span className="achievement-text">
         {parts.map((part, i) =>
-          i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+          i % 2 === 1 ? <strong key={i}>{part}</strong> : part,
         )}
       </span>
     </li>

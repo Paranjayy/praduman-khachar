@@ -16,8 +16,8 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "His books have been cited as primary evidence in 11 legal cases — that speaks to the authority and precision of his historical documentation.",
-    author: "Gujarat High Court",
+      "His books have been found useful in as many as 11 different types of disputes and legal battles — that speaks to the authority and precision of his historical documentation.",
+    author: "Gujarat Courts & Government Offices",
     role: "Case Documentation",
   },
   {
@@ -54,7 +54,12 @@ export default function Testimonials() {
   );
 }
 
-function TestimonialCard({ quote, author, role, index }: Testimonial & { index: number }) {
+function TestimonialCard({
+  quote,
+  author,
+  role,
+  index,
+}: Testimonial & { index: number }) {
   const [ref, visible] = useReveal(0.1);
   return (
     <div

@@ -18,12 +18,11 @@ export default function Publications() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start end", "end start"]
+    offset: ["start end", "end start"],
   });
 
-  const filtered = filter === "all"
-    ? BOOKS
-    : BOOKS.filter((b) => b.category === filter);
+  const filtered =
+    filter === "all" ? BOOKS : BOOKS.filter((b) => b.category === filter);
 
   const displayBooks = expanded ? filtered : filtered.slice(0, 12);
 
@@ -36,7 +35,7 @@ export default function Publications() {
         <div className="section-divider" />
       </div>
 
-      <div className="books-intro" style={{ marginBottom: '8rem' }}>
+      <div className="books-intro" style={{ marginBottom: "8rem" }}>
         <div className="books-stack-visual">
           {[0, 1, 2, 3].map((i) => {
             const book = BOOKS[i];
@@ -48,15 +47,15 @@ export default function Publications() {
                   y: useTransform(scrollYProgress, [0, 1], [i * 40, i * -40]),
                   rotateX: useTransform(scrollYProgress, [0, 1], [20, -20]),
                   zIndex: 10 - i,
-                  background: i % 2 === 0 ? '#2a2a2a' : '#3a3a3a',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 2rem',
-                  fontSize: '0.9rem',
+                  background: i % 2 === 0 ? "#2a2a2a" : "#3a3a3a",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 2rem",
+                  fontSize: "0.9rem",
                   fontWeight: 600,
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                  borderLeft: '4px solid var(--c-accent)'
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+                  borderLeft: "4px solid var(--c-accent)",
                 }}
               >
                 {book.title}
@@ -64,13 +63,21 @@ export default function Publications() {
             );
           })}
         </div>
-        
-        <div style={{ flex: 1, paddingTop: '2rem' }}>
-          <p className="reveal-up visible" style={{ fontSize: '1.25rem', lineHeight: 1.6, color: 'var(--c-ink-soft)' }}>
-            Dr. Praduman Khachar's publication record spans 33 seminal works, 
-            forming the bedrock of modern Saurashtra historiography. 
-            From the Library of Congress to the benches of the High Court, 
-            these volumes serve as the definitive records of a vanishing heritage.
+
+        <div style={{ flex: 1, paddingTop: "2rem" }}>
+          <p
+            className="reveal-up visible"
+            style={{
+              fontSize: "1.25rem",
+              lineHeight: 1.6,
+              color: "var(--c-ink-soft)",
+            }}
+          >
+            Dr. Praduman Khachar's publication record spans 33 seminal works,
+            forming the bedrock of modern Saurashtra historiography. From the
+            Library of Congress to courts, government offices and sarkari
+            kacheris (સરકારી કચેરીઓ), these volumes serve as the definitive
+            records of a vanishing heritage.
           </p>
         </div>
       </div>
@@ -81,7 +88,10 @@ export default function Publications() {
           <button
             key={f.key}
             className={`book-filter-btn${filter === f.key ? " active" : ""}`}
-            onClick={() => { setFilter(f.key); setExpanded(false); }}
+            onClick={() => {
+              setFilter(f.key);
+              setExpanded(false);
+            }}
           >
             {f.label}
           </button>
@@ -95,13 +105,9 @@ export default function Publications() {
         ))}
       </div>
 
-
       {filtered.length > 12 && !expanded && (
         <div style={{ textAlign: "center", marginTop: "var(--space-lg)" }}>
-          <button
-            className="show-more-btn"
-            onClick={() => setExpanded(true)}
-          >
+          <button className="show-more-btn" onClick={() => setExpanded(true)}>
             Show All {filtered.length} Books
           </button>
         </div>
@@ -109,15 +115,19 @@ export default function Publications() {
 
       {/* Highlights grid */}
       <div style={{ marginTop: "var(--space-2xl)" }}>
-        <h3 style={{
-          fontFamily: "var(--font-display)",
-          fontSize: "0.72rem",
-          fontWeight: 600,
-          color: "var(--c-ink-muted)",
-          letterSpacing: "0.04em",
-          textTransform: "uppercase",
-          marginBottom: "var(--space-lg)",
-        }}>Scholarly Impact</h3>
+        <h3
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "0.72rem",
+            fontWeight: 600,
+            color: "var(--c-ink-muted)",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            marginBottom: "var(--space-lg)",
+          }}
+        >
+          Scholarly Impact
+        </h3>
         <div className="books-grid">
           {[
             {
@@ -132,8 +142,8 @@ export default function Publications() {
             },
             {
               num: "Legal Impact",
-              title: "Cited in 11 Court Cases",
-              desc: "His books have served as evidence in Gujarat courts — a testament to the rigor and authority of his historical documentation.",
+              title: "Used in 11 Types of Disputes & Legal Battles",
+              desc: "His books have been found useful in courts, government offices and sarkari kacheris (સરકારી કચેરીઓ) across Gujarat — a testament to the rigor and authority of his historical documentation.",
             },
           ].map((item, i) => (
             <HighlightCard key={i} {...item} index={i} />
@@ -154,7 +164,15 @@ interface BookCardProps {
   index: number;
 }
 
-function BookCard({ title, titleGu, category, year, publisher, price, index }: BookCardProps) {
+function BookCard({
+  title,
+  titleGu,
+  category,
+  year,
+  publisher,
+  price,
+  index,
+}: BookCardProps) {
   const [ref, visible] = useReveal(0.05);
   const categoryLabel = BOOK_CATEGORIES[category] || category;
 
@@ -168,10 +186,20 @@ function BookCard({ title, titleGu, category, year, publisher, price, index }: B
         transition: `all 0.5s ${Math.min(index * 0.04, 0.5)}s cubic-bezier(0.16, 1, 0.3, 1)`,
       }}
     >
-      <div className="book-number">{categoryLabel}{year ? ` · ${year}` : ""}</div>
+      <div className="book-number">
+        {categoryLabel}
+        {year ? ` · ${year}` : ""}
+      </div>
       <div className="book-title">{title}</div>
       {titleGu && <div className="book-gujarati">{titleGu}</div>}
-      <div className="book-details" style={{ marginTop: '0.75rem', borderTop: '1px solid var(--c-border-light)', paddingTop: '0.75rem' }}>
+      <div
+        className="book-details"
+        style={{
+          marginTop: "0.75rem",
+          borderTop: "1px solid var(--c-border-light)",
+          paddingTop: "0.75rem",
+        }}
+      >
         {publisher && (
           <div className="book-detail">
             <span className="book-detail-label">Publisher</span>
