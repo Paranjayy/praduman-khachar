@@ -206,6 +206,8 @@ function BookSpine({
   isBookmarked,
   onToggleBookmark,
   isFocused,
+  isComparing,
+  onToggleCompare,
 }: {
   book: Book;
   index: number;
@@ -213,6 +215,8 @@ function BookSpine({
   isBookmarked: boolean;
   onToggleBookmark: (title: string) => void;
   isFocused: boolean;
+  isComparing: boolean;
+  onToggleCompare: (title: string) => void;
 }) {
   const { dark } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
@@ -266,6 +270,16 @@ function BookSpine({
           title={isBookmarked ? "Remove bookmark" : "Bookmark this book"}
         >
           {isBookmarked ? "★" : "☆"}
+        </button>
+        <button
+          className={`sp-spine-compare${isComparing ? " active" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleCompare(book.title);
+          }}
+          title={isComparing ? "Remove from comparison" : "Add to comparison"}
+        >
+          {isComparing ? "✓" : "⊞"}
         </button>
         <div className="sp-spine-arrow">→</div>
       </div>
@@ -798,7 +812,16 @@ export default function BooksPage() {
     }
   });
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+  const [compareBooks, setCompareBooks] = useState<string[]>([]);
   const footerRef = useRef<HTMLDivElement>(null);
+
+  const toggleCompare = (title: string) => {
+    setCompareBooks((prev) => {
+      if (prev.includes(title)) return prev.filter((t) => t !== title);
+      if (prev.length >= 3) return prev;
+      return [...prev, title];
+    });
+  };
 
   // Persist bookmarks
   useEffect(() => {
@@ -1009,6 +1032,8 @@ export default function BooksPage() {
                 isBookmarked={bookmarks.has(book.title)}
                 onToggleBookmark={toggleBookmark}
                 isFocused={focusedIdx === i}
+                isComparing={compareBooks.includes(book.title)}
+                onToggleCompare={toggleCompare}
               />
             ))}
           </div>
@@ -1145,6 +1170,119 @@ export default function BooksPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Comparison Overlay */}
+      <AnimatePresence>
+        {compareBooks.length >= 2 && (
+          <motion.div
+            className="compare-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setCompareBooks([])}
+          >
+            <motion.div
+              className="compare-panel"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="compare-header">
+                <h2 className="compare-title">Compare Books</h2>
+                <button
+                  className="compare-close"
+                  onClick={() => setCompareBooks([])}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="compare-grid">
+                {compareBooks.map((title) => {
+                  const book = BOOKS.find((b) => b.title === title);
+                  if (!book) return null;
+                  return (
+                    <div key={title} className="compare-card">
+                      <h3 className="compare-card-title">{book.title}</h3>
+                      {book.titleGu && (
+                        <div className="compare-card-gu">{book.titleGu}</div>
+                      )}
+                      <div className="compare-row">
+                        <span className="compare-label">Category</span>
+                        <span className="compare-value">
+                          {BOOK_CATEGORIES[book.category]}
+                        </span>
+                      </div>
+                      {book.year && (
+                        <div className="compare-row">
+                          <span className="compare-label">Year</span>
+                          <span className="compare-value">{book.year}</span>
+                        </div>
+                      )}
+                      {book.pages && (
+                        <div className="compare-row">
+                          <span className="compare-label">Pages</span>
+                          <span className="compare-value">{book.pages}</span>
+                        </div>
+                      )}
+                      {book.publisher && (
+                        <div className="compare-row">
+                          <span className="compare-label">Publisher</span>
+                          <span className="compare-value">
+                            {book.publisher}
+                          </span>
+                        </div>
+                      )}
+                      {book.isbn && (
+                        <div className="compare-row">
+                          <span className="compare-label">ISBN</span>
+                          <span className="compare-value">{book.isbn}</span>
+                        </div>
+                      )}
+                      <div className="compare-row">
+                        <span className="compare-label">LOC Selected</span>
+                        <span className="compare-value">
+                          {book.locSelected ? (
+                            <span className="compare-loc">🏛️ Yes</span>
+                          ) : (
+                            "No"
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Compare FAB */}
+      {compareBooks.length > 0 && compareBooks.length < 2 && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          style={{
+            position: "fixed",
+            bottom: "5.5rem",
+            right: "4.5rem",
+            zIndex: 998,
+            background: "var(--c-terracotta)",
+            color: "white",
+            padding: "0.5rem 1rem",
+            borderRadius: "20px",
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            fontFamily: "var(--font-sans)",
+            boxShadow: "0 4px 16px rgba(184, 85, 58, 0.3)",
+            pointerEvents: "none",
+          }}
+        >
+          Select 1 more book to compare ({compareBooks.length}/2)
+        </motion.div>
+      )}
 
       {/* Reading List */}
       <ReadingList />
