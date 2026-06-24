@@ -5,6 +5,8 @@ import { LayoutGrid, List, Columns, BookOpen, ChevronDown } from "lucide-react";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { Book } from "../types";
 import { FlipBookPortal } from "../components/FlipBookPortal";
+import { ReadingList } from "../components/ReadingList";
+import { IsbnLookup } from "../components/IsbnLookup";
 
 const CATEGORY_COLORS: Record<string, string> = {
   kathi:       "#c5a55a",
@@ -697,6 +699,19 @@ export default function BooksPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Reading List */}
+      <ReadingList />
+
+      {/* ISBN Lookup */}
+      <div style={{
+        position: 'fixed',
+        bottom: '6rem',
+        left: '2rem',
+        zIndex: 1000,
+      }}>
+        <IsbnLookup />
+      </div>
     </main>
   );
 }
