@@ -2305,9 +2305,9 @@ body {
 /* ── BACK TO TOP ── */
 .back-to-top {
     position: fixed;
-    bottom: var(--space-lg);
-    right: var(--space-lg);
-    z-index: 100;
+    bottom: 5.5rem;
+    right: 1.5rem;
+    z-index: 998;
     width: 42px;
     height: 42px;
     background: var(--c-terracotta);
@@ -9861,7 +9861,8 @@ body {
     font-family: var(--font-sans);
     font-size: 0.88rem;
     outline: none;
-    width: 280px;
+    max-width: 320px;
+    flex: 1;
     transition: border-color 0.2s;
 }
 
@@ -10928,14 +10929,18 @@ body {
     align-items: center;
     width: 100%;
     margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .sp-view-toggles {
     display: flex;
+    gap: 2px;
     background: var(--c-parchment-deep);
     border: 1px solid var(--c-border);
     border-radius: 8px;
     padding: 4px;
+    flex-shrink: 0;
 }
 
 [data-theme="dark"] .sp-view-toggles {
@@ -12805,8 +12810,8 @@ mark {
 /* ── Floating WhatsApp Button ── */
 .whatsapp-float {
     position: fixed;
-    bottom: 2rem;
-    left: 2rem;
+    bottom: 1.25rem;
+    left: 1.25rem;
     width: 50px;
     height: 50px;
     background: #25d366;
@@ -13162,9 +13167,11 @@ mark {
 }
 
 .sp-spine-inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2.5rem 3rem minmax(8rem, 1fr) 2fr auto 3.5rem 1.5rem;
     align-items: center;
-    gap: 3rem;
+    gap: 1.5rem;
+    padding: 1.25rem 2rem;
     position: relative;
     z-index: 5;
 }
@@ -13187,13 +13194,13 @@ mark {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .sp-spine-author {
+    font-family: var(--font-sans);
     font-size: 0.8rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     opacity: 0.3;
-    min-width: 120px;
-    flex-shrink: 0;
+    white-space: nowrap;
     color: var(--c-ink);
 }
 [data-theme="dark"] .sp-spine-author {
@@ -13205,7 +13212,6 @@ mark {
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: -0.01em;
-    flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
