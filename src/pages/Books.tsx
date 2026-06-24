@@ -317,6 +317,73 @@ function DetailSection({
               <span>Leading Gujarati Daily Newspaper</span>
             </div>
          </motion.div>
+
+         <motion.div 
+           className="sp-endorsement"
+           initial={{ opacity: 0, scale: 0.95 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           transition={{ duration: 1, delay: 0.2 }}
+           viewport={{ once: true }}
+         >
+            <div className="sp-endorsement-divider" />
+            <p className="sp-endorsement-text">
+              "A monumental contribution to the historiography of Western India. Dr. Khachar's research methodology sets a gold standard for regional historians."
+            </p>
+            <div className="sp-endorsement-author">
+              <strong>Saurashtra University</strong>
+              <span>Department of History</span>
+            </div>
+         </motion.div>
+
+         <motion.div 
+           className="sp-endorsement"
+           initial={{ opacity: 0, scale: 0.95 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           transition={{ duration: 1, delay: 0.4 }}
+           viewport={{ once: true }}
+         >
+            <div className="sp-endorsement-divider" />
+            <p className="sp-endorsement-text">
+              "The Library of Congress recognition is well-desired. These works preserve the living memory of Saurashtra's 222 princely states for future generations."
+            </p>
+            <div className="sp-endorsement-author">
+              <strong>INTACH</strong>
+              <span>Indian National Trust for Art and Cultural Heritage</span>
+            </div>
+         </motion.div>
+      </div>
+
+      {/* Author Section — Stripe Press Style */}
+      <div className="sp-author-section">
+        <motion.div 
+          className="sp-author-inner"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <div className="sp-author-label">Author</div>
+          <h3 className="sp-author-name">Dr. Praduman Khachar</h3>
+          <p className="sp-author-bio">
+            Associate Professor & PhD Guide at Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh. 
+            Convener of INTACH Junagadh Chapter. Over three decades of meticulous research into Saurashtra and Gujarat's 
+            history, with 33 books published and 23 works selected by the Library of Congress, USA.
+          </p>
+          <div className="sp-author-stats">
+            <div className="sp-author-stat">
+              <span className="sp-author-stat-num">33+</span>
+              <span className="sp-author-stat-label">Books Published</span>
+            </div>
+            <div className="sp-author-stat">
+              <span className="sp-author-stat-num">23</span>
+              <span className="sp-author-stat-label">In Library of Congress</span>
+            </div>
+            <div className="sp-author-stat">
+              <span className="sp-author-stat-num">30+</span>
+              <span className="sp-author-stat-label">Years Research</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Background Parallax Scroll Effect */}

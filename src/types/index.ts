@@ -5,8 +5,9 @@ export interface Book {
   titleGu?: string;
   year?: string;
   category: string;
-  locSelected?: boolean; // true = selected by Library of Congress
+  locSelected?: boolean;
   isbn?: string;
+  asin?: string;
   pages?: number;
   imageUrl?: string;
   description?: string;
@@ -15,6 +16,17 @@ export interface Book {
   themeColor?: string;
   fontFamily?: string;
   slug?: string;
+  archiveUrl?: string;
+  purchaseLinks?: {
+    store: string;
+    url: string;
+    price: string;
+  }[];
+  endorsements?: {
+    text: string;
+    author: string;
+    role?: string;
+  }[];
 }
 
 export interface SITE_INFO {
