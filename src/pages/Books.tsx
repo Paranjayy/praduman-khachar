@@ -53,6 +53,48 @@ const BG_COLORS: Record<string, string> = {
   institutional: "#151822",
 };
 
+// ── Animated Counter Stat ──────────────────────────────────────────────────
+function CounterStat({
+  target,
+  label,
+  visible,
+}: {
+  target: number;
+  label: string;
+  visible: boolean;
+}) {
+  const [count, setCount] = useState(0);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!visible || hasAnimated.current) return;
+    hasAnimated.current = true;
+    const duration = 1200;
+    const steps = 40;
+    const increment = target / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [visible, target]);
+
+  return (
+    <div className="sp-footer-stat">
+      <span className={`sp-footer-num${visible ? " counting" : ""}`}>
+        {visible ? count : 0}
+      </span>
+      <span>{label}</span>
+    </div>
+  );
+}
+
 // ── TOC Rail ────────────────────────────────────────────────────────────────
 function ProgressRail({
   books,
@@ -197,6 +239,19 @@ function BookSpine({
         <div className="sp-spine-year">{book.year || "—"}</div>
         <div className="sp-spine-arrow">→</div>
       </div>
+      {/* Hover cover preview */}
+      <div className="sp-hover-preview">
+        <div className="sp-hover-preview-spine" />
+        <span className="sp-hover-preview-letter">{book.title.charAt(0)}</span>
+        <div className="sp-hover-preview-info">
+          <div className="sp-hover-preview-title">
+            {book.titleGu || book.title}
+          </div>
+          <div className="sp-hover-preview-year">
+            {book.year} · {BOOK_CATEGORIES[book.category]}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -318,6 +373,23 @@ function DetailSection({
                 "A definitive scholarly record exploring the history, heritage, and cultural traditions of Saurashtra — one of Dr. Khachar's landmark contributions to Gujarat's archival legacy."}
             </p>
 
+            {/* Book Index / TOC */}
+            {book.toc && book.toc.length > 0 && (
+              <div className="sp-toc">
+                <div className="sp-toc-label">Table of Contents</div>
+                <ul className="sp-toc-list">
+                  {book.toc.map((chapter, i) => (
+                    <li key={i} className="sp-toc-item">
+                      <span className="sp-toc-num">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="sp-toc-text">{chapter}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="sp-detail-specs">
               {book.isbn && (
                 <div className="sp-spec">
@@ -370,6 +442,37 @@ function DetailSection({
             </div>
           </motion.div>
         </div>
+      </div>
+
+      {/* Enhanced Description Section */}
+      <div className="sp-desc-section">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          viewport={{ once: true }}
+        >
+          <div className="sp-desc-label">About This Book</div>
+          <p className="sp-desc-text">
+            {book.description ||
+              "A definitive scholarly record exploring the history, heritage, and cultural traditions of Saurashtra — one of Dr. Khachar's landmark contributions to Gujarat's archival legacy. This work has been cited in 11 different types of disputes and legal battles across courts, government offices and sarkari kacheris (સરકારી કચેરીઓ) of Gujarat, and has been selected by the Library of Congress, USA."}
+          </p>
+          {book.toc && book.toc.length > 0 && (
+            <div className="sp-toc" style={{ marginTop: "2rem" }}>
+              <div className="sp-toc-label">Chapter Index</div>
+              <ul className="sp-toc-list">
+                {book.toc.map((chapter, i) => (
+                  <li key={i} className="sp-toc-item">
+                    <span className="sp-toc-num">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="sp-toc-text">{chapter}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </motion.div>
       </div>
 
       <div className="sp-detail-endorsements">
@@ -634,22 +737,39 @@ function EndlessBookDetail({
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function BooksPage() {
   const [filter, setFilter] = useState("all");
+  const [locOnly, setLocOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<
     "stripe" | "card" | "grid" | "table"
   >("stripe");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [countersVisible, setCountersVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  // Stats counter animation
+  useEffect(() => {
+    if (!footerRef.current) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) setCountersVisible(true);
+      },
+      { threshold: 0.3 },
+    );
+    obs.observe(footerRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   const filtered = useMemo(() => {
     return BOOKS.filter((b) => {
       const matchCategory = filter === "all" || b.category === filter;
+      const matchLoc = !locOnly || b.locSelected;
       const matchSearch =
         !search ||
         b.title.toLowerCase().includes(search.toLowerCase()) ||
         (b.titleGu && b.titleGu.includes(search));
-      return matchCategory && matchSearch;
+      return matchCategory && matchLoc && matchSearch;
     });
-  }, [filter, search]);
+  }, [filter, search, locOnly]);
 
   const categories = ["all", ...new Set(BOOKS.map((b) => b.category))];
 
@@ -742,6 +862,15 @@ export default function BooksPage() {
               )}
             </button>
           ))}
+          <button
+            className={`sp-filter-pill sp-pill-loc ${locOnly ? "active" : ""}`}
+            onClick={() => setLocOnly(!locOnly)}
+          >
+            🏛️ Library of Congress
+            <span className="sp-pill-count">
+              {BOOKS.filter((b) => b.locSelected).length}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -856,23 +985,27 @@ export default function BooksPage() {
         )}
       </div>
 
-      <div className="sp-page-footer">
-        <div className="sp-footer-stat">
-          <span className="sp-footer-num">33</span>
-          <span>Books Published</span>
-        </div>
-        <div className="sp-footer-stat">
-          <span className="sp-footer-num">23</span>
-          <span>Library of Congress</span>
-        </div>
-        <div className="sp-footer-stat">
-          <span className="sp-footer-num">11</span>
-          <span>Courts & Govt. Offices</span>
-        </div>
-        <div className="sp-footer-stat">
-          <span className="sp-footer-num">1997</span>
-          <span>First Publication</span>
-        </div>
+      <div className="sp-page-footer" ref={footerRef}>
+        <CounterStat
+          target={33}
+          label="Books Published"
+          visible={countersVisible}
+        />
+        <CounterStat
+          target={23}
+          label="Library of Congress"
+          visible={countersVisible}
+        />
+        <CounterStat
+          target={11}
+          label="Courts & Govt. Offices"
+          visible={countersVisible}
+        />
+        <CounterStat
+          target={1997}
+          label="First Publication"
+          visible={countersVisible}
+        />
       </div>
 
       <AnimatePresence>

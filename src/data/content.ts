@@ -121,6 +121,15 @@ export const BOOKS: Book[] = [
       "A comprehensive study of the history, culture, and traditions of the Kathi community of Saurashtra. This foundational work covers the origins, customs, and historical significance of the Kathi people.",
     themeColor: "#c5a55a",
     imageUrl: "/books/covers/kathi-itihas-ane-sanskriti.jpg",
+    toc: [
+      "Origins of the Kathi Community",
+      "Historical Migration Patterns",
+      "Customs and Traditions",
+      "Kathi Role in Saurashtra Politics",
+      "Genealogical Records",
+      "Cultural Heritage Practices",
+      "Kathi Contributions to Gujarat",
+    ],
   },
   {
     title: "Prachin Bharat Na Videshi Yatri",
@@ -136,6 +145,13 @@ export const BOOKS: Book[] = [
       "An analysis of historical accounts of foreign travelers who visited ancient India. Examines the observations of Greek, Chinese, and Arab travelers about Indian civilization.",
     themeColor: "#8a7b5a",
     imageUrl: "/books/covers/prachin-bharat-na-videshi-yatri.jpg",
+    toc: [
+      "Greek Travelers in Ancient India",
+      "Chinese Accounts of Indian Civilization",
+      "Arab and Persian Travelers",
+      "Portuguese Chronicles",
+      "Impact on Historical Understanding",
+    ],
   },
   {
     title: "Bhuchar Mori Ni Ladai",

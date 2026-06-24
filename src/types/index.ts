@@ -27,6 +27,7 @@ export interface Book {
     author: string;
     role?: string;
   }[];
+  toc?: string[];
 }
 
 export interface SITE_INFO {
@@ -97,13 +98,13 @@ export interface Playlist {
   count: number;
   emoji: string;
   category: string;
-  id?: string;           // YouTube playlist ID (PLxxxxxxxx)
+  id?: string; // YouTube playlist ID (PLxxxxxxxx)
   thumbVideoId?: string; // Video ID for thumbnail (i.ytimg.com/vi/{id}/mqdefault.jpg)
 }
 export interface ReadingItem {
   title: string;
   author: string;
-  note?: string;      // Personal recommendation note from Dr. Khachar
-  link?: string;      // Link to Archive.org or Google Books
-  category: string;  // e.g. "Primary Sources", "Reference", "Literature"
+  note?: string; // Personal recommendation note from Dr. Khachar
+  link?: string; // Link to Archive.org or Google Books
+  category: string; // e.g. "Primary Sources", "Reference", "Literature"
 }
