@@ -9882,6 +9882,26 @@ body {
 .sp-search:focus {
     border-color: var(--c-terracotta);
 }
+.sp-search-count {
+    font-size: 0.78rem;
+    color: var(--c-ink-muted);
+    white-space: nowrap;
+}
+.sp-search-kbd {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    background: var(--c-parchment-deep);
+    border: 1px solid var(--c-border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--c-ink-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.sp-search-kbd:hover {
+    border-color: var(--c-terracotta);
+    color: var(--c-terracotta);
+}
 .sp-search::placeholder {
     color: var(--c-text-muted);
     opacity: 0.5;
@@ -13266,8 +13286,13 @@ mark {
     z-index: 0;
 }
 
-.sp-spine-card:hover {
+.sp-spine-card:hover,
+.sp-spine-card.focused {
     padding-left: 3.5rem;
+}
+.sp-spine-card.focused {
+    outline: 2px solid var(--c-terracotta);
+    outline-offset: -2px;
 }
 .sp-spine-card:hover::before {
     transform: scaleY(1);
@@ -13444,6 +13469,29 @@ mark {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     color: var(--sp-accent);
 }
+.sp-spine-bookmark {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--c-ink-muted);
+    opacity: 0;
+    transition: all 0.3s ease;
+    padding: 0;
+    line-height: 1;
+}
+.sp-spine-card:hover .sp-spine-bookmark {
+    opacity: 0.6;
+}
+.sp-spine-bookmark:hover {
+    opacity: 1 !important;
+    transform: scale(1.2);
+    color: var(--c-amber);
+}
+.sp-spine-bookmark.active {
+    opacity: 1;
+    color: var(--c-amber);
+}
 .sp-spine-card:hover .sp-spine-arrow {
     opacity: 1;
     transform: translateX(0);
@@ -13543,8 +13591,30 @@ mark {
 }
 .sp-card-meta {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 1.5rem;
+}
+.sp-card-bookmark {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--c-ink-muted);
+    opacity: 0.5;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+.sp-card-bookmark:hover {
+    opacity: 1;
+    transform: scale(1.2);
+    color: var(--c-amber);
+}
+.sp-card-bookmark.active {
+    opacity: 1;
+    color: var(--c-amber);
 }
 .sp-card-cat {
     font-size: 0.8rem;

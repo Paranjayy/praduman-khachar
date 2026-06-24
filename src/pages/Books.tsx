@@ -203,10 +203,16 @@ function BookSpine({
   book,
   index,
   onClick,
+  isBookmarked,
+  onToggleBookmark,
+  isFocused,
 }: {
   book: Book;
   index: number;
   onClick: () => void;
+  isBookmarked: boolean;
+  onToggleBookmark: (title: string) => void;
+  isFocused: boolean;
 }) {
   const { dark } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
@@ -214,7 +220,7 @@ function BookSpine({
 
   return (
     <motion.div
-      className="sp-spine-card"
+      className={`sp-spine-card${isFocused ? " focused" : ""}`}
       style={{ "--sp-accent": accent, "--sp-bg": bg } as React.CSSProperties}
       onClick={onClick}
       initial={{ x: -20, opacity: 0 }}
@@ -237,6 +243,16 @@ function BookSpine({
         </div>
         <div className="sp-spine-cat">{BOOK_CATEGORIES[book.category]}</div>
         <div className="sp-spine-year">{book.year || "—"}</div>
+        <button
+          className="sp-spine-bookmark"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleBookmark(book.title);
+          }}
+          title={isBookmarked ? "Remove bookmark" : "Bookmark this book"}
+        >
+          {isBookmarked ? "★" : "☆"}
+        </button>
         <div className="sp-spine-arrow">→</div>
       </div>
       {/* Hover cover preview */}
@@ -261,10 +277,14 @@ function BookCard({
   book,
   index,
   onClick,
+  isBookmarked,
+  onToggleBookmark,
 }: {
   book: Book;
   index: number;
   onClick: () => void;
+  isBookmarked: boolean;
+  onToggleBookmark: (title: string) => void;
 }) {
   return (
     <div className="sp-card" onClick={onClick}>
@@ -289,6 +309,16 @@ function BookCard({
         <div className="sp-card-meta">
           <span className="sp-card-cat">{BOOK_CATEGORIES[book.category]}</span>
           {book.year && <span className="sp-card-year">{book.year}</span>}
+          <button
+            className={`sp-card-bookmark ${isBookmarked ? "active" : ""}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBookmark(book.title);
+            }}
+            title={isBookmarked ? "Remove bookmark" : "Bookmark"}
+          >
+            {isBookmarked ? "★" : "☆"}
+          </button>
         </div>
         <h3 className="sp-card-title">{book.title}</h3>
       </div>
@@ -743,8 +773,64 @@ export default function BooksPage() {
     "stripe" | "card" | "grid" | "table"
   >("stripe");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [focusedIdx, setFocusedIdx] = useState<number>(-1);
   const [countersVisible, setCountersVisible] = useState(false);
+  const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem("pk-bookmarks");
+      return new Set(saved ? JSON.parse(saved) : []);
+    } catch {
+      return new Set();
+    }
+  });
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const footerRef = useRef<HTMLDivElement>(null);
+
+  // Persist bookmarks
+  useEffect(() => {
+    localStorage.setItem("pk-bookmarks", JSON.stringify([...bookmarks]));
+  }, [bookmarks]);
+
+  const toggleBookmark = (title: string) => {
+    setBookmarks((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "/") {
+        e.preventDefault();
+        document.querySelector<HTMLInputElement>(".sp-search")?.focus();
+        return;
+      }
+      if (selectedIdx !== null) return; // Don't navigate in detail view
+      if (e.key === "ArrowDown" || e.key === "j") {
+        e.preventDefault();
+        setFocusedIdx((prev) => Math.min(prev + 1, filtered.length - 1));
+      }
+      if (e.key === "ArrowUp" || e.key === "k") {
+        e.preventDefault();
+        setFocusedIdx((prev) => Math.max(prev - 1, 0));
+      }
+      if ((e.key === "Enter" || e.key === " ") && focusedIdx >= 0) {
+        e.preventDefault();
+        setSelectedIdx(focusedIdx);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedIdx, focusedIdx, filtered.length]);
+
+  // Reset focus when filter changes
+  useEffect(() => {
+    setFocusedIdx(-1);
+  }, [filter, search, locOnly, showBookmarksOnly]);
 
   // Stats counter animation
   useEffect(() => {
@@ -763,13 +849,14 @@ export default function BooksPage() {
     return BOOKS.filter((b) => {
       const matchCategory = filter === "all" || b.category === filter;
       const matchLoc = !locOnly || b.locSelected;
+      const matchBookmark = !showBookmarksOnly || bookmarks.has(b.title);
       const matchSearch =
         !search ||
         b.title.toLowerCase().includes(search.toLowerCase()) ||
         (b.titleGu && b.titleGu.includes(search));
-      return matchCategory && matchLoc && matchSearch;
+      return matchCategory && matchLoc && matchBookmark && matchSearch;
     });
-  }, [filter, search, locOnly]);
+  }, [filter, search, locOnly, showBookmarksOnly, bookmarks]);
 
   const categories = ["all", ...new Set(BOOKS.map((b) => b.category))];
 
@@ -828,6 +915,7 @@ export default function BooksPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             <span className="sp-search-count">{filtered.length} books</span>
+            <kbd className="sp-search-kbd">/</kbd>
           </div>
 
           <div className="sp-view-toggles">
@@ -871,6 +959,15 @@ export default function BooksPage() {
               {BOOKS.filter((b) => b.locSelected).length}
             </span>
           </button>
+          {bookmarks.size > 0 && (
+            <button
+              className={`sp-filter-pill ${showBookmarksOnly ? "active" : ""}`}
+              onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
+            >
+              ★ Bookmarks
+              <span className="sp-pill-count">{bookmarks.size}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -883,6 +980,9 @@ export default function BooksPage() {
                 book={book}
                 index={i}
                 onClick={() => setSelectedIdx(i)}
+                isBookmarked={bookmarks.has(book.title)}
+                onToggleBookmark={toggleBookmark}
+                isFocused={focusedIdx === i}
               />
             ))}
           </div>
@@ -902,6 +1002,8 @@ export default function BooksPage() {
                   book={book}
                   index={i}
                   onClick={() => setSelectedIdx(i)}
+                  isBookmarked={bookmarks.has(book.title)}
+                  onToggleBookmark={toggleBookmark}
                 />
               </motion.div>
             ))}
