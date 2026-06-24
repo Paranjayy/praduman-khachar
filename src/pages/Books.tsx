@@ -236,7 +236,21 @@ function BookSpine({
         <div className="sp-spine-loc">LOC</div>
         <div className="sp-spine-author">Dr. Praduman Khachar</div>
         <div className="sp-spine-title-wrap">
-          <div className="sp-spine-title">{book.title}</div>
+          <div className="sp-spine-title">
+            {search
+              ? book.title
+                  .split(new RegExp(`(${search})`, "gi"))
+                  .map((part, j) =>
+                    part.toLowerCase() === search.toLowerCase() ? (
+                      <mark key={j} className="sp-highlight">
+                        {part}
+                      </mark>
+                    ) : (
+                      part
+                    ),
+                  )
+              : book.title}
+          </div>
           {book.titleGu && (
             <div className="sp-spine-titlegu">{book.titleGu}</div>
           )}
@@ -831,6 +845,18 @@ export default function BooksPage() {
   useEffect(() => {
     setFocusedIdx(-1);
   }, [filter, search, locOnly, showBookmarksOnly]);
+
+  // Scroll focused item into view
+  useEffect(() => {
+    if (focusedIdx < 0) return;
+    const cards = document.querySelectorAll(".sp-spine-card");
+    if (cards[focusedIdx]) {
+      cards[focusedIdx].scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [focusedIdx]);
 
   // Stats counter animation
   useEffect(() => {
