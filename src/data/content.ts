@@ -571,27 +571,30 @@ export const MEDIA_STATS: MediaStatItem[] = [
 ];
 
 export const EDUCATION: EducationItem[] = [
-  { degree: "Ph.D. in History", university: "M. K. Uni. Bhavnagar", year: "2006", grade: "Awarded" },
+  { degree: "Ph.D. in History", university: "M. K. University, Bhavnagar", year: "2006", grade: "Pass" },
   { degree: "M.A. in History", university: "Saurashtra University", year: "1991", grade: "First Class (66%)" },
   { degree: "B.A. in History", university: "Saurashtra University", year: "1989", grade: "First Class (60%)" },
 ];
 
 export const CAREER: CareerItem[] = [
-  { period: "1992 – Present", title: "Associate Professor", place: "Dr. Subhash Mahila Arts, Comm. & Home Science College, Junagadh", desc: "U.G. Level Teaching (33 Years)" },
-  { period: "1998 – 2006", title: "P.G. Lecturer", place: "Bahauddin College, Junagadh (Govt. of Gujarat)", desc: "P.G. Level Teaching (8 Years)" },
-  { period: "2010 – Present", title: "Convener", place: "INTACH Junagadh Chapter", desc: "Heritage Conservation & Documentation" },
-  { period: "Present", title: "Ph.D. Guide", place: "Saurashtra University", desc: "Guided 4 Ph.D. scholars, 3 currently under guidance" },
+  { period: "1992 – Present", title: "Associate Professor (U.G. Level)", place: "Dr. Subhash Mahila Arts, Comm. & H. Sc. College, Junagadh", desc: "33 Years of teaching at undergraduate level" },
+  { period: "1998 – 2006", title: "P.G. Lecturer", place: "Bahauddin College, Junagadh (Run by Government of Gujarat)", desc: "8 Years of postgraduate level teaching" },
+  { period: "2010 – Present", title: "Convener", place: "INTACH Junagadh Chapter", desc: "Indian National Trust for Art and Cultural Heritage" },
+  { period: "2012 – Present", title: "Ph.D. Guide", place: "Saurashtra University", desc: "Guided 4 Ph.D. scholars to completion, 3 currently under guidance" },
+  { period: "2013", title: "Minor Research Project", place: "University Grant Commission, Pune", desc: "Funded research project completed in 1 year" },
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { icon: "🏛️", text: "Convener of **INTACH** Junagadh Chapter" },
-  { icon: "📜", text: "Author of **33+ Books** and **15 Research Articles** on Gujarat History" },
-  { icon: "⚖️", text: "Books cited in **11 High Court cases** involving historical heritage" },
-  { icon: "🌍", text: "Recognized by **Library of Congress**, USA (23 Books Selected)" },
-  { icon: "🏆", text: "Recipient of **Kalatirth Surat Sanskruti Savardhan** Award 2025" },
-  { icon: "🎓", text: "Honored by **Govt. of Gujarat** as a Distinguished person of Sorath District" },
+  { icon: "🏛️", text: "Honored by **Government of Gujarat** as a Distinguished person of Sorath District" },
+  { icon: "🏆", text: "Recipient of **Kalatirth Surat Sanskruti Savardhan Award 2025**" },
   { icon: "❤️", text: "Dedicated Personality Award from **International Human Rights Association**" },
-  { icon: "🎙️", text: "Expert Speaker at **AIR (12 times)** and **Doordarshan (6 times)**" },
-  { icon: "✍️", text: "Regular Columnist for **Mumbai Samachar** and **Fulchhab**" },
-  { icon: "🎨", text: "Curator of **Exhibitions** showcasing historical pictures across Gujarat" },
+  { icon: "📜", text: "**23 Books** selected by **Library of Congress, USA** out of 33 total publications" },
+  { icon: "⚖️", text: "Books cited in **11 High Court cases** involving historical heritage in Gujarat" },
+  { icon: "🎓", text: "A Prolific author of **33 high quality books** and **15 Research Articles**" },
+  { icon: "🎙️", text: "Called **12 times** for Radio Vartalap Karyakram and **6 times** in Doordarshan Program" },
+  { icon: "🎤", text: "Delivered Guest/Expert Lectures as **Keynote Speaker** across India **25 times**" },
+  { icon: "✍️", text: "Written historical Articles in **Mumbai Samachar** for 2 years & **Fulchhab** for 3 years" },
+  { icon: "📺", text: "Uploaded **485 historical videos** on YouTube for creating awareness, still active" },
+  { icon: "📚", text: "Author of **Adhikarn** of well-known Gujarati Encyclopedia, Consultant of various Telefilms" },
+  { icon: "🖌️", text: "Organized **Exhibition** of historical pictures in different cities of Gujarat state" },
 ];
