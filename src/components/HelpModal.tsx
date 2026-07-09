@@ -1,229 +1,291 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Keyboard, MousePointer2, Zap, Search, BookOpen, Video, Map, Info } from "lucide-react";
-import { useEffect } from "react";
+import { X, Keyboard } from "lucide-react";
+import { useEffect, useCallback } from "react";
 
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface Shortcut {
+  keys: string[];
+  desc: string;
+}
+
+const sections: { title: string; shortcuts: Shortcut[] }[] = [
+  {
+    title: "Navigation",
+    shortcuts: [
+      { keys: ["G", "H"], desc: "Go to Home" },
+      { keys: ["G", "B"], desc: "Go to Books" },
+      { keys: ["G", "M"], desc: "Go to Media" },
+      { keys: ["G", "E"], desc: "Go to Explore" },
+      { keys: ["G", "L"], desc: "Go to Lineage" },
+    ],
+  },
+  {
+    title: "Search",
+    shortcuts: [
+      { keys: ["⌘", "K"], desc: "Command Palette" },
+      { keys: ["/"], desc: "Quick Search" },
+    ],
+  },
+  {
+    title: "View",
+    shortcuts: [
+      { keys: ["↑", "↓"], desc: "Navigate items" },
+      { keys: ["J", "K"], desc: "Navigate items" },
+      { keys: ["Enter"], desc: "Select" },
+      { keys: ["Esc"], desc: "Close / Back" },
+    ],
+  },
+];
+
 export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "?" && !isOpen) {
-        // Toggle if not in input
-        if (document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
-           // We can't easily trigger the state from here without a global state, 
-           // but the parent handles it.
-        }
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [isOpen, onClose]);
+    },
+    [onClose],
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [isOpen, handleKeyDown]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="help-modal-overlay" onClick={onClose}>
-          <motion.div 
-            className="help-modal-content"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        <div className="help-overlay" onClick={onClose}>
+          <motion.div
+            className="help-card"
+            initial={{ opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.92, y: 24 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="help-modal-close" onClick={onClose}><X size={20} /></button>
-            
-            <header className="help-modal-header">
-              <div className="help-modal-icon-wrap">
-                <Info className="help-modal-icon" />
-              </div>
-              <div>
-                <h2 className="help-modal-title">Workstation Guide</h2>
-                <p className="help-modal-sub">Navigation & Scholar's Tools</p>
-              </div>
+            <button
+              className="help-close"
+              onClick={onClose}
+              aria-label="Close help modal"
+            >
+              <X size={20} />
+            </button>
+
+            <header className="help-header">
+              <Keyboard size={22} strokeWidth={2.5} />
+              <h2>Keyboard Shortcuts</h2>
             </header>
 
-            <div className="help-modal-grid">
-              <section className="help-section">
-                <h3 className="help-section-title"><Keyboard size={16} /> Keyboard Shortcuts</h3>
-                <div className="shortcut-list">
-                  <div className="shortcut-item"><kbd>G</kbd> then <kbd>H</kbd> <span>Go Home</span></div>
-                  <div className="shortcut-item"><kbd>G</kbd> then <kbd>B</kbd> <span>Go to Books</span></div>
-                  <div className="shortcut-item"><kbd>G</kbd> then <kbd>M</kbd> <span>Go to Media</span></div>
-                  <div className="shortcut-item"><kbd>G</kbd> then <kbd>E</kbd> <span>Go to Explore</span></div>
-                  <div className="shortcut-item"><kbd>⌘</kbd> + <kbd>K</kbd> <span>Command Palette</span></div>
-                  <div className="shortcut-item"><kbd>?</kbd> <span>Show this guide</span></div>
-                  <div className="shortcut-item"><kbd>Esc</kbd> <span>Close Modals</span></div>
-                </div>
-              </section>
-
-              <section className="help-section">
-                <h3 className="help-section-title"><Zap size={16} /> Advanced Features</h3>
-                <div className="feature-tips">
-                  <div className="feature-tip">
-                    <Search className="tip-icon" />
-                    <div>
-                      <strong>Neural Search</strong>
-                      <p>Use the Explore page to search transcripts across 575+ videos in Gujarati & English.</p>
-                    </div>
-                  </div>
-                  <div className="feature-tip">
-                    <BookOpen className="tip-icon" />
-                    <div>
-                      <strong>Stripe Press Detail</strong>
-                      <p>Click any book to enter the endless scroll bibliography with 3D cover interactions.</p>
-                    </div>
-                  </div>
-                  <div className="feature-tip">
-                    <Map className="tip-icon" />
-                    <div>
-                      <strong>Historical Mapping</strong>
-                      <p>Explore the Interactive Map to see locations mentioned in Dr. Khachar's research.</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
+            <div className="help-grid">
+              {sections.map((section) => (
+                <section key={section.title} className="help-section">
+                  <h3 className="help-section-title">{section.title}</h3>
+                  <ul className="help-shortcuts">
+                    {section.shortcuts.map((s) => (
+                      <li
+                        key={s.desc + s.keys.join("")}
+                        className="help-shortcut"
+                      >
+                        <span className="help-keys">
+                          {s.keys.map((k, i) => (
+                            <span key={i} className="help-kbd">
+                              {k}
+                            </span>
+                          ))}
+                        </span>
+                        <span className="help-desc">{s.desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </div>
 
-            <footer className="help-modal-footer">
-              <p>v2.8.5-GOD WORKSTATION • Developed for Scholarly Archiving</p>
+            <footer className="help-footer">
+              Press <kbd>Esc</kbd> or click outside to close
             </footer>
           </motion.div>
 
           <style>{`
-            .help-modal-overlay {
+            .help-overlay {
               position: fixed;
               inset: 0;
-              background: rgba(0,0,0,0.8);
-              backdrop-filter: blur(8px);
+              background: rgba(0, 0, 0, 0.7);
+              backdrop-filter: blur(10px);
               z-index: 2000;
               display: flex;
               align-items: center;
               justify-content: center;
-              padding: 2rem;
+              padding: 1.5rem;
             }
-            .help-modal-content {
+
+            .help-card {
               background: var(--c-parchment);
               width: 100%;
-              max-width: 800px;
-              border-radius: 20px;
+              max-width: 680px;
+              max-height: 85vh;
+              overflow-y: auto;
+              border-radius: 16px;
               border: 1px solid var(--c-border);
               position: relative;
-              overflow: hidden;
-              box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+              box-shadow: 0 32px 64px rgba(0, 0, 0, 0.45),
+                          0 0 0 1px rgba(255, 255, 255, 0.04) inset;
             }
-            [data-theme="dark"] .help-modal-content {
+            [data-theme="dark"] .help-card {
               background: #111;
-              border-color: rgba(255,255,255,0.1);
+              border-color: rgba(255, 255, 255, 0.08);
             }
-            .help-modal-close {
+
+            .help-close {
               position: absolute;
-              top: 1.5rem;
-              right: 1.5rem;
-              background: none;
-              border: none;
+              top: 1.25rem;
+              right: 1.25rem;
+              width: 36px;
+              height: 36px;
+              border-radius: 8px;
+              background: rgba(0, 0, 0, 0.04);
+              border: 1px solid transparent;
               color: var(--c-ink-soft);
               cursor: pointer;
-              transition: 0.2s;
-            }
-            .help-modal-close:hover { color: var(--c-terracotta); }
-            
-            .help-modal-header {
-              padding: 2.5rem;
-              border-bottom: 1px solid var(--c-border-light);
-              display: flex;
-              align-items: center;
-              gap: 1.5rem;
-              background: linear-gradient(to right, rgba(184, 85, 58, 0.05), transparent);
-            }
-            .help-modal-icon-wrap {
-              width: 50px;
-              height: 50px;
-              background: var(--c-terracotta);
-              border-radius: 12px;
               display: flex;
               align-items: center;
               justify-content: center;
-              color: #fff;
+              transition: all 0.15s ease;
             }
-            .help-modal-title {
+            .help-close:hover {
+              color: var(--c-ink);
+              background: rgba(0, 0, 0, 0.08);
+              border-color: var(--c-border);
+            }
+            [data-theme="dark"] .help-close { color: rgba(255,255,255,0.5); }
+            [data-theme="dark"] .help-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+            .help-header {
+              padding: 2rem 2.25rem 1.5rem;
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+              color: var(--c-terracotta);
+              border-bottom: 1px solid var(--c-border-light);
+            }
+            .help-header h2 {
               font-family: var(--font-display);
-              font-size: 1.5rem;
+              font-size: 1.35rem;
+              font-weight: 700;
               margin: 0;
               color: var(--c-ink);
             }
-            [data-theme="dark"] .help-modal-title { color: #fff; }
-            .help-modal-sub {
-              font-size: 0.85rem;
-              color: var(--c-ink-soft);
-              margin: 0;
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-            }
+            [data-theme="dark"] .help-header h2 { color: #f0ebe4; }
 
-            .help-modal-grid {
+            .help-grid {
               display: grid;
               grid-template-columns: 1fr 1fr;
-              gap: 3rem;
-              padding: 2.5rem;
+              gap: 2rem 2.5rem;
+              padding: 2rem 2.25rem;
             }
-            @media (max-width: 700px) {
-              .help-modal-grid { grid-template-columns: 1fr; gap: 2rem; }
+            @media (max-width: 640px) {
+              .help-grid { grid-template-columns: 1fr; gap: 1.75rem; }
             }
 
             .help-section-title {
               font-family: var(--font-sans);
-              font-size: 0.75rem;
-              font-weight: 800;
+              font-size: 0.7rem;
+              font-weight: 700;
               text-transform: uppercase;
-              letter-spacing: 0.1em;
+              letter-spacing: 0.12em;
               color: var(--c-terracotta);
-              margin-bottom: 1.5rem;
-              display: flex;
-              align-items: center;
-              gap: 8px;
+              margin: 0 0 0.85rem;
+              padding-bottom: 0.5rem;
+              border-bottom: 1px solid var(--c-border-light);
             }
 
-            .shortcut-list { display: flex; flex-direction: column; gap: 0.8rem; }
-            .shortcut-item {
+            .help-shortcuts {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 0.6rem;
+            }
+
+            .help-shortcut {
               display: flex;
               align-items: center;
-              gap: 8px;
-              font-size: 0.95rem;
-              color: var(--c-ink);
+              justify-content: space-between;
+              gap: 1rem;
             }
-            [data-theme="dark"] .shortcut-item { color: rgba(255,255,255,0.8); }
-            .shortcut-item kbd {
+
+            .help-keys {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              flex-shrink: 0;
+            }
+
+            .help-kbd {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 26px;
+              height: 26px;
+              padding: 0 6px;
               background: var(--c-parchment-deep);
               border: 1px solid var(--c-border);
-              padding: 2px 6px;
+              border-bottom-width: 2px;
+              border-radius: 6px;
+              font-family: var(--font-mono);
+              font-size: 0.72rem;
+              font-weight: 600;
+              color: var(--c-ink);
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+              text-align: center;
+            }
+            [data-theme="dark"] .help-kbd {
+              background: rgba(255, 255, 255, 0.06);
+              border-color: rgba(255, 255, 255, 0.1);
+              color: rgba(255, 255, 255, 0.85);
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            }
+
+            .help-desc {
+              font-size: 0.88rem;
+              color: var(--c-ink-soft);
+              text-align: right;
+            }
+            [data-theme="dark"] .help-desc { color: rgba(255,255,255,0.5); }
+
+            .help-footer {
+              padding: 1rem 2.25rem;
+              text-align: center;
+              font-size: 0.75rem;
+              color: var(--c-ink-muted);
+              border-top: 1px solid var(--c-border-light);
+              background: var(--c-parchment-deep);
+            }
+            [data-theme="dark"] .help-footer {
+              background: #0a0a0a;
+              border-color: rgba(255, 255, 255, 0.05);
+              color: rgba(255, 255, 255, 0.35);
+            }
+            .help-footer kbd {
+              display: inline-flex;
+              align-items: center;
+              padding: 1px 5px;
+              background: rgba(0, 0, 0, 0.06);
+              border: 1px solid var(--c-border);
               border-radius: 4px;
               font-family: var(--font-mono);
-              font-size: 0.75rem;
-              min-width: 24px;
-              text-align: center;
-              box-shadow: 0 2px 0 var(--c-border);
+              font-size: 0.7rem;
             }
-            .shortcut-item span { margin-left: auto; color: var(--c-ink-soft); font-size: 0.85rem; }
-
-            .feature-tips { display: flex; flex-direction: column; gap: 1.5rem; }
-            .feature-tip { display: flex; gap: 1rem; }
-            .tip-icon { color: var(--c-terracotta); flex-shrink: 0; margin-top: 2px; }
-            .feature-tip strong { display: block; font-size: 0.95rem; margin-bottom: 2px; color: var(--c-ink); }
-            [data-theme="dark"] .feature-tip strong { color: #fff; }
-            .feature-tip p { font-size: 0.85rem; color: var(--c-ink-soft); line-height: 1.4; margin: 0; }
-
-            .help-modal-footer {
-              padding: 1.5rem 2.5rem;
-              background: var(--c-parchment-deep);
-              border-top: 1px solid var(--c-border-light);
-              text-align: center;
+            [data-theme="dark"] .help-footer kbd {
+              background: rgba(255,255,255,0.08);
+              border-color: rgba(255,255,255,0.1);
             }
-            [data-theme="dark"] .help-modal-footer { background: #0a0a0a; border-color: rgba(255,255,255,0.05); }
-            .help-modal-footer p { font-size: 0.7rem; color: var(--c-ink-muted); margin: 0; letter-spacing: 0.02em; }
           `}</style>
         </div>
       )}

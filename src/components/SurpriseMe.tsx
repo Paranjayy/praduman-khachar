@@ -195,12 +195,12 @@ export default function SurpriseMe() {
           
           @media (max-width: 600px) {
             .surprise-me-fab {
-              bottom: 1.5rem;
-              right: 1.5rem;
-              padding: 0.7rem 1.2rem;
+              bottom: 5.25rem;
+              right: 1rem;
+              padding: 0.7rem 1rem;
             }
             .surprise-me-text {
-              font-size: 0.75rem;
+              display: none;
             }
             .roulette-title {
               font-size: 1.4rem;

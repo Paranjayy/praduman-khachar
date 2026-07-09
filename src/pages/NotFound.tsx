@@ -1,15 +1,21 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { BOOKS } from "../data/content";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function NotFoundPage() {
   usePageTitle("Lost in History");
 
+  const randomBook = useMemo(() => {
+    return BOOKS[Math.floor(Math.random() * BOOKS.length)];
+  }, []);
+
   return (
     <main className="page-content not-found-page">
       <div className="not-found-container">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="not-found-content"
@@ -17,9 +23,10 @@ export default function NotFoundPage() {
           <div className="not-found-eyebrow">Error 404</div>
           <h1 className="not-found-title">Lost in the sands of time.</h1>
           <p className="not-found-text">
-            The record you are looking for has either been moved to the deep archives or never existed in this timeline.
+            The record you are looking for has either been moved to the deep
+            archives or never existed in this timeline.
           </p>
-          
+
           <div className="not-found-actions">
             <Link to="/" className="not-found-btn primary">
               Return to Present
@@ -29,8 +36,61 @@ export default function NotFoundPage() {
             </Link>
           </div>
         </motion.div>
-        
-        <motion.div 
+
+        {randomBook && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            style={{
+              marginTop: "3rem",
+              padding: "1.5rem",
+              background: "var(--c-parchment-deep)",
+              borderRadius: "12px",
+              border: "1px solid var(--c-border-light)",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--c-ink-muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                marginBottom: "0.5rem",
+              }}
+            >
+              While you're here
+            </p>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--c-ink-soft)",
+                marginBottom: "1rem",
+              }}
+            >
+              Check out this book from the collection:
+            </p>
+            <Link
+              to={`/books/${randomBook.slug || randomBook.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+              style={{
+                display: "inline-block",
+                padding: "0.6rem 1.5rem",
+                background: "var(--c-terracotta)",
+                color: "white",
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontWeight: 600,
+                fontSize: "0.9rem",
+                transition: "all 0.2s",
+              }}
+            >
+              {randomBook.title} →
+            </Link>
+          </motion.div>
+        )}
+
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.05 }}
           className="not-found-bg-text"

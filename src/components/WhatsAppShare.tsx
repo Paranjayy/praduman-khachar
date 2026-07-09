@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
+import { useTracker } from "../hooks/useAnalytics";
 
 export default function WhatsAppShare() {
+  const track = useTracker();
   const handleContact = () => {
+    track("whatsapp_click", window.location.pathname);
     // Pre-filled contact message — opens WhatsApp with professional greeting
     const msg = `Namaste Dr. Praduman Khachar 🙏\n\nI visited your portfolio at praduman-khachar.vercel.app and would love to connect regarding your historical research on Saurashtra.\n\nCurrent page: ${window.location.href}`;
     // Opens to your WhatsApp — replace 91XXXXXXXXXX with actual number if available
@@ -43,8 +46,8 @@ export default function WhatsAppShare() {
         
         @media (max-width: 600px) {
           .wa-share-btn {
-            bottom: 1.5rem;
-            right: 1.5rem;
+            bottom: 5.25rem;
+            right: 1rem;
             width: 48px;
             height: 48px;
           }

@@ -8,7 +8,16 @@ import {
   useSpring,
   useMotionValue,
 } from "framer-motion";
-import { LayoutGrid, List, Columns, BookOpen, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  LayoutGrid,
+  List,
+  Columns,
+  BookOpen,
+  ChevronDown,
+  Download,
+  Upload,
+} from "lucide-react";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { Book } from "../types";
 import { FlipBookPortal } from "../components/FlipBookPortal";
@@ -208,6 +217,7 @@ function BookSpine({
   isFocused,
   isComparing,
   onToggleCompare,
+  search,
 }: {
   book: Book;
   index: number;
@@ -217,6 +227,7 @@ function BookSpine({
   isFocused: boolean;
   isComparing: boolean;
   onToggleCompare: (title: string) => void;
+  search: string;
 }) {
   const { dark } = useTheme();
   const accent = book.themeColor || CATEGORY_COLORS[book.category] || "#c5a55a";
@@ -476,6 +487,16 @@ function DetailSection({
             </div>
 
             <div className="sp-purchase-links">
+              {book.slug && (
+                <Link
+                  to={`/books/${book.slug}`}
+                  className="sp-purchase-link"
+                  style={{ fontWeight: 800 }}
+                >
+                  <span>View Full Details</span>
+                  <span className="sp-purchase-price">↗</span>
+                </Link>
+              )}
               <button
                 className="sp-purchase-link preview-btn"
                 onClick={() => {
@@ -837,6 +858,63 @@ export default function BooksPage() {
     });
   };
 
+  const exportBookmarks = () => {
+    const data = JSON.stringify([...bookmarks], null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pk-bookmarks.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importBookmarks = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const imported = JSON.parse(ev.target?.result as string);
+          if (Array.isArray(imported)) {
+            setBookmarks(new Set([...bookmarks, ...imported]));
+          }
+        } catch {
+          // silently fail
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    BOOKS.forEach((b) => {
+      counts[b.category] = (counts[b.category] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, []);
+
+  const filtered = useMemo(() => {
+    return BOOKS.filter((b) => {
+      const matchCategory = filter === "all" || b.category === filter;
+      const matchLoc = !locOnly || b.locSelected;
+      const matchBookmark = !showBookmarksOnly || bookmarks.has(b.title);
+      const matchSearch =
+        !search ||
+        b.title.toLowerCase().includes(search.toLowerCase()) ||
+        (b.titleGu && b.titleGu.includes(search));
+      return matchCategory && matchLoc && matchBookmark && matchSearch;
+    });
+  }, [filter, search, locOnly, showBookmarksOnly, bookmarks]);
+
+  const categories = ["all", ...new Set(BOOKS.map((b) => b.category))];
+
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -894,23 +972,8 @@ export default function BooksPage() {
     return () => obs.disconnect();
   }, []);
 
-  const filtered = useMemo(() => {
-    return BOOKS.filter((b) => {
-      const matchCategory = filter === "all" || b.category === filter;
-      const matchLoc = !locOnly || b.locSelected;
-      const matchBookmark = !showBookmarksOnly || bookmarks.has(b.title);
-      const matchSearch =
-        !search ||
-        b.title.toLowerCase().includes(search.toLowerCase()) ||
-        (b.titleGu && b.titleGu.includes(search));
-      return matchCategory && matchLoc && matchBookmark && matchSearch;
-    });
-  }, [filter, search, locOnly, showBookmarksOnly, bookmarks]);
-
-  const categories = ["all", ...new Set(BOOKS.map((b) => b.category))];
-
   return (
-    <main className="sp-page">
+    <main className="sp-page" id="main-content" role="main">
       {/* Editorial Header */}
       <section className="sp-hero-editorial">
         <motion.div
@@ -1017,6 +1080,20 @@ export default function BooksPage() {
               <span className="sp-pill-count">{bookmarks.size}</span>
             </button>
           )}
+          <button
+            className="sp-filter-pill"
+            onClick={exportBookmarks}
+            title="Export bookmarks"
+          >
+            <Download size={14} />
+          </button>
+          <button
+            className="sp-filter-pill"
+            onClick={importBookmarks}
+            title="Import bookmarks"
+          >
+            <Upload size={14} />
+          </button>
         </div>
       </div>
 
@@ -1034,6 +1111,7 @@ export default function BooksPage() {
                 isFocused={focusedIdx === i}
                 isComparing={compareBooks.includes(book.title)}
                 onToggleCompare={toggleCompare}
+                search={search}
               />
             ))}
           </div>
@@ -1133,7 +1211,30 @@ export default function BooksPage() {
 
         {filtered.length === 0 && (
           <div className="sp-empty">
-            <p>No books matching "{search}"</p>
+            <div className="sp-empty-icon">📚</div>
+            <p className="sp-empty-title">No books found</p>
+            <p className="sp-empty-sub">
+              {search
+                ? `No results for "${search}". Try a different search term.`
+                : locOnly
+                  ? "No Library of Congress selections in this category."
+                  : showBookmarksOnly
+                    ? "No bookmarked books yet. Click the bookmark icon on any book to save it."
+                    : "No books match the current filters."}
+            </p>
+            {(search || locOnly || showBookmarksOnly) && (
+              <button
+                className="sp-empty-reset"
+                onClick={() => {
+                  setSearch("");
+                  setLocOnly(false);
+                  setShowBookmarksOnly(false);
+                  setFilter("all");
+                }}
+              >
+                Clear all filters
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -1160,6 +1261,75 @@ export default function BooksPage() {
           visible={countersVisible}
         />
       </div>
+
+      <div className="sp-category-dist">
+        <h3 className="sp-dist-title">Collection by Category</h3>
+        <div className="sp-dist-bars">
+          {categoryCounts.map(([cat, count]) => (
+            <div key={cat} className="sp-dist-row">
+              <span className="sp-dist-label">
+                {BOOK_CATEGORIES[cat] || cat}
+              </span>
+              <div className="sp-dist-track">
+                <motion.div
+                  className="sp-dist-fill"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(count / BOOKS.length) * 100}%` }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  style={{ background: CATEGORY_COLORS[cat] || "#8a7b5a" }}
+                />
+              </div>
+              <span className="sp-dist-count">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        .sp-category-dist {
+          max-width: 600px;
+          margin: 3rem auto 0;
+          padding: 2rem;
+          background: var(--c-parchment-deep, rgba(0,0,0,0.03));
+          border-radius: 12px;
+          border: 1px solid var(--c-border-light, rgba(0,0,0,0.06));
+        }
+        .sp-dist-title {
+          font-family: var(--font-display);
+          font-size: 1rem;
+          margin-bottom: 1.5rem;
+          text-align: center;
+        }
+        .sp-dist-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+        .sp-dist-row {
+          display: grid;
+          grid-template-columns: 140px 1fr 30px;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .sp-dist-label {
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-align: right;
+          color: var(--c-ink-soft);
+        }
+        .sp-dist-track {
+          height: 12px;
+          background: var(--c-border-light, rgba(0,0,0,0.04));
+          border-radius: 6px;
+          overflow: hidden;
+        }
+        .sp-dist-fill {
+          height: 100%;
+          border-radius: 6px;
+          opacity: 0.85;
+        }
+        .sp-dist-count {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: var(--c-ink);
+        }
+      `}</style>
 
       <AnimatePresence>
         {selectedIdx !== null && (
@@ -1292,8 +1462,8 @@ export default function BooksPage() {
         style={{
           position: "fixed",
           bottom: "6rem",
-          left: "2rem",
-          zIndex: 1000,
+          right: "2rem",
+          zIndex: 50,
         }}
       >
         <IsbnLookup />

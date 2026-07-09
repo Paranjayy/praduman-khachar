@@ -995,6 +995,9 @@ img {
 .channel-link[data-icon="blog"]:hover {
     color: var(--c-amber-light);
 }
+.channel-link[data-icon="linkedin"]:hover {
+    color: #0a66c2;
+}
 .channel-link svg {
     width: 18px;
     height: 18px;
@@ -10259,8 +10262,41 @@ body {
 .sp-empty {
     padding: 4rem;
     text-align: center;
-    opacity: 0.4;
     font-family: var(--font-sans);
+    max-width: 500px;
+    margin: 0 auto;
+}
+.sp-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+.sp-empty-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--c-ink);
+}
+.sp-empty-sub {
+    font-size: 1rem;
+    color: var(--c-ink-soft);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+.sp-empty-reset {
+    background: var(--c-terracotta);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.sp-empty-reset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(184, 85, 58, 0.3);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -12571,12 +12607,14 @@ body {
 
 .career-year {
     font-family: var(--font-sans);
-    font-size: clamp(1.2rem, 3vw, 2.2rem);
+    font-size: clamp(1rem, 2vw, 1.4rem);
     font-weight: 800;
     color: var(--c-terracotta);
-    line-height: 1.1;
+    line-height: 1.2;
     letter-spacing: -0.02em;
     margin-bottom: 0.5rem;
+    white-space: nowrap;
+    padding-top: 0.3rem;
 }
 
 .career-title {
@@ -12773,7 +12811,7 @@ mark {
 
 /* ── Academic Journey Polish ── */
 .career-year {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-size: clamp(1.1rem, 2.4vw, 1.5rem);
     letter-spacing: -0.02em;
 }
 
@@ -12783,8 +12821,8 @@ mark {
 
 .career-grid {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 3rem;
+    grid-template-columns: auto 1fr;
+    gap: 2.5rem 3rem;
     align-items: start;
 }
 
@@ -14334,4 +14372,129 @@ mark {
     .book-compare-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PRINT STYLES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* Hide interactive / non-essential elements */
+  .skip-link,
+  nav,
+  .sp-hero-editorial,
+  .sp-view-toggle,
+  .sp-search,
+  .sp-filters,
+  .sp-page-footer,
+  .sp-stripe-card,
+  .sp-grid-card,
+  .sp-table-wrapper,
+  .reading-list-toggle,
+  .reading-list-panel,
+  .reading-list-backdrop,
+  .isbn-lookup-toggle,
+  .isbn-lookup-panel,
+  .compare-overlay,
+  .compare-fab,
+  .back-to-top,
+  .scroll-progress,
+  .scroll-progress-bar,
+  .offline-banner,
+  .surprise-me,
+  .command-palette-overlay,
+  .help-modal-overlay,
+  .design-customizer,
+  .whatsapp-share,
+  .custom-cursor,
+  footer,
+  .flipbook-overlay {
+    display: none !important;
+  }
+
+  /* Page setup */
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Books page: print as a table */
+  .sp-page {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .sp-page-header {
+    margin-bottom: 1rem;
+  }
+
+  .sp-hero-editorial {
+    display: none !important;
+  }
+
+  .sp-stripe-card,
+  .sp-grid-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Book detail page */
+  .book-detail-page {
+    background: white !important;
+    color: #1a1a1a !important;
+  }
+
+  .book-detail-bg {
+    display: none !important;
+  }
+
+  .book-detail-cover-wrap {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+
+  .book-detail-nav .nav-actions,
+  .book-actions .secondary-btn {
+    display: none !important;
+  }
+
+  .buy-btn {
+    background: #333 !important;
+    color: white !important;
+    box-shadow: none !important;
+  }
+
+  /* Links: show URL */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75rem;
+    color: #666;
+    word-break: break-all;
+  }
+
+  nav a[href]::after,
+  .skip-link::after,
+  .back-link::after,
+  .sp-purchase-link::after,
+  .book-actions a::after {
+    content: none !important;
+  }
+
+  /* Force backgrounds */
+  .category-tag,
+  .book-category-tag,
+  .sp-loc-badge {
+    border: 1px solid currentColor;
+  }
+
+  /* Page breaks */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  .book-detail-grid {
+    grid-template-columns: 250px 1fr !important;
+  }
 }

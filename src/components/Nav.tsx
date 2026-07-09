@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, Moon, Sun, Globe } from "lucide-react";
 import { useScrolled } from "../hooks/useAnimations";
 import { useTheme } from "../hooks/useTheme";
+import { useTracker } from "../hooks/useAnalytics";
 import { SITE } from "../data/content";
 import { CONFIG } from "../config";
 
@@ -15,20 +16,23 @@ export default function Nav() {
   const { pathname } = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
   const moreRef = useRef<HTMLLIElement>(null);
-  const [currentLang, setCurrentLang] = useState('en');
+  const [currentLang, setCurrentLang] = useState("en");
+  const track = useTracker();
 
   useEffect(() => {
     const syncLang = () => {
-      const cookies = document.cookie.split('; ');
-      const googtrans = cookies.find(c => c.startsWith('googtrans='));
+      const cookies = document.cookie.split("; ");
+      const googtrans = cookies.find((c) => c.startsWith("googtrans="));
       if (googtrans) {
-        const val = googtrans.split('=')[1].split('/').pop();
-        if (val && ['en', 'gu', 'hi'].includes(val)) {
+        const val = googtrans.split("=")[1].split("/").pop();
+        if (val && ["en", "gu", "hi"].includes(val)) {
           setCurrentLang(val);
-          const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+          const select = document.querySelector(
+            ".goog-te-combo",
+          ) as HTMLSelectElement;
           if (select && select.value !== val) {
             select.value = val;
-            select.dispatchEvent(new Event('change'));
+            select.dispatchEvent(new Event("change"));
           }
         }
       }
@@ -40,15 +44,19 @@ export default function Nav() {
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const lang = e.target.value;
+    track("lang_switch", lang);
     setCurrentLang(lang);
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    const select = document.querySelector(
+      ".goog-te-combo",
+    ) as HTMLSelectElement;
     if (select) {
       select.value = lang;
-      select.dispatchEvent(new Event('change'));
+      select.dispatchEvent(new Event("change"));
     }
-    document.cookie = `googtrans=/en/${lang === 'en' ? 'en' : lang}; path=/; domain=${window.location.hostname}`;
-    if (lang === 'en') {
-      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = `googtrans=/en/${lang === "en" ? "en" : lang}; path=/; domain=${window.location.hostname}`;
+    if (lang === "en") {
+      document.cookie =
+        "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
       window.location.reload();
     }
@@ -57,7 +65,9 @@ export default function Nav() {
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollTop;
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const windowHeight =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
       if (windowHeight <= 0) return;
       setScrollProgress((totalScroll / windowHeight) * 100);
     };
@@ -106,22 +116,38 @@ export default function Nav() {
   ];
 
   const handleSearchClick = () => {
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+    track("search_open", "search_button");
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }),
+    );
   };
 
   return (
     <nav className={`site-nav${scrolled ? " scrolled" : ""}`}>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <div
         className="scroll-progress-bar"
         style={{
-          position: "absolute", top: 0, left: 0, height: "2.5px",
-          background: "var(--c-terracotta)", width: `${scrollProgress}%`,
-          transition: "width 0.1s ease-out", zIndex: 1000
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "2.5px",
+          background: "var(--c-terracotta)",
+          width: `${scrollProgress}%`,
+          transition: "width 0.1s ease-out",
+          zIndex: 1000,
         }}
       />
-      
+
       <div className="nav-container">
-        <Link to="/" className="nav-brand notranslate" translate="no" style={{ zIndex: 1001 }}>
+        <Link
+          to="/"
+          className="nav-brand notranslate"
+          translate="no"
+          style={{ zIndex: 1001 }}
+        >
           {SITE.name}
         </Link>
 
@@ -129,31 +155,37 @@ export default function Nav() {
         <ul className="nav-links desktop-only">
           {links.slice(0, 5).map((link) => (
             <li key={link.to}>
-              <Link to={link.to} className={pathname === link.to ? "active" : ""}>
+              <Link
+                to={link.to}
+                className={pathname === link.to ? "active" : ""}
+              >
                 {link.label}
               </Link>
             </li>
           ))}
           {links.length > 5 && (
             <li className="nav-more-item" ref={moreRef}>
-              <button 
-                className={`nav-more-trigger${moreOpen ? ' active' : ''}`}
+              <button
+                className={`nav-more-trigger${moreOpen ? " active" : ""}`}
                 onClick={() => setMoreOpen(!moreOpen)}
               >
                 More ▾
               </button>
               <AnimatePresence>
                 {moreOpen && (
-                  <motion.ul 
+                  <motion.ul
                     className="nav-more-dropdown"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {links.slice(5).map(link => (
+                    {links.slice(5).map((link) => (
                       <li key={link.to}>
-                        <Link to={link.to} className={pathname === link.to ? "active" : ""}>
+                        <Link
+                          to={link.to}
+                          className={pathname === link.to ? "active" : ""}
+                        >
                           {link.label}
                         </Link>
                       </li>
@@ -166,11 +198,15 @@ export default function Nav() {
         </ul>
 
         <div className="nav-actions">
-          <button className="nav-search-btn" onClick={handleSearchClick} aria-label="Search">
+          <button
+            className="nav-search-btn"
+            onClick={handleSearchClick}
+            aria-label="Search"
+          >
             <Search size={18} />
             <span className="nav-search-kbd">⌘K</span>
           </button>
-          
+
           <div className="lang-switcher-wrap">
             <Globe size={16} />
             <select
@@ -184,11 +220,25 @@ export default function Nav() {
             </select>
           </div>
 
-          <button className="theme-toggle" onClick={toggle} aria-label="Toggle Theme">
+          <button
+            className="theme-toggle"
+            onClick={() => {
+              track("theme_toggle", dark ? "light" : "dark");
+              toggle();
+            }}
+            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+          >
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <button className="nav-toggle-premium" onClick={() => setOpen(!open)} aria-label="Menu">
+          <button
+            className="nav-toggle-premium"
+            onClick={() => {
+              track("nav_toggle", open ? "close" : "open");
+              setOpen(!open);
+            }}
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -205,13 +255,17 @@ export default function Nav() {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <div className="mobile-nav-content">
-              <motion.ul 
+              <motion.ul
                 className="mobile-nav-links"
                 initial="closed"
                 animate="open"
                 variants={{
-                  open: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
-                  closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
+                  open: {
+                    transition: { staggerChildren: 0.07, delayChildren: 0.2 },
+                  },
+                  closed: {
+                    transition: { staggerChildren: 0.05, staggerDirection: -1 },
+                  },
                 }}
               >
                 {links.map((link) => (
@@ -219,7 +273,7 @@ export default function Nav() {
                     key={link.to}
                     variants={{
                       open: { y: 0, opacity: 1 },
-                      closed: { y: 20, opacity: 0 }
+                      closed: { y: 20, opacity: 0 },
                     }}
                   >
                     <Link
@@ -233,13 +287,15 @@ export default function Nav() {
                 ))}
               </motion.ul>
 
-              <motion.div 
+              <motion.div
                 className="mobile-nav-footer"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <p className="mobile-nav-site-info">© {new Date().getFullYear()} {SITE.name}</p>
+                <p className="mobile-nav-site-info">
+                  © {new Date().getFullYear()} {SITE.name}
+                </p>
               </motion.div>
             </div>
           </motion.div>
@@ -247,19 +303,19 @@ export default function Nav() {
       </AnimatePresence>
 
       <style>{`
-        .nav-container { 
-          display: flex; 
-          justify-content: space-between; 
-          align-items: center; 
-          width: 100%; 
-          max-width: var(--max-w); 
+        .nav-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          max-width: var(--max-w);
           margin: 0 auto;
           padding: 0 var(--space-lg);
           min-height: 4rem;
         }
         .desktop-only { display: flex; list-style: none; gap: 0.5rem; align-items: center; }
         .nav-toggle-premium { display: none; background: none; border: none; cursor: pointer; color: var(--c-ink); padding: 5px; }
-        
+
         .nav-more-item { position: relative; display: flex; align-items: center; }
         .nav-more-trigger {
           background: none;
@@ -279,7 +335,7 @@ export default function Nav() {
           border-radius: 6px;
         }
         .nav-more-trigger:hover, .nav-more-trigger.active { color: var(--c-terracotta); background: oklch(0.5 0 0 / 0.03); }
-        
+
         .nav-more-dropdown {
           position: absolute;
           top: calc(100% + 10px);
@@ -296,7 +352,7 @@ export default function Nav() {
           flex-direction: column;
           gap: 4px;
         }
-        
+
         .nav-more-dropdown a {
           display: block;
           padding: 10px 16px;
@@ -306,12 +362,12 @@ export default function Nav() {
           border-radius: 8px;
           transition: all 0.2s ease;
         }
-        
+
         .nav-more-dropdown a:hover {
           background: var(--c-border-light);
           color: var(--c-ink);
         }
-        
+
         .nav-more-dropdown a.active {
           color: var(--c-terracotta);
           background: color-mix(in oklch, var(--c-terracotta) 10%, transparent);
@@ -328,12 +384,12 @@ export default function Nav() {
           color: var(--c-ink-soft);
           transition: all 0.3s ease;
         }
-        
+
         .lang-switcher-wrap:hover {
           border-color: var(--c-terracotta);
           color: var(--c-terracotta);
         }
-        
+
         .lang-select-premium {
           background: none;
           border: none;
@@ -345,55 +401,56 @@ export default function Nav() {
           outline: none;
           padding-right: 4px;
         }
-        
+
         .mobile-nav-overlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: color-mix(in oklch, var(--c-parchment) 95%, transparent);
+          background: var(--c-parchment);
           backdrop-filter: blur(20px) saturate(1.5);
-          z-index: 1000;
+          z-index: 1500;
           display: flex;
           flex-direction: column;
-          padding-top: 6rem;
+          padding-top: 5rem;
+          overflow-y: auto;
         }
-        
+
         .mobile-nav-content {
           padding: 0 var(--space-xl);
           display: flex;
           flex-direction: column;
           height: 100%;
         }
-        
+
         .mobile-nav-links {
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1.1rem;
         }
-        
+
         .mobile-nav-links a {
           font-family: var(--font-display);
-          font-size: 2.2rem;
+          font-size: 1.6rem;
           font-weight: 700;
           color: var(--c-ink-muted);
           text-decoration: none;
           transition: color 0.3s ease;
         }
-        
+
         .mobile-nav-links a.active {
           color: var(--c-terracotta);
         }
-        
+
         .mobile-nav-footer {
           margin-top: auto;
           padding-bottom: 3rem;
           border-top: 1px solid var(--c-border-light);
           padding-top: 2rem;
         }
-        
+
         .mobile-nav-site-info {
           font-family: var(--font-body);
           font-size: 0.8rem;
@@ -407,7 +464,26 @@ export default function Nav() {
           .nav-toggle-premium { display: block; }
           .nav-search-kbd { display: none; }
         }
-        
+
+        .skip-link {
+          position: absolute;
+          top: -100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--c-terracotta);
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 0 0 8px 8px;
+          font-weight: 700;
+          font-size: 0.85rem;
+          z-index: 10001;
+          text-decoration: none;
+          transition: top 0.2s;
+        }
+        .skip-link:focus {
+          top: 0;
+        }
+
         @media (max-width: 600px) {
            .nav-brand { font-size: 0.9rem; }
            .lang-switcher-wrap { padding: 4px 6px; }

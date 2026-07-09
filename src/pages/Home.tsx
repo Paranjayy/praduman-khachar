@@ -17,21 +17,40 @@ export default function HomePage() {
   const revealRef = useScrollReveal();
 
   return (
-    <div className="home-reveal-wrapper">
-      <section id="hero" ref={revealRef}><Hero /></section>
-      <section id="stats" ref={revealRef}><StatsRibbon /></section>
-      <section id="today" ref={revealRef}><OnThisDay /></section>
-      <section id="talks" ref={revealRef}><FeaturedTalks /></section>
-      <section id="about" ref={revealRef}><About /></section>
-      <section id="achievements" ref={revealRef}><Achievements /></section>
-      <section id="career" ref={revealRef}><Career /></section>
-      <section id="testimonials" ref={revealRef}><Testimonials /></section>
-      <section id="media" ref={revealRef}><MediaSection /></section>
-      <section id="support" ref={revealRef}><Support /></section>
-      <section id="contact" ref={revealRef}><Contact /></section>
+    <div id="main-content" className="home-reveal-wrapper">
+      <section id="hero" ref={revealRef}>
+        <Hero />
+      </section>
+      <section id="stats" ref={revealRef}>
+        <StatsRibbon />
+      </section>
+      <section id="today" ref={revealRef}>
+        <OnThisDay />
+      </section>
+      <section id="talks" ref={revealRef}>
+        <FeaturedTalks />
+      </section>
+      <section id="about" ref={revealRef}>
+        <About />
+      </section>
+      <section id="achievements" ref={revealRef}>
+        <Achievements />
+      </section>
+      <section id="career" ref={revealRef}>
+        <Career />
+      </section>
+      <section id="testimonials" ref={revealRef}>
+        <Testimonials />
+      </section>
+      <section id="media" ref={revealRef}>
+        <MediaSection />
+      </section>
+      <section id="support" ref={revealRef}>
+        <Support />
+      </section>
+      <section id="contact" ref={revealRef}>
+        <Contact />
+      </section>
     </div>
   );
 }
-
-
-

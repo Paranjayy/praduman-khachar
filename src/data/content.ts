@@ -100,6 +100,11 @@ export const SOCIALS = [
     icon: "spotify",
   },
   {
+    name: "LinkedIn",
+    url: "https://www.linkedin.com/in/pradumankhachar/",
+    icon: "linkedin",
+  },
+  {
     name: "Blog",
     url: "https://khacharpraduman6.blogspot.com/",
     icon: "blog",
@@ -109,6 +114,7 @@ export const SOCIALS = [
 export const BOOKS: Book[] = [
   {
     title: "Kathi Itihas Ane Sanskriti",
+    slug: "kathi-itihas-ane-sanskriti",
     titleGu: "કાઠી ઈતિહાસ અને સંસ્કૃતિ",
     year: "1997",
     category: "kathi",
@@ -133,6 +139,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Prachin Bharat Na Videshi Yatri",
+    slug: "prachin-bharat-na-videshi-yatri",
     titleGu: "પ્રાચીન ભારતના વિદેશીયાત્રી",
     year: "2000",
     category: "history",
@@ -155,6 +162,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Bhuchar Mori Ni Ladai",
+    slug: "bhuchar-mori-ni-ladai",
     titleGu: "ભૂચર મોરીની લડાઈ",
     year: "2000",
     category: "battles",
@@ -170,6 +178,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Suman",
+    slug: "itihas-suman",
     titleGu: "ઈતિહાસ સુમન",
     year: "2001",
     category: "history",
@@ -184,6 +193,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Bahauddin College: Ek Aitihasik Adhyayan",
+    slug: "bahauddin-college-ek-aitihasik-adhyayan",
     titleGu: "સોરઠની વિદ્યાપીઠ બહાઉદ્દીન કોલેજ",
     year: "2002",
     category: "institutional",
@@ -198,6 +208,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Etale ?",
+    slug: "itihas-etale",
     titleGu: "ઈતિહાસ એટલે ?",
     year: "2003",
     category: "history",
@@ -210,6 +221,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Grantho Ane Shilalekho",
+    slug: "grantho-ane-shilalekho",
     titleGu: "ગ્રંથો અને શિલાલેખો",
     year: "2003",
     category: "epigraphy",
@@ -222,6 +234,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Bhule Bisre Aaine",
+    slug: "bhule-bisre-aaine",
     titleGu: "ભૂલે બિસરે આઈને",
     year: "2004",
     category: "history",
@@ -234,6 +247,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Tavarikh",
+    slug: "tavarikh",
     titleGu: "તવારીખ",
     year: "2004",
     category: "essays",
@@ -246,6 +260,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Shashko Ni Vanshavalio",
+    slug: "shashko-ni-vanshavalio",
     titleGu: "સૌરાષ્ટ્ર ગુજરાતના શાસકોની વંશાવળીઓ",
     year: "2005",
     category: "genealogy",
@@ -258,6 +273,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Kathiyavad Sarvasangrah",
+    slug: "kathiyavad-sarvasangrah",
     titleGu: "કાઠિયાવાડ સર્વસંગ્રહ - કર્નલ વોટસન કૃત",
     year: "2005",
     category: "history",
@@ -270,6 +286,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Kathiyavad Na Rajvio",
+    slug: "kathiyavad-na-rajvio",
     titleGu: "કાઠિયાવાડના રાજવીઓ",
     year: "2005",
     category: "royals",
@@ -282,6 +299,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Swaminarayan Sampraday Ma Kathi Darbaro",
+    slug: "swaminarayan-sampraday-ma-kathi-darbaro",
     titleGu: "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન",
     year: "2006",
     category: "religion",
@@ -294,6 +312,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Kathio Ane Kathiyavad",
+    slug: "kathio-ane-kathiyavad",
     titleGu: "કાઠીઓ અને કાઠિયાવાડ (પીએચ.ડી.મહાનિબંધ)",
     year: "2006",
     category: "kathi",
@@ -306,6 +325,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Babi Rajvansh Na Gito",
+    slug: "babi-rajvansh-na-gito",
     titleGu: "બાબી રાજવંશના ગીતો",
     year: "2007",
     category: "heritage",
@@ -318,6 +338,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Manjusha",
+    slug: "itihas-manjusha",
     titleGu: "ઈતિહાસ મંજૂષા",
     year: "2008",
     category: "essays",
@@ -330,6 +351,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Dr. Shambhuprasad Desai",
+    slug: "dr-shambhuprasad-desai",
     titleGu: "શતદલ વ્યક્તિત્વ ડૉ.શંભુપ્રસાદ દેસાઈ",
     year: "2008",
     category: "biography",
@@ -342,6 +364,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Girnar No Itihas",
+    slug: "girnar-no-itihas",
     titleGu: "ગિરનારનો ઈતિહાસ",
     year: "2009",
     category: "history",
@@ -361,6 +384,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Saurashtra No Gauravvanto Itihas",
+    slug: "saurashtra-no-gauravvanto-itihas",
     titleGu: "સૌરાષ્ટ્રનો ગૌરવવંતો ઈતિહાસ",
     year: "2010",
     category: "history",
@@ -373,6 +397,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Tasviroma Junagadh",
+    slug: "tasviroma-junagadh",
     titleGu: "તસવીરોમાં જૂનાગઢ",
     year: "2011",
     category: "history",
@@ -399,6 +424,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Sorath Sarkar",
+    slug: "sorath-sarkar",
     titleGu: "સોરઠ સરકાર નવાબ મહાબતખાનજી",
     year: "2012",
     category: "governance",
@@ -411,6 +437,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Sanshodhak Parichay",
+    slug: "sanshodhak-parichay",
     titleGu: "સંશોધક પરિચય",
     year: "2012",
     category: "history",
@@ -423,6 +450,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Gir Girnar Na Mandiro",
+    slug: "gir-girnar-na-mandiro",
     titleGu: "ગિર ગિરનારના મંદિરો",
     year: "2013",
     category: "architecture",
@@ -435,6 +463,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Ni Ajani Vato",
+    slug: "itihas-ni-ajani-vato",
     titleGu: "ઈતિહાસની અજાણી વાતો",
     year: "2015",
     category: "history",
@@ -446,6 +475,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Varidhi",
+    slug: "itihas-varidhi",
     titleGu: "ઈતિહાસ વારિધિ",
     year: "2016",
     category: "history",
@@ -457,6 +487,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Swaminarayan Sampraday (Revised)",
+    slug: "swaminarayan-sampraday-revised",
     titleGu:
       "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન (સંવર્ધિત આવૃત્તિ)",
     year: "2017",
@@ -469,6 +500,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Kathio No Itihas",
+    slug: "kathio-no-itihas",
     titleGu: "કાઠીઓનો ઈતિહાસ (ગુજરાતી) કર્નલ વોટસન કૃત",
     year: "2019",
     category: "kathi",
@@ -480,6 +512,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "History of Kathi",
+    slug: "history-of-kathi",
     titleGu: "હિસ્ટ્રી ઓફ કાઠી (અંગ્રેજી) કર્નલ વોટસન કૃત",
     year: "2019",
     category: "kathi",
@@ -491,6 +524,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Saurashtra Na Prasiddh Rajvio",
+    slug: "saurashtra-na-prasiddh-rajvio",
     titleGu: "સૌરાષ્ટ્રના પ્રસિદ્ધ રાજવીઓ",
     year: "2020",
     category: "royals",
@@ -502,6 +536,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Gir Somnath Historical Places",
+    slug: "gir-somnath-historical-places",
     titleGu: "ગિર સોમનાથ જીલ્લાના ઐતિહાસિક સ્થળો",
     year: "2020",
     category: "history",
@@ -513,6 +548,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Kathiyavad Ni Rasdhar",
+    slug: "kathiyavad-ni-rasdhar",
     titleGu: "કાઠિયાવાડની રસધાર",
     year: "2021",
     category: "literature",
@@ -538,6 +574,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Sorath Ane Barda Region History",
+    slug: "sorath-ane-barda-region-history",
     titleGu: "સોરઠ અને બરડા પ્રદેશનો ઈતિહાસ",
     year: "2022",
     category: "history",
@@ -549,6 +586,7 @@ export const BOOKS: Book[] = [
   },
   {
     title: "Itihas Ni Atarie Thi",
+    slug: "itihas-ni-atarie-thi",
     titleGu: "ઈતિહાસની અટારીએથી",
     year: "2024",
     category: "history",
@@ -907,7 +945,7 @@ export const CAREER: CareerItem[] = [
     desc: "Indian National Trust for Art and Cultural Heritage",
   },
   {
-    period: "2012 – Present",
+    period: "Since 2008",
     title: "Ph.D. Guide",
     place: "Saurashtra University",
     desc: "Guided 4 Ph.D. scholars to completion, 3 currently under guidance",
