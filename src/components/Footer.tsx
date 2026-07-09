@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SITE, SOCIALS } from "../data/content";
-import { VisitCounter } from "./VisitCounter";
 
 const ICONS: Record<string, (size: number) => JSX.Element> = {
   youtube: (s) => (
@@ -62,12 +61,29 @@ const FOOTER_LINKS = [
   { label: "Citations", to: "/citations" },
   { label: "Map", to: "/map" },
   { label: "Labs", to: "/labs" },
-  { label: "Live Stats", to: "/stats" },
 ];
+
+
+
+function formatRelative(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  const hours = Math.floor(mins / 60);
+  const days = Math.floor(hours / 24);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 30) return `${days}d ago`;
+  return d.toLocaleDateString();
+}
 
 export default function Footer() {
   const year = new Date().getFullYear();
   const [ingestionStats, setIngestionStats] = useState<{ ok: number; total: number } | null>(null);
+  const [shareLabel, setShareLabel] = useState("Share");
+  const [builtAt, setBuiltAt] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/data/videos.json')
@@ -79,6 +95,14 @@ export default function Footer() {
         });
       })
       .catch(() => {});
+    fetch('/build-info.json')
+      .then(r => r.json())
+      .then(data => {
+        if (data?.builtAt) setBuiltAt(data.builtAt);
+      })
+      .catch(() => {
+        setBuiltAt(new Date().toISOString());
+      });
   }, []);
 
   return (
@@ -110,6 +134,52 @@ export default function Footer() {
         .footer-social-icon-link svg {
           width: 18px;
           height: 18px;
+        }
+        .footer-bottom {
+          flex-wrap: wrap;
+          gap: 0.6rem 1rem;
+        }
+        .footer-bottom-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem 0.8rem;
+          align-items: center;
+          font-family: var(--font-body);
+          font-size: 0.78rem;
+          color: var(--c-ink-muted);
+        }
+        .footer-bottom-row a { color: var(--c-ink-muted); text-decoration: none; }
+        .footer-bottom-row a:hover { color: var(--c-terracotta); }
+        .footer-sep { opacity: 0.4; }
+        .footer-share-btn {
+          background: none;
+          border: 1px solid var(--c-border);
+          color: var(--c-ink-muted);
+          font-family: inherit;
+          font-size: inherit;
+          padding: 4px 10px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .footer-share-btn:hover { color: var(--c-terracotta); border-color: var(--c-terracotta); }
+        .footer-build-info {
+          font-family: var(--font-body);
+          font-size: 0.72rem;
+          color: var(--c-ink-muted);
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .build-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--c-sage);
+          box-shadow: 0 0 6px var(--c-sage);
         }
       `}</style>
       <footer className="site-footer">
@@ -158,54 +228,45 @@ export default function Footer() {
           </div>
 
           <div className="footer-bottom">
-            <div className="footer-meta-left">
-              <span className="footer-copy">
-                © {year} <span className="notranslate" translate="no">{SITE.name}</span>
-              </span>
+            <div className="footer-bottom-row">
+              <span>© {year} <span className="notranslate" translate="no">{SITE.name}</span></span>
               <span className="footer-sep">·</span>
-              <Link to="/legal/privacy" className="footer-legal-link">Privacy</Link>
+              <Link to="/legal/privacy">Privacy</Link>
               <span className="footer-sep">·</span>
-              <Link to="/legal/terms" className="footer-legal-link">Terms</Link>
+              <Link to="/legal/terms">Terms</Link>
               <span className="footer-sep">·</span>
               <span>{SITE.location}</span>
               <span className="footer-sep">·</span>
-              <VisitCounter compact />
-              <span className="footer-sep">·</span>
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.origin);
+                className="footer-share-btn"
+                onClick={async () => {
+                  const url = window.location.origin;
+                  try {
+                    await navigator.clipboard.writeText(url);
+                    setShareLabel("Copied!");
+                  } catch {
+                    setShareLabel("Press ⌘C");
+                  }
+                  setTimeout(() => setShareLabel("Share"), 1500);
                 }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--c-ink-muted)",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  fontSize: "inherit",
-                  padding: 0,
-                  textDecoration: "underline",
-                }}
-                title="Copy portfolio URL"
+                title="Copy site URL"
               >
-                🔗 Share
+                🔗 {shareLabel}
               </button>
             </div>
 
-            <div className="footer-status-pills">
+            <div className="footer-bottom-row">
               {ingestionStats && (
-                <div className="footer-status-pill" title="Transcript Ingestion Status">
-                  <span className="status-dot pulse" />
-                  <span>{ingestionStats.ok}/{ingestionStats.total} Transcripts</span>
-                </div>
+                <span title="Transcript Ingestion Status">
+                  <span className="build-dot" style={{ background: "#c4882d" }} />
+                  {ingestionStats.ok}/{ingestionStats.total} Transcripts
+                </span>
               )}
-              <Link to="/stats" className="footer-status-pill" title="View live stats">
-                <span className="status-dot pulse" style={{ background: "#4ade80" }} />
-                <span>Live Stats</span>
-              </Link>
-              <div className="footer-build-info" title="Deployment Telemetry">
-                <span className="build-dot"></span>
-                <span>Last Updated 6 May 2026 03:16</span>
-              </div>
+              <span className="footer-sep">·</span>
+              <span className="footer-build-info" title={builtAt ? `Built ${new Date(builtAt).toLocaleString()}` : "Loading…"}>
+                <span className="build-dot" />
+                {builtAt ? <>Updated {formatRelative(builtAt)}</> : "Updated…"}
+              </span>
             </div>
           </div>
         </div>

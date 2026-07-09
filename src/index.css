@@ -6433,8 +6433,8 @@ body {
     padding-top: 1.25rem;
     margin-top: 0.5rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.7rem;
     font-size: 0.78rem;
     color: var(--c-ink-muted);
     flex-wrap: wrap;
