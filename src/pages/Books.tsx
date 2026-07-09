@@ -249,7 +249,6 @@ function BookSpine({
       <div className="sp-spine-inner">
         <div className="sp-spine-num">{String(index + 1).padStart(2, "0")}</div>
         <div className="sp-spine-loc">LOC</div>
-        <div className="sp-spine-author">Dr. Praduman Khachar</div>
         <div className="sp-spine-title-wrap">
           <div className="sp-spine-title">
             {search
@@ -293,19 +292,6 @@ function BookSpine({
           {isComparing ? "✓" : "⊞"}
         </button>
         <div className="sp-spine-arrow">→</div>
-      </div>
-      {/* Hover cover preview */}
-      <div className="sp-hover-preview">
-        <div className="sp-hover-preview-spine" />
-        <span className="sp-hover-preview-letter">{book.title.charAt(0)}</span>
-        <div className="sp-hover-preview-info">
-          <div className="sp-hover-preview-title">
-            {book.titleGu || book.title}
-          </div>
-          <div className="sp-hover-preview-year">
-            {book.year} · {BOOK_CATEGORIES[book.category]}
-          </div>
-        </div>
       </div>
     </motion.div>
   );

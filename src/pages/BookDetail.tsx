@@ -612,8 +612,8 @@ export default function BookDetail() {
 
         .book-meta-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 1.5rem 2.5rem;
           margin-bottom: 4rem;
           border-top: 1px solid var(--c-border-light);
           padding-top: 2rem;

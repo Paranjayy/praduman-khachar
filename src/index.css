@@ -10097,6 +10097,21 @@ body {
     opacity: 1;
     transform: translateX(5px);
 }
+
+@media (max-width: 900px) {
+    .sp-spine-list { padding: 0.5rem 1rem 3rem; gap: 8px; }
+    .sp-spine-inner {
+        grid-template-columns: 2.5rem 1fr 4rem 1.5rem;
+        gap: 0.8rem;
+        padding: 1rem 1.2rem;
+        min-height: 80px;
+    }
+    .sp-spine-loc { display: none; }
+    .sp-spine-cat { display: none; }
+    .sp-spine-title { font-size: 1.1rem; }
+    .sp-spine-titlegu { font-size: 0.9rem; }
+    .sp-spine-year { font-size: 0.95rem; }
+}
 .sp-spine-accent-bar {
     position: absolute;
     left: 0;
@@ -13349,14 +13364,14 @@ mark {
     opacity: 0.08;
 }
 
-/* Hover cover preview tooltip */
+/* Hover cover preview tooltip — hidden by default, shows outside card on hover */
 .sp-spine-card .sp-hover-preview {
     position: absolute;
     top: 50%;
-    right: 2rem;
-    transform: translateY(-50%) translateX(10px);
-    width: 180px;
-    height: 260px;
+    right: 0;
+    transform: translate(calc(100% + 24px), -50%) scale(0.9);
+    width: 170px;
+    height: 240px;
     border-radius: 6px 16px 16px 6px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     overflow: hidden;
@@ -13375,7 +13390,7 @@ mark {
 }
 .sp-spine-card:hover .sp-hover-preview {
     opacity: 1;
-    transform: translateY(-50%) translateX(0);
+    transform: translate(calc(100% + 24px), -50%) scale(1);
 }
 .sp-hover-preview-letter {
     font-family: var(--font-display);
@@ -13417,115 +13432,6 @@ mark {
 
 [data-theme="dark"] .sp-spine-card:hover {
     background: color-mix(in srgb, var(--sp-bg, #1a1a1a) 80%, white 20%);
-}
-
-.sp-spine-inner {
-    display: grid;
-    grid-template-columns: 2.5rem 3rem minmax(8rem, 1fr) 2fr auto 3.5rem 1.5rem;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.25rem 2rem;
-    position: relative;
-    z-index: 5;
-}
-
-.sp-spine-num {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--sp-accent);
-    opacity: 0.4;
-    width: 40px;
-}
-.sp-spine-loc {
-    font-size: 0.65rem;
-    font-weight: 900;
-    padding: 4px 8px;
-    background: var(--sp-accent);
-    color: white;
-    border-radius: 4px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-.sp-spine-author {
-    font-family: var(--font-sans);
-    font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.3;
-    white-space: nowrap;
-    color: var(--c-ink);
-}
-[data-theme="dark"] .sp-spine-author {
-    color: #e8e4dc;
-}
-
-.sp-spine-title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    color: var(--c-ink);
-}
-[data-theme="dark"] .sp-spine-title {
-    color: #e8e4dc;
-}
-
-.sp-spine-titlegu {
-    font-size: 1.1rem;
-    opacity: 0.4;
-    margin-top: 4px;
-    font-weight: 500;
-    color: var(--c-ink-soft);
-}
-[data-theme="dark"] .sp-spine-titlegu {
-    color: rgba(232, 228, 220, 0.5);
-}
-
-.sp-spine-cat {
-    font-size: 0.8rem;
-    font-weight: 900;
-    color: var(--sp-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    width: 150px;
-}
-
-.sp-spine-year {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    opacity: 0.3;
-    width: 80px;
-    color: var(--c-ink);
-}
-[data-theme="dark"] .sp-spine-year {
-    color: #e8e4dc;
-}
-
-.sp-spine-arrow {
-    font-size: 1.5rem;
-    opacity: 0;
-    transform: translateX(-20px);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    color: var(--sp-accent);
-}
-.sp-spine-bookmark {
-    background: none;
-    border: none;
-    font-size: 1.1rem;
-    cursor: pointer;
-    color: var(--c-ink-muted);
-    opacity: 0;
-    transition: all 0.3s ease;
-    padding: 0;
-    line-height: 1;
 }
 .sp-spine-card:hover .sp-spine-bookmark {
     opacity: 0.6;
