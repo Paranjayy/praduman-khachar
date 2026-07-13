@@ -7,7 +7,7 @@ export default function AboutPage() {
     <main className="page-content">
       <PageHeader
         label="About"
-        title="Dr. Pradumankumar B. Khachar"
+        title="Dr. Praduman Khachar"
         subtitle="Historian · Author · Researcher · PhD Guide"
       />
       <section className="section">
@@ -22,7 +22,7 @@ export default function AboutPage() {
             </p>
             <p>
               Based in Junagadh, at the foothills of the sacred Girnar mountain,
-              Dr. Khachar has spent over three decades at {SITE.institution},
+              Dr. Praduman Khachar has spent over three decades at {SITE.institution},
               combining rigorous scholarship with passionate storytelling. His
               historical exhibitions across Gujarat have brought forgotten
               chapters of regional heritage to life for thousands.
@@ -103,7 +103,7 @@ export default function AboutPage() {
         <h2 className="section-title">Tribute &amp; Peer Recognition</h2>
         <div className="section-divider" />
         <p className="section-lead" style={{ marginBottom: "2rem" }}>
-          Dr. Khachar's contributions have inspired peer scholars to dedicate
+          Dr. Praduman Khachar's contributions have inspired peer scholars to dedicate
           volumes to his work and to the broader field of Saurashtra history.
           Below are a few tributes from colleagues, students, and admirers.
         </p>
@@ -118,8 +118,8 @@ export default function AboutPage() {
           <TributeCard
             title="કાઠીઓનો ઇતિહાસ"
             titleEn="History of the Kathis"
-            author="Col. J. Kabadi Watson (edited by Dr. Khachar)"
-            blurb="A foundational edition of Col. Watson's pioneering work on the Kathi community, brought to publication under Dr. Khachar's editorial guidance."
+            author="Col. J. Kabadi Watson (edited by Dr. Praduman Khachar)"
+            blurb="A foundational edition of Col. Watson's pioneering work on the Kathi community, brought to publication under Dr. Praduman Khachar's editorial guidance."
             accent="#c5a55a"
           />
           <TributeCard

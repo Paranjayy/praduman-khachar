@@ -212,3 +212,121 @@ A curated backlog of features for the Praduman Khachar portfolio site, ranked by
 3. **#11 PDF reader** — makes the books actually accessible
 4. **#2 Newsletter** — builds a direct channel to his audience
 5. **#1 On This Day** — adds daily freshness, cheap to ship
+
+---
+
+## 🖼️ Gallery: HD/SD + Watermark model (fleshed out 2026-07-13)
+
+Two-tier image delivery for the Gujarat Column newspaper archive:
+
+### Free tier (default, what everyone sees)
+- **Low-resolution preview** (~1000px wide, 75% quality JPEG, ~150–250KB each)
+- **Visible watermark** baked in: diagonal repeating "praduman.com" + "PREVIEW" overlay
+- Visible in masonry grid + lightbox view
+- Cannot download the file (right-click disabled, no download button exposed)
+- If user inspects the URL they still get the low-res watermarked version
+
+### Paid tier (membership)
+- **Full-resolution original** (2500px+ wide, lossless, ~2–4MB each)
+- **No watermark** or invisible forensic watermark
+- Download button enabled
+- "Original scan" badge on tile
+- Direct download from `/api/membership/download?id=g0001&token=...`
+
+### Technical plan
+
+1. **Source separation**:
+   - `public/gallery/preview/` — downscaled + watermarked versions (auto-generated at build)
+   - `public/gallery/originals/` — HD scans (private, not in public bundle, served via signed URL)
+
+2. **Build-time pipeline** (extend `scripts/gen-gallery.mjs`):
+   - For each original: generate a 1000px-wide preview at q=75
+   - Apply diagonal watermark using `sharp` (text + opacity 0.3, repeat every 300px)
+   - Write to `public/gallery/preview/`
+   - `manifest.json` gets both URLs: `previewSrc` (free) + `originalSrc` (gated)
+
+3. **Server-side gate** (`api/membership/download.ts`):
+   - Verifies membership via Razorpay subscription ID or session token
+   - Generates signed URL valid for 5 minutes
+   - Returns 402 if no active membership
+   - Logs every download for audit
+
+4. **Auth (deferred, not blocking)**
+   - Magic-link email auth (Resend) → JWT in httpOnly cookie
+   - Razorpay subscription webhook → upgrades account to "member"
+   - `/membership` page: pricing, benefits, manage subscription
+   - For now, a mock auth that flips a `pk_member` flag in localStorage so we can develop the UI
+
+5. **Column clipping rule** (per your instruction):
+   - Newspaper **clippings** → SD preview + watermark, HD gated
+   - Newspaper **full columns** / PDFs (e.g. "રૂપાળું નામ.pdf") → always HD, no watermark, free
+   - Reason: columns are owned by the author; clippings are scans of third-party papers and need protection
+
+6. **UI changes needed in Gallery page**:
+   - Tile shows preview + small "🔒 HD" badge
+   - Lightbox HD button: if member → direct download, if not → upgrade modal
+   - Add a member-only "Originals" tab in the toolbar
+   - Show member status indicator in nav (subtle crown icon when logged in)
+
+7. **Open questions to decide later with your father**:
+   - Pricing tiers (monthly? annual? one-time per clipping?)
+   - What exactly is "member" — just HD, or also early access to new videos, etc.?
+   - Refund policy
+   - Regional pricing (Gujarat readers vs international)
+
+---
+
+## 🐛 Quirks to fix later (parking lot)
+
+Things noticed but not urgent — revisit when you have time to test.
+
+- **Mobile menu overflow** on phones <360px wide — links wrap weirdly
+- **Gujarati text rendering** — some Gujarati characters look slightly off in headings; likely a font fallback issue (verify Noto Sans Gujarati loads on all devices)
+- **Touch zoom in lightbox** — pinch-to-zoom not wired, only button zoom
+- **Search input** in Gallery doesn't actually filter yet (placeholder only, waiting for OCR'd metadata)
+- **Book detail TOC** can be very long for some books; needs scroll-to-chapter anchors
+- **Hero marquee** — items cut off on narrow viewports
+- **Stats page** warning text is jarring; soften the tone
+- **Books spine hover state** — the slight slide animation can feel jumpy on slow connections
+- **Print stylesheet** for BookDetail — only covers basic; could be more thorough
+- **404 page** — currently generic; could have a "back to safety" theme
+- **Image lazy loading** — works on Gallery but not yet on BookDetail covers
+- **Spine view bookmark icon** sometimes appears on the right edge on tablets
+- **Trailing slash redirects** — `/about` vs `/about/` not consistent
+- **Service worker / offline** — not implemented, would fix "blank page on flaky network"
+
+---
+
+## 🛣️ CMS for your father (deferred big project)
+
+When you want your father to edit his own content without you in the loop:
+
+### Option A: Supabase (recommended, fastest)
+- Supabase Postgres for book metadata, clipping metadata, achievements
+- Supabase Auth with magic link (your father's email)
+- Supabase Storage for original images / new book scans
+- `/admin` route (already exists) → protected by Supabase auth
+- UI: simple form to upload new clipping, add book ISBN, update bio
+- Cost: free tier covers everything (500MB DB, 1GB storage, 50K auth users)
+
+### Option B: Vercel KV + UploadThing
+- Vercel KV (Redis) for key/value content
+- UploadThing for file uploads
+- Less flexible queries, but simpler
+
+### Option C: Markdown files in repo (current model, slightly upgraded)
+- Your father edits `.md` files in a separate Git branch
+- Vercel preview deploys for review
+- You merge & ship
+- Pros: no auth, no DB, version-controlled
+- Cons: requires him to learn git/markdown basics, or you to be in the loop
+
+### Recommendation
+Start with Option A (Supabase). It's the most professional, scales to anything he wants to add later (events, press mentions, new book releases), and has a great free tier.
+
+### Build estimate
+- Auth + protected admin route: 1 day
+- CRUD for books, clippings, achievements: 2–3 days
+- Image upload + processing: 1 day
+- Polish + your father's onboarding: 1 day
+

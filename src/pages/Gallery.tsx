@@ -95,7 +95,7 @@ export default function Gallery() {
       <PageHeader
         label="Archive"
         title="Gujarat Column"
-        subtitle="ગુજરાત કોલમ — A growing archive of Dr. Khachar's published newspaper columns from regional Gujarati dailies. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
+        subtitle="ગુજરાત કોલમ — A growing archive of Dr. Praduman Khachar's published newspaper columns from regional Gujarati dailies including Gujarat Samachar. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
         dark
       />
 
