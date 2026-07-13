@@ -1,24 +1,22 @@
 /**
- * /gallery — Newspaper column archive (Gujarat Column)
+ * /gallery — Multi-outlet newspaper column archive
  *
- * Public archive of Dr. Praduman Khachar's "ગુજરાત કોલમ" newspaper column
- * published in regional Gujarati newspapers. Images are the public, free
- * preview-quality scans. High-resolution originals and metadata are
- * reserved for the (forthcoming) membership tier.
+ * Three columns published by Dr. Praduman Khachar across regional
+ * Gujarati dailies:
+ *   1. Gujarat Column (Gujarat Samachar)
+ *   2. Fulchhab Column (Fulchhab)
+ *   3. Mumbai Samachar Column
  *
- * The manifest at /public/gallery/manifest.json is generated at build time
- * (see scripts/gen-gallery.mjs). The full original image is also served
- * from /public/gallery/ — for now the same files are the "HD" version,
- * but the gate is wired in so adding paid HD sources later is one config
- * change.
+ * Free tier: low-res watermarked preview.
+ * Paid tier (membership, coming soon): HD original downloads.
+ *
+ * Manifest at /public/gallery/manifest.json is generated at build time.
  */
 
 import { useEffect, useState, useMemo } from "react";
 import {
   X,
-  Download,
   Lock,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   ZoomIn,
@@ -28,6 +26,9 @@ import {
   Grid as GridIcon,
   Search,
   ArrowUpRight,
+  Download,
+  Newspaper,
+  FileText,
 } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
 import PageHeader from "../components/PageHeader";
@@ -37,16 +38,28 @@ interface GalleryItem {
   src: string;
   width: number;
   height: number;
+  outlet: string;
+  outletName: string;
+  outletNameGu: string;
+  column: string;
+  columnGu: string;
+  date: string | null;
+  bytes: number;
 }
 
+type SortMode = "newest" | "oldest" | "largest" | "smallest";
+
 export default function Gallery() {
-  usePageTitle("Gujarat Column — Newspaper Archive");
+  usePageTitle("Newspaper Columns — Archive");
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"grid" | "masonry">("masonry");
+  const [outletFilter, setOutletFilter] = useState<string>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [hdOpen, setHdOpen] = useState(false);
 
   useEffect(() => {
     fetch("/gallery/manifest.json")
@@ -56,14 +69,11 @@ export default function Gallery() {
         setLoading(false);
       })
       .catch(() => {
-        // Fallback: discover images via a static list (in case manifest is missing)
         setItems([]);
         setLoading(false);
       });
   }, []);
 
-  // Build the membership "HD" link. Real version will be wired to a
-  // /api/membership/check endpoint once auth is in place.
   const hdGate = useMemo(
     () => ({
       title: "HD Originals — Members Only",
@@ -75,66 +85,180 @@ export default function Gallery() {
     [],
   );
 
-  const filtered = items; // for now no metadata-based filter
-  void search;
+  const outlets = useMemo(() => {
+    const seen = new Map<string, { slug: string; name: string; nameGu: string; count: number }>();
+    for (const item of items) {
+      if (!seen.has(item.outlet)) {
+        seen.set(item.outlet, {
+          slug: item.outlet,
+          name: item.outletName,
+          nameGu: item.outletNameGu,
+          count: 0,
+        });
+      }
+      seen.get(item.outlet)!.count++;
+    }
+    return Array.from(seen.values());
+  }, [items]);
 
-  // Keyboard nav for lightbox
+  const filtered = useMemo(() => {
+    let result = items;
+    if (outletFilter !== "all") {
+      result = result.filter((i) => i.outlet === outletFilter);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (i) =>
+          i.column.toLowerCase().includes(q) ||
+          i.outletName.toLowerCase().includes(q) ||
+          (i.date && i.date.includes(q)),
+      );
+    }
+    const sorted = [...result];
+    sorted.sort((a, b) => {
+      switch (sortMode) {
+        case "newest":
+          if (a.date && b.date) return b.date.localeCompare(a.date);
+          return 0;
+        case "oldest":
+          if (a.date && b.date) return a.date.localeCompare(b.date);
+          return 0;
+        case "largest":
+          return b.bytes - a.bytes;
+        case "smallest":
+          return a.bytes - b.bytes;
+        default:
+          return 0;
+      }
+    });
+    return sorted;
+  }, [items, outletFilter, search, sortMode]);
+
+  const pdfItems = useMemo(
+    () => items.filter((i) => i.src.endsWith(".pdf")),
+    [items],
+  );
+
   useEffect(() => {
     if (openIdx === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenIdx(null);
-      if (e.key === "ArrowRight") setOpenIdx((i) => (i === null ? null : (i + 1) % items.length));
-      if (e.key === "ArrowLeft") setOpenIdx((i) => (i === null ? null : (i - 1 + items.length) % items.length));
+      if (e.key === "ArrowRight") {
+        setOpenIdx((i) => (i === null ? null : (i + 1) % filtered.length));
+      }
+      if (e.key === "ArrowLeft") {
+        setOpenIdx((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openIdx, items.length]);
+  }, [openIdx, filtered.length]);
 
   return (
     <>
       <PageHeader
         label="Archive"
-        title="Gujarat Column"
-        subtitle="ગુજરાત કોલમ — A growing archive of Dr. Praduman Khachar's published newspaper columns from regional Gujarati dailies including Gujarat Samachar. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
+        title="Newspaper Columns"
+        subtitle="અખબારી કોલમ — Three regular columns published by Dr. Praduman Khachar across Gujarat's leading dailies. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
         dark
       />
 
       <main className="section gallery-page">
         <style>{`
           .gallery-page { padding-top: 0; }
-
-          .gallery-toolbar {
-            display: flex;
+          .outlet-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1rem;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
           }
-          .gallery-toolbar-left {
+          .outlet-card {
+            background: var(--c-parchment-deep);
+            border: 1px solid var(--c-border);
+            border-radius: 10px;
+            padding: 1.2rem 1.4rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            font-family: var(--font-body);
+            color: var(--c-ink);
+            position: relative;
+            overflow: hidden;
+            background: none;
+            border: 1px solid var(--c-border);
+          }
+          [data-theme="dark"] .outlet-card {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+          }
+          .outlet-card:hover, .outlet-card.active {
+            border-color: var(--c-terracotta);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+          }
+          .outlet-card.active { background: color-mix(in oklch, var(--c-terracotta) 8%, var(--c-parchment-deep)); }
+          [data-theme="dark"] .outlet-card.active { background: color-mix(in oklch, var(--c-terracotta) 12%, rgba(255,255,255,0.04)); }
+          .outlet-card-name {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+            line-height: 1.2;
+          }
+          .outlet-card-name-gu {
+            font-family: var(--font-gujarati);
+            font-size: 0.95rem;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+          }
+          .outlet-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--c-ink-muted);
+            border-top: 1px solid var(--c-border);
+            padding-top: 0.6rem;
+            margin-top: 0.6rem;
+          }
+          .outlet-card-count {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--c-terracotta);
+            font-size: 0.85rem;
+          }
+          .gallery-toolbar {
             display: flex;
             gap: 0.75rem;
             align-items: center;
-            color: var(--c-ink-muted);
-            font-family: var(--font-body);
-            font-size: 0.85rem;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            padding: 0.8rem 1rem;
+            background: var(--c-parchment-deep);
+            border: 1px solid var(--c-border);
+            border-radius: 12px;
+          }
+          [data-theme="dark"] .gallery-toolbar {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
           }
           .gallery-search {
             display: flex;
             align-items: center;
             gap: 6px;
+            background: var(--c-parchment);
             border: 1px solid var(--c-border);
             border-radius: 999px;
             padding: 6px 14px;
-            background: var(--c-parchment-deep);
             color: var(--c-ink-muted);
             font-family: var(--font-body);
             font-size: 0.85rem;
             min-width: 220px;
           }
           [data-theme="dark"] .gallery-search {
-            background: rgba(255,255,255,0.04);
-            border-color: rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
           }
           .gallery-search input {
             background: none;
@@ -145,6 +269,21 @@ export default function Gallery() {
             font-size: inherit;
             width: 100%;
           }
+          .gallery-select {
+            background: var(--c-parchment);
+            border: 1px solid var(--c-border);
+            border-radius: 999px;
+            padding: 6px 14px;
+            color: var(--c-ink);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+          }
+          [data-theme="dark"] .gallery-select {
+            background: rgba(0,0,0,0.2);
+            color: var(--c-ink);
+          }
           .gallery-view-toggle {
             display: inline-flex;
             border: 1px solid var(--c-border);
@@ -154,11 +293,11 @@ export default function Gallery() {
           .gallery-view-toggle button {
             background: none;
             border: none;
-            padding: 6px 14px;
+            padding: 6px 12px;
             cursor: pointer;
             color: var(--c-ink-muted);
             font-family: var(--font-body);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -167,49 +306,85 @@ export default function Gallery() {
             background: var(--c-terracotta);
             color: white;
           }
-
           .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
             align-items: start;
           }
           .gallery-grid.masonry {
             display: block;
             column-count: 4;
-            column-gap: 16px;
+            column-gap: 14px;
           }
           @media (max-width: 1100px) { .gallery-grid.masonry { column-count: 3; } }
-          @media (max-width: 700px)  { .gallery-grid.masonry { column-count: 2; } .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
+          @media (max-width: 700px)  { .gallery-grid.masonry { column-count: 2; } .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
           @media (max-width: 480px)  { .gallery-grid.masonry { column-count: 1; } }
-
           .gallery-tile {
             display: block;
             break-inside: avoid;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             cursor: zoom-in;
             position: relative;
-            border-radius: 4px;
+            border-radius: 6px;
             overflow: hidden;
             background: var(--c-parchment-deep);
             border: 1px solid var(--c-border);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
           }
           [data-theme="dark"] .gallery-tile {
             background: rgba(255,255,255,0.04);
             border-color: rgba(255,255,255,0.08);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
           }
           .gallery-tile:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
             border-color: var(--c-terracotta);
           }
           .gallery-tile img {
             display: block;
             width: 100%;
             height: auto;
+          }
+          .gallery-tile-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.65) 100%);
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+          }
+          .gallery-tile:hover .gallery-tile-overlay { opacity: 1; }
+          .gallery-tile-overlay-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 6px;
+          }
+          .gallery-tile-overlay-bottom {
+            color: white;
+            font-family: var(--font-body);
+            font-size: 0.72rem;
+            line-height: 1.3;
+          }
+          .gallery-tile-outlet {
+            background: rgba(0,0,0,0.65);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+          }
+          .gallery-tile-date {
+            color: rgba(255,255,255,0.85);
+            font-variant-numeric: tabular-nums;
           }
           .gallery-tile-badge {
             position: absolute;
@@ -218,26 +393,77 @@ export default function Gallery() {
             background: oklch(0.2 0.04 60 / 0.7);
             color: white;
             font-family: var(--font-body);
-            font-size: 0.65rem;
-            padding: 3px 8px;
+            font-size: 0.6rem;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: 600;
-            letter-spacing: 0.05em;
             text-transform: uppercase;
-            backdrop-filter: blur(4px);
+            letter-spacing: 0.05em;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
+            backdrop-filter: blur(4px);
           }
-
           .gallery-empty {
             text-align: center;
             padding: 4rem 2rem;
             color: var(--c-ink-muted);
             font-family: var(--font-body);
           }
-
-          /* Lightbox */
+          .pdf-section {
+            background: var(--c-parchment-deep);
+            border: 1px solid var(--c-border);
+            border-radius: 12px;
+            padding: 1.2rem 1.4rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+          }
+          [data-theme="dark"] .pdf-section {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+          }
+          .pdf-section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: color-mix(in oklch, var(--c-amber) 18%, transparent);
+            color: var(--c-amber);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          }
+          .pdf-section-info { flex: 1; min-width: 200px; }
+          .pdf-section-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--c-ink);
+            margin-bottom: 0.15rem;
+          }
+          .pdf-section-meta {
+            color: var(--c-ink-muted);
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+          }
+          .pdf-section-btn {
+            background: var(--c-terracotta);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+          }
+          .pdf-section-btn:hover { background: var(--c-terracotta-light); }
           .lightbox {
             position: fixed;
             inset: 0;
@@ -258,6 +484,22 @@ export default function Gallery() {
             font-family: var(--font-body);
             font-size: 0.85rem;
             border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+          }
+          .lightbox-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .lightbox-meta-title {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 700;
+          }
+          .lightbox-meta-sub {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.75rem;
           }
           .lightbox-actions {
             display: flex;
@@ -280,7 +522,6 @@ export default function Gallery() {
           .lightbox-btn:hover { background: rgba(255,255,255,0.15); }
           .lightbox-btn.primary { background: var(--c-terracotta); border-color: var(--c-terracotta); width: auto; padding: 0 16px; border-radius: 999px; gap: 6px; font-size: 0.82rem; }
           .lightbox-btn.primary:hover { background: var(--c-terracotta-light); }
-
           .lightbox-body {
             flex: 1;
             display: flex;
@@ -304,7 +545,6 @@ export default function Gallery() {
             border-radius: 2px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
           }
-
           .lightbox-nav {
             position: absolute;
             top: 50%;
@@ -324,14 +564,11 @@ export default function Gallery() {
           .lightbox-nav:hover { background: rgba(255,255,255,0.18); }
           .lightbox-nav.prev { left: 1rem; }
           .lightbox-nav.next { right: 1rem; }
-
           .lightbox-counter {
             color: rgba(255,255,255,0.6);
             font-size: 0.78rem;
             font-variant-numeric: tabular-nums;
           }
-
-          /* HD modal */
           .hd-modal {
             position: fixed;
             inset: 0;
@@ -406,23 +643,64 @@ export default function Gallery() {
           }
         `}</style>
 
+        {/* Outlet cards */}
+        {outlets.length > 0 && (
+          <div className="outlet-cards">
+            <button
+              className={`outlet-card${outletFilter === "all" ? " active" : ""}`}
+              onClick={() => setOutletFilter("all")}
+            >
+              <div className="outlet-card-name">All Columns</div>
+              <div className="outlet-card-name-gu">બધી કોલમ</div>
+              <div className="outlet-card-meta">
+                <span>{items.length} total</span>
+                <span className="outlet-card-count">{outlets.length} outlets</span>
+              </div>
+            </button>
+            {outlets.map((o) => (
+              <button
+                key={o.slug}
+                className={`outlet-card${outletFilter === o.slug ? " active" : ""}`}
+                onClick={() => setOutletFilter(o.slug)}
+              >
+                <div className="outlet-card-name">{o.name}</div>
+                <div className="outlet-card-name-gu">{o.nameGu}</div>
+                <div className="outlet-card-meta">
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem" }}>
+                    {o.slug === "gujarat-samachar" && "Gujarat Column · ગુજરાત કોલમ"}
+                    {o.slug === "fulchhab" && "Fulchhab Column · ફૂલછાબ કોલમ"}
+                    {o.slug === "mumbai-samachar" && "Mumbai Samachar · મુંબઈ સમાચાર કોલમ"}
+                  </span>
+                  <span className="outlet-card-count">{o.count}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="gallery-toolbar">
-          <div className="gallery-toolbar-left">
-            <span><Calendar size={14} style={{ verticalAlign: "middle" }} /> {items.length} clippings</span>
-            <span style={{ opacity: 0.5 }}>·</span>
-            <span style={{ textTransform: "capitalize" }}>Gujarat Column</span>
+          <div className="gallery-search">
+            <Search size={14} />
+            <input
+              placeholder="Search by outlet, column, or date…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search gallery"
+            />
           </div>
-          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
-            <div className="gallery-search">
-              <Search size={14} />
-              <input
-                placeholder="Search clippings…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                aria-label="Search gallery"
-              />
-            </div>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+            <select
+              className="gallery-select"
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value as SortMode)}
+              aria-label="Sort"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="largest">Largest first</option>
+              <option value="smallest">Smallest first</option>
+            </select>
             <div className="gallery-view-toggle">
               <button
                 className={view === "masonry" ? "active" : ""}
@@ -442,11 +720,31 @@ export default function Gallery() {
           </div>
         </div>
 
+        {/* PDF section */}
+        {pdfItems.length > 0 && (
+          <div className="pdf-section">
+            <div className="pdf-section-icon">
+              <FileText size={20} />
+            </div>
+            <div className="pdf-section-info">
+              <div className="pdf-section-title">Full Columns (PDF)</div>
+              <div className="pdf-section-meta">
+                Original full-text columns — free to download, no membership required
+              </div>
+            </div>
+            {pdfItems.map((p) => (
+              <a key={p.id} href={p.src} target="_blank" rel="noopener noreferrer" className="pdf-section-btn">
+                <Download size={14} /> {decodeURIComponent(p.src.split("/").pop() || "Download")}
+              </a>
+            ))}
+          </div>
+        )}
+
         {/* Grid */}
         {loading ? (
           <div className="gallery-empty">Loading archive…</div>
         ) : filtered.length === 0 ? (
-          <div className="gallery-empty">No clippings yet.</div>
+          <div className="gallery-empty">No clippings match the current filters.</div>
         ) : (
           <div className={`gallery-grid${view === "masonry" ? " masonry" : ""}`}>
             {filtered.map((item, i) => (
@@ -466,9 +764,18 @@ export default function Gallery() {
                     setZoom(1);
                   }
                 }}
-                aria-label={`Open clipping ${i + 1}`}
+                aria-label={`Open ${item.outletName} clipping from ${item.date || "unknown date"}`}
               >
-                <img src={item.src} alt={`Newspaper clipping ${i + 1}`} loading="lazy" />
+                <img src={item.src} alt={`${item.outletName} clipping`} loading="lazy" />
+                <div className="gallery-tile-overlay">
+                  <div className="gallery-tile-overlay-top">
+                    <span className="gallery-tile-outlet">{item.outletName}</span>
+                  </div>
+                  <div className="gallery-tile-overlay-bottom">
+                    {item.column}
+                    {item.date && <span className="gallery-tile-date"> · {item.date}</span>}
+                  </div>
+                </div>
                 <span className="gallery-tile-badge">
                   <Lock size={9} /> Preview
                 </span>
@@ -478,15 +785,17 @@ export default function Gallery() {
         )}
 
         {/* Lightbox */}
-        {openIdx !== null && items[openIdx] && (
+        {openIdx !== null && filtered[openIdx] && (
           <Lightbox
-            items={items}
+            items={filtered}
             index={openIdx}
             onIndexChange={setOpenIdx}
             onClose={() => setOpenIdx(null)}
             zoom={zoom}
             setZoom={setZoom}
             hdGate={hdGate}
+            hdOpen={hdOpen}
+            setHdOpen={setHdOpen}
           />
         )}
       </main>
@@ -502,6 +811,8 @@ function Lightbox({
   zoom,
   setZoom,
   hdGate,
+  hdOpen,
+  setHdOpen,
 }: {
   items: GalleryItem[];
   index: number;
@@ -510,16 +821,22 @@ function Lightbox({
   zoom: number;
   setZoom: (z: number) => void;
   hdGate: { title: string; blurb: string; cta: string; href: string };
+  hdOpen: boolean;
+  setHdOpen: (v: boolean) => void;
 }) {
-  const [hdOpen, setHdOpen] = useState(false);
   const item = items[index];
 
   return (
     <div className="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
       <div className="lightbox-header">
-        <span className="lightbox-counter">
-          {index + 1} / {items.length}
-        </span>
+        <div className="lightbox-meta">
+          <div className="lightbox-meta-title">
+            {item.outletName} — {item.column}
+          </div>
+          <div className="lightbox-meta-sub">
+            {item.date || "Date unknown"} · {index + 1} of {items.length} · {Math.round(item.bytes / 1024)} KB
+          </div>
+        </div>
         <div className="lightbox-actions">
           <button
             className="lightbox-btn"
@@ -568,7 +885,7 @@ function Lightbox({
           <ChevronLeft size={20} />
         </button>
         <div className="lightbox-image-wrap">
-          <img src={item.src} alt={`Clipping ${index + 1}`} style={{ transform: `scale(${zoom})` }} />
+          <img src={item.src} alt={`${item.outletName} clipping`} style={{ transform: `scale(${zoom})` }} />
         </div>
         <button
           className="lightbox-nav next"
