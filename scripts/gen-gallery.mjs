@@ -45,8 +45,8 @@ const OUTLETS = {
   "mumbai-samachar": {
     name: "Mumbai Samachar",
     nameGu: "મુંબઈ સમાચાર",
-    column: "Mumbai Samachar Column",
-    columnGu: "મુંબઈ સમાચાર કોલમ",
+    column: "Lokkalan Ni Vato",
+    columnGu: "લોકકલાની વાતો",
   },
 };
 

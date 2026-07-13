@@ -1,11 +1,11 @@
 /**
  * /gallery — Multi-outlet newspaper column archive
  *
- * Three columns published by Dr. Praduman Khachar across regional
- * Gujarati dailies:
+ * Three regular weekly columns published by Dr. Praduman Khachar
+ * across regional Gujarati dailies:
  *   1. Gujarat Column (Gujarat Samachar)
  *   2. Fulchhab Column (Fulchhab)
- *   3. Mumbai Samachar Column
+ *   3. Lokkalan Ni Vato Column (Mumbai Samachar)
  *
  * Free tier: low-res watermarked preview.
  * Paid tier (membership, coming soon): HD original downloads.
@@ -160,7 +160,7 @@ export default function Gallery() {
       <PageHeader
         label="Archive"
         title="Newspaper Columns"
-        subtitle="અખબારી કોલમ — Three regular columns published by Dr. Praduman Khachar across Gujarat's leading dailies. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
+        subtitle="અખબારી કોલમ — Three regular weekly columns published by Dr. Praduman Khachar in Gujarat Samachar, Fulchhab, and Mumbai Samachar. Preview-quality scans are free to read; high-resolution originals are reserved for supporting members."
         dark
       />
 
@@ -669,7 +669,7 @@ export default function Gallery() {
                   <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem" }}>
                     {o.slug === "gujarat-samachar" && "Gujarat Column · ગુજરાત કોલમ"}
                     {o.slug === "fulchhab" && "Fulchhab Column · ફૂલછાબ કોલમ"}
-                    {o.slug === "mumbai-samachar" && "Mumbai Samachar · મુંબઈ સમાચાર કોલમ"}
+                    {o.slug === "mumbai-samachar" && "Lokkalan Ni Vato · લોકકલાની વાતો"}
                   </span>
                   <span className="outlet-card-count">{o.count}</span>
                 </div>

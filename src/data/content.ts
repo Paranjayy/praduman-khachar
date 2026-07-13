@@ -993,7 +993,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     icon: "✍️",
-    text: "Written historical Articles in **Mumbai Samachar** for 2 years & **Fulchhab** for 3 years",
+    text: "Wrote regular newspaper **columns** in **Gujarat Samachar**, **Mumbai Samachar** (Lokkalan Ni Vato), and **Fulchhab**",
   },
   {
     icon: "📺",
