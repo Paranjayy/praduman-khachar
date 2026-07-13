@@ -330,3 +330,68 @@ Start with Option A (Supabase). It's the most professional, scales to anything h
 - Image upload + processing: 1 day
 - Polish + your father's onboarding: 1 day
 
+
+---
+
+## 📅 "Next round" parking lot (do not forget, in your words: "keep it in ur mind or roadmap")
+
+Things you explicitly said to handle later, captured so we don't lose them:
+
+- **OCR each gallery image** to extract headlines + topics + dates — feeds search & topic filtering, lets users group by subject. "Sort/filtering/group/views and topics add and nicer metadata based on u viewing each image"
+- **Move/filter out low-res images** from the gallery — taming the collection so the best scans surface first
+- **Convex CMS** (not Supabase, your call) — for your father to edit his own content
+- **Watermark pipeline** (sharp at build time) for the HD/SD two-tier model — but only after you decide the membership tier
+- **Read the Aaradhak book** (when you send it in a readable format — phone photos, re-exported CDR, or Adobe searchable-PDF)
+- **Book scans** (front/back covers + index/ISBN) — you said "i would give book things or its sample and book front/back & index/isbn" when ready
+- **Fix Gujarati text rendering quirks** — investigate font fallback, possibly preload Noto Sans Gujarati
+- **Sort/filtering/group/views** in gallery — already started (outlet filter, sort, search), but deeper topic-based grouping is next
+
+---
+
+## 📖 How to give me the book so I can read it
+
+**Best options (in order of effort vs quality):**
+
+1. **Phone photos of each page** — fastest, ~10 min of flipping and snapping
+   - Shoot in good light, no shadows, pages flat
+   - 115 pages × ~5 sec each = ~10 minutes
+   - Send as a zip or upload to Drive and share link
+   - I can OCR them with tesseract and read the text
+
+2. **Re-export from the original `.cdr` file in CorelDRAW**
+   - Open in CorelDRAW
+   - File → Export As → PDF
+   - In the PDF settings dialog, make sure:
+     - ✅ "Embed all fonts" is checked
+     - ❌ "Convert text to paths" is UNCHECKED (this is the key — the original 2013 export had this on, which is why we got the broken encoding)
+     - ✅ "Preserve text fidelity" or "Use Unicode"
+   - Takes ~2 min
+   - Output is a clean Unicode PDF I can read directly with `pymupdf`
+
+3. **Adobe Acrobat Pro "Save as Searchable Image"**
+   - Open the current PDF in Acrobat
+   - File → Save As Other → Searchable Image (or "Export PDF → Searchable Image")
+   - Acrobat OCRs the document and re-creates a real text layer, even over the broken CorelDRAW font
+   - Output is a real PDF with searchable Unicode text
+   - Takes ~5 min depending on page count
+
+4. **Print + scan to PDF** at 300 DPI
+   - Highest fidelity but slowest
+   - Use any scanner app (Adobe Scan, Apple Notes, etc.)
+   - Output is image-based, I'll OCR it
+
+**My strong recommendation:** Try option 3 first if you have Acrobat Pro (most likely, since you probably have a Creative Cloud subscription for the print design). Adobe's OCR is excellent for Gujarati.
+
+If you don't have Acrobat, option 1 (phone photos) is honestly the easiest — just shoot and send.
+
+**What I will do with the text once I can read it:**
+- Draft a comprehensive biography section for `/about` based on the book's content
+- Add richer details to the Tribute cards
+- Surface interesting anecdotes for the "On This Day" feature (if we build it)
+- Show you the draft before it goes live, so you can edit/censor
+
+**What I will NOT do:**
+- Publish the book online, even as samples
+- Quote large passages (only short attributed excerpts for the bio)
+- Share the text file with anyone
+
