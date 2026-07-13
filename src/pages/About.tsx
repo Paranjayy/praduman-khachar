@@ -97,6 +97,40 @@ export default function AboutPage() {
           ))}
         </ul>
       </section>
+
+      {/* Tribute & Peer Recognition */}
+      <section className="section">
+        <h2 className="section-title">Tribute &amp; Peer Recognition</h2>
+        <div className="section-divider" />
+        <p className="section-lead" style={{ marginBottom: "2rem" }}>
+          Dr. Khachar's contributions have inspired peer scholars to dedicate
+          volumes to his work and to the broader field of Saurashtra history.
+          Below are a few tributes from colleagues, students, and admirers.
+        </p>
+        <div className="tribute-grid">
+          <TributeCard
+            title="ઇલિહાસનો આરાધક"
+            titleEn="Devotee of History"
+            author="Dr. Dhirubhai P. Vaghela"
+            blurb="A tribute monograph to Dr. Praduman Khachar and his lifelong dedication to the documentation of regional heritage."
+            accent="#b8553a"
+          />
+          <TributeCard
+            title="કાઠીઓનો ઇતિહાસ"
+            titleEn="History of the Kathis"
+            author="Col. J. Kabadi Watson (edited by Dr. Khachar)"
+            blurb="A foundational edition of Col. Watson's pioneering work on the Kathi community, brought to publication under Dr. Khachar's editorial guidance."
+            accent="#c5a55a"
+          />
+          <TributeCard
+            title="ગુજરાત સરકાર — સોરઠ જિલ્લાનું ગૌરવ"
+            titleEn="Government of Gujarat — Pride of Sorath"
+            author="Government of Gujarat, 2021"
+            blurb="Honored as a distinguished personality of Sorath District — a rare state-level recognition for a working historian and educator."
+            accent="#6b7c5e"
+          />
+        </div>
+      </section>
     </main>
   );
 }
@@ -199,5 +233,34 @@ function AchievementItem({ icon, text, index }: AchievementItemProps) {
         )}
       </span>
     </li>
+  );
+}
+
+interface TributeCardProps {
+  title: string;
+  titleEn: string;
+  author: string;
+  blurb: string;
+  accent: string;
+}
+
+function TributeCard({ title, titleEn, author, blurb, accent }: TributeCardProps) {
+  const [ref, visible] = useReveal(0.1);
+  return (
+    <article
+      ref={ref}
+      className="tribute-card"
+      style={{
+        borderLeftColor: accent,
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(16px)",
+        transition: `all 0.5s ease`,
+      }}
+    >
+      <h3 className="tribute-title">{title}</h3>
+      <p className="tribute-title-en">{titleEn}</p>
+      <p className="tribute-author">— {author}</p>
+      <p className="tribute-blurb">{blurb}</p>
+    </article>
   );
 }

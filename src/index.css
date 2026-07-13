@@ -14404,3 +14404,61 @@ mark {
     grid-template-columns: 250px 1fr !important;
   }
 }
+
+/* ── Tribute / Peer Recognition cards ── */
+.tribute-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.tribute-card {
+    background: var(--c-parchment-deep);
+    border: 1px solid var(--c-border);
+    border-left: 4px solid var(--c-terracotta);
+    border-radius: 4px 12px 12px 4px;
+    padding: 1.5rem 1.6rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+[data-theme="dark"] .tribute-card {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.tribute-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--c-ink);
+    margin-bottom: 0.15rem;
+    line-height: 1.2;
+}
+.tribute-title-en {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c-ink-muted);
+    margin-bottom: 0.7rem;
+}
+.tribute-author {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--c-ink-soft);
+    font-style: italic;
+    margin-bottom: 0.7rem;
+    font-weight: 600;
+}
+.tribute-blurb {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--c-ink-soft);
+    line-height: 1.6;
+}
+.section-lead {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--c-ink-soft);
+    line-height: 1.7;
+    max-width: 60ch;
+}

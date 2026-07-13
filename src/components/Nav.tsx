@@ -103,12 +103,12 @@ export default function Nav() {
     { label: "About", to: "/about" },
     { label: "Books", to: "/books" },
     { label: "Media", to: "/media" },
+    { label: "Gallery", to: "/gallery" },
     { label: "Explore", to: "/explore" },
     ...(!CONFIG.HIDE_ARTICLES ? [{ label: "Articles", to: "/articles" }] : []),
     { label: "Reading", to: "/reading" },
     { label: "Topics", to: "/topics" },
     { label: "Press", to: "/press" },
-    { label: "Gallery", to: "/gallery" },
     { label: "Timeline", to: "/timeline" },
     { label: "Citations", to: "/citations" },
     { label: "Map", to: "/map" },
@@ -154,7 +154,7 @@ export default function Nav() {
 
         {/* Desktop Links */}
         <ul className="nav-links desktop-only">
-          {links.slice(0, 5).map((link) => (
+          {links.slice(0, 6).map((link) => (
             <li key={link.to}>
               <Link
                 to={link.to}
@@ -164,7 +164,7 @@ export default function Nav() {
               </Link>
             </li>
           ))}
-          {links.length > 5 && (
+          {links.length > 6 && (
             <li className="nav-more-item" ref={moreRef}>
               <button
                 className={`nav-more-trigger${moreOpen ? " active" : ""}`}
