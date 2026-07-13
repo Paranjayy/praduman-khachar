@@ -5,7 +5,7 @@
  * across regional Gujarati dailies:
  *   1. Gujarat Column (Gujarat Samachar)
  *   2. Fulchhab Column (Fulchhab)
- *   3. Lokkalan Ni Vato Column (Mumbai Samachar)
+ *   3. Lok Katha Ni Vato Column (Mumbai Samachar)
  *
  * Free tier: low-res watermarked preview.
  * Paid tier (membership, coming soon): HD original downloads.
@@ -669,7 +669,7 @@ export default function Gallery() {
                   <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem" }}>
                     {o.slug === "gujarat-samachar" && "Gujarat Column · ગુજરાત કોલમ"}
                     {o.slug === "fulchhab" && "Fulchhab Column · ફૂલછાબ કોલમ"}
-                    {o.slug === "mumbai-samachar" && "Lokkalan Ni Vato · લોકકલાની વાતો"}
+                    {o.slug === "mumbai-samachar" && "Lok Katha Ni Vato · લોક કથા ની વાતો"}
                   </span>
                   <span className="outlet-card-count">{o.count}</span>
                 </div>
