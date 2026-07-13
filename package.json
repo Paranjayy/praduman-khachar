@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-stats.mjs && node scripts/gen-rss.mjs && vite build",
+    "build": "node scripts/gen-stats.mjs && node scripts/gen-rss.mjs && node scripts/gen-gallery.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "scrape:channel": "node scripts/scrape-channel.mjs",

@@ -108,6 +108,7 @@ export default function Nav() {
     { label: "Reading", to: "/reading" },
     { label: "Topics", to: "/topics" },
     { label: "Press", to: "/press" },
+    { label: "Gallery", to: "/gallery" },
     { label: "Timeline", to: "/timeline" },
     { label: "Citations", to: "/citations" },
     { label: "Map", to: "/map" },

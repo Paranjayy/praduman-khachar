@@ -57,6 +57,7 @@ const FOOTER_LINKS = [
   { label: "Media", to: "/media" },
   { label: "Explore", to: "/explore" },
   { label: "Press", to: "/press" },
+  { label: "Gallery", to: "/gallery" },
   { label: "Timeline", to: "/timeline" },
   { label: "Citations", to: "/citations" },
   { label: "Map", to: "/map" },

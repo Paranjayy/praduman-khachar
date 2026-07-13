@@ -41,6 +41,7 @@ import TopicsPage from "./pages/Topics";
 import ReadingPage from "./pages/Reading";
 import LineagePage from "./pages/Lineage";
 import StatsPage from "./pages/Stats";
+import Gallery from "./pages/Gallery";
 // import TranscriptReader from "./pages/TranscriptReader"; // Missing file
 import Redirector from "./pages/Redirector";
 import NotFoundPage from "./pages/NotFound";
@@ -317,6 +318,14 @@ function AppInner() {
             element={
               <PageTransition>
                 <StatsPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/gallery"
+            element={
+              <PageTransition>
+                <Gallery />
               </PageTransition>
             }
           />
