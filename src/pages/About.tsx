@@ -111,7 +111,7 @@ export default function AboutPage() {
           <TributeCard
             title="ઇલિહાસનો આરાધક"
             titleEn="Devotee of History"
-            author="Dr. Dhirubhai P. Vaghela"
+            author="Dr. Dhirubhai P. Vala"
             blurb="A tribute monograph to Dr. Praduman Khachar and his lifelong dedication to the documentation of regional heritage."
             accent="#b8553a"
           />
