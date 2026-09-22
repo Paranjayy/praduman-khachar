@@ -73,3 +73,72 @@ A living checklist. Strike through (`~~text~~`) as you complete items.
 ---
 
 *Last updated: 2026-07-14 — after gallery update + naming corrections*
+
+## 🌐 Language switcher
+
+- [x] Change "EN" → "English" (full label, more accessible)
+- [ ] Add proper i18n with translated JSON bundles (replace Google Translate hack) — fixes Hindi/Gujarati translation errors
+- [ ] Persist language preference across visits
+
+## 📩 Contact form (improved 2026-07-14)
+
+- [x] Rename header "Dr. Khachar" → "Dr. Praduman Khachar"
+- [x] Add "Work in progress" banner explaining the mailto: fallback limitation
+- [x] localStorage draft persistence (auto-save every 600ms while typing)
+- [x] Draft restoration notice on page load
+- [x] Character counter (5000 limit) with warning
+- [x] "Clear draft" button
+- [x] "Draft auto-saved" indicator with timestamp
+- [x] Submit button changes label when in WIP mode ("Open Email Client")
+- [ ] Wire up Formspree (replace placeholder `xbljonpz` with real form ID) so long messages don't truncate
+
+## 🎬 YouTube Studio-like dashboard (your father's self-service nocode) — PRIORITY
+
+You specifically mentioned: "yt studio like roubst cms and anallytics soon for my father to fix or add himself kinda like nocode"
+
+A full nocode dashboard for your father to manage his own portfolio. Not a CMS in the marketing sense — a **real YouTube-Studio-equivalent** for his site.
+
+### What it should do
+- **Real-time subscriber & view counts** pulled from YouTube Data API (no mockups)
+- **Growth charts** — daily/weekly/monthly subscriber and view deltas with sparklines
+- **Video manager** — see all 575+ videos, search transcripts, edit metadata, mark featured
+- **Book manager** — edit title, ISBN, description, cover image, add endorsements
+- **Column manager** — upload new clippings, tag by outlet/date/topic, publish/unpublish
+- **Press / media mentions** — log new newspaper mentions, link to source
+- **Achievements** — add/edit awards with date and source
+- **Inbox** — see contact form submissions, mark as replied, archive
+- **Donation ledger** — see UPI/Razorpay transactions, total month/year totals
+- **Site analytics** — Vercel Analytics numbers (visitors, top pages, devices, countries)
+- **Subscriber notification** — when something important happens (someone wants to book a talk, etc.)
+- **Activity log** — every change is logged with who/when
+- **Bulk operations** — select 20 books, change category, done
+- **Image upload** — drag-drop into the form, auto-processes (resize, compress, generate thumbnails)
+
+### Tech stack (recommended)
+- **Convex** (your call) — real-time reactive DB, perfect for live dashboards
+- **Resend** for email auth (magic link)
+- **Razorpay** for payments / membership
+- **Vercel Blob or S3** for image storage (the 100MB gallery images shouldn't live in git)
+- **YouTube Data API** for live channel stats
+- **Sharp** (serverless function) for image processing
+
+### Phases
+1. **Phase 1 (1 day)** — Auth + protected `/admin` route + Convex schema
+2. **Phase 2 (2 days)** — Book manager + column clipping manager (upload, edit, delete)
+3. **Phase 3 (1 day)** — YouTube API integration + real subscriber/view counts
+4. **Phase 4 (1 day)** — Razorpay + membership ledger
+5. **Phase 5 (1 day)** — Vercel Analytics integration + Polish
+
+**Total estimate: 6-7 days** for a real working nocode dashboard.
+
+## 📩 Translation fixes (later)
+
+- [ ] Fix Google Translate hijacking the layout (it sometimes breaks the Gujarati/Hindi text and styling)
+- [ ] Replace with proper i18n setup (i18next or react-intl) with translated content bundles
+- [ ] Test all pages in EN/GU/HI after fix
+
+## 🐛 Performance / Safari gallery
+
+- [ ] Gallery slow in Safari (100MB+ images load at once) — needs virtual scroll or code-splitting
+- [ ] Test on actual mobile Safari (iOS) — different from desktop
+

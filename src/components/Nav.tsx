@@ -214,8 +214,9 @@ export default function Nav() {
               className="lang-select-premium"
               value={currentLang}
               onChange={handleLangChange}
+              aria-label="Select language"
             >
-              <option value="en">EN</option>
+              <option value="en">English</option>
               <option value="gu">ગુજરાતી</option>
               <option value="hi">हिंदी</option>
             </select>

@@ -1,18 +1,28 @@
 /**
  * src/components/ContactForm.tsx
  *
- * Functional contact form using Formspree (free tier, no backend).
- * Subjects: Student inquiry, Media request, Event invitation, General.
+ * Contact form with:
+ *  - Formspree backend (or mailto: fallback)
+ *  - localStorage draft persistence (so users don't lose their message
+ *    if they navigate away, refresh, or hit a long-message limit on mailto)
+ *  - Work-in-progress banner until Formspree is configured
+ *  - Character counter + draft auto-save
  *
- * ACTION: Replace FORMSPREE_ID with real ID from formspree.io/new
+ * STATUS: Work in progress — Formspree form ID is a placeholder.
+ * Submissions currently fall back to mailto: which truncates long
+ * messages on some email clients. Use the email link directly for
+ * long messages until Formspree is wired up.
  */
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { track } from "@vercel/analytics";
 import { useReveal } from "../hooks/useAnimations";
 
 // ── Replace with real Formspree form ID from https://formspree.io/new
 const FORMSPREE_ID = "xbljonpz"; // placeholder — update this
+const MAX_MESSAGE_LENGTH = 5000;
+const DRAFT_KEY = "pk_contact_draft_v1";
+const DRAFT_SAVE_MS = 600;
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -24,19 +34,79 @@ const SUBJECTS = [
   "General Message",
 ];
 
+interface FormState {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+const DEFAULT_FORM: FormState = {
+  name: "",
+  email: "",
+  subject: SUBJECTS[0],
+  message: "",
+};
+
 export default function ContactForm() {
   const [ref, visible] = useReveal();
   const [status, setStatus] = useState<Status>("idle");
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    subject: SUBJECTS[0],
-    message: "",
-  });
+  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [showDraftRestored, setShowDraftRestored] = useState(false);
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const set = (k: keyof typeof form) => (
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { form: FormState; savedAt: number };
+        // Only restore if there's actual content
+        if (saved.form.name || saved.form.email || saved.form.message) {
+          setForm(saved.form);
+          setDraftSavedAt(new Date(saved.savedAt));
+          setShowDraftRestored(true);
+          setTimeout(() => setShowDraftRestored(false), 5000);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save draft (debounced)
+  useEffect(() => {
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(() => {
+      try {
+        // Don't save if completely empty or after success
+        if (status === "success") return;
+        if (form.name || form.email || form.message) {
+          localStorage.setItem(
+            DRAFT_KEY,
+            JSON.stringify({ form, savedAt: Date.now() }),
+          );
+          setDraftSavedAt(new Date());
+        }
+      } catch {}
+    }, DRAFT_SAVE_MS);
+    return () => {
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+    };
+  }, [form, status]);
+
+  const set = (k: keyof FormState) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  ) => {
+    const val = e.target.value;
+    if (k === "message" && val.length > MAX_MESSAGE_LENGTH) return;
+    setForm((f) => ({ ...f, [k]: val }));
+  };
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +115,9 @@ export default function ContactForm() {
       const body = `Name: ${form.name}%0D%0AEmail: ${form.email}%0D%0A%0D%0A${form.message}`;
       window.location.href = `mailto:pkhachar@gmail.com?subject=${encodeURIComponent(form.subject)}&body=${body}`;
       setStatus("success");
-      setForm({ name: "", email: "", subject: SUBJECTS[0], message: "" });
+      setForm(DEFAULT_FORM);
+      clearDraft();
+      setDraftSavedAt(null);
       track("contact_submit_mailto", { subject: form.subject });
       return;
     }
@@ -59,7 +131,9 @@ export default function ContactForm() {
       });
       if (res.ok) {
         setStatus("success");
-        setForm({ name: "", email: "", subject: SUBJECTS[0], message: "" });
+        setForm(DEFAULT_FORM);
+        clearDraft();
+        setDraftSavedAt(null);
         track("contact_submit", { subject: form.subject });
       } else {
         setStatus("error");
@@ -68,6 +142,11 @@ export default function ContactForm() {
       setStatus("error");
     }
   };
+
+  const isWip = FORMSPREE_ID === "xbljonpz";
+  const isOverLimit = form.message.length > MAX_MESSAGE_LENGTH;
+  const isFormValid =
+    form.name.trim() && form.email.trim() && form.message.trim() && !isOverLimit;
 
   return (
     <section className="contact-section section-pad" id="contact">
@@ -82,12 +161,58 @@ export default function ContactForm() {
       >
         <div className="contact-header">
           <span className="section-eyebrow">Get in Touch</span>
-          <h2 className="contact-title">Write to Dr. Khachar</h2>
+          <h2 className="contact-title">Write to Dr. Praduman Khachar</h2>
           <p className="contact-sub">
             For student inquiries, media appearances, speaking engagements, or simply
             to share your thoughts on Gujarat's history.
           </p>
         </div>
+
+        {isWip && (
+          <div
+            style={{
+              background: "color-mix(in oklch, var(--c-amber) 15%, transparent)",
+              border: "1px solid color-mix(in oklch, var(--c-amber) 35%, transparent)",
+              borderRadius: 10,
+              padding: "0.8rem 1rem",
+              marginBottom: "1.5rem",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.88rem",
+              color: "var(--c-ink-soft)",
+              lineHeight: 1.5,
+            }}
+          >
+            <strong style={{ color: "var(--c-amber)" }}>⚠️ Work in progress</strong> — the
+            backend is not yet configured. Submissions will open your email client
+            via <code style={{ background: "var(--c-parchment-deep)", padding: "1px 5px", borderRadius: 3 }}>mailto:</code>{" "}
+            (works for short messages, truncates around 2,000 characters on some
+            clients). For long messages, please email directly at{" "}
+            <a
+              href="mailto:pkhachar@gmail.com"
+              style={{ color: "var(--c-terracotta)", fontWeight: 600 }}
+            >
+              pkhachar@gmail.com
+            </a>
+            . Your draft is auto-saved locally so you won't lose your typing.
+          </div>
+        )}
+
+        {showDraftRestored && (
+          <div
+            style={{
+              background: "color-mix(in oklch, var(--c-sage) 15%, transparent)",
+              border: "1px solid color-mix(in oklch, var(--c-sage) 35%, transparent)",
+              borderRadius: 10,
+              padding: "0.7rem 1rem",
+              marginBottom: "1.5rem",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.85rem",
+              color: "var(--c-ink-soft)",
+            }}
+          >
+            📝 Restored your in-progress draft from earlier. Pick up where you left off.
+          </div>
+        )}
 
         <div className="contact-layout">
           {/* Info column */}
@@ -180,22 +305,77 @@ export default function ContactForm() {
             </div>
 
             <div className="contact-field">
-              <label className="contact-label" htmlFor="contact-message">Message *</label>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                <label className="contact-label" htmlFor="contact-message" style={{ marginBottom: 0 }}>
+                  Message *
+                </label>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    color: isOverLimit ? "var(--c-terracotta)" : "var(--c-ink-muted)",
+                    fontWeight: 500,
+                  }}
+                >
+                  {form.message.length.toLocaleString()} / {MAX_MESSAGE_LENGTH.toLocaleString()}
+                </span>
+              </div>
               <textarea
                 id="contact-message"
                 className="contact-textarea"
                 value={form.message}
                 onChange={set("message")}
                 placeholder="Share your thoughts, inquiry, or invitation..."
-                rows={5}
+                rows={6}
                 required
                 disabled={status === "sending"}
               />
+              {draftSavedAt && status !== "success" && (
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.72rem",
+                    color: "var(--c-ink-muted)",
+                    marginTop: "0.3rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span>📝 Draft auto-saved · {timeAgo(draftSavedAt)}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm(DEFAULT_FORM);
+                      clearDraft();
+                      setDraftSavedAt(null);
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--c-ink-muted)",
+                      cursor: "pointer",
+                      fontSize: "0.72rem",
+                      textDecoration: "underline",
+                      padding: 0,
+                    }}
+                  >
+                    Clear draft
+                  </button>
+                </div>
+              )}
             </div>
 
             {status === "success" && (
               <div className="contact-success">
-                ✅ Message sent! Dr. Khachar will respond soon.
+                ✅ Message sent! Dr. Praduman Khachar will respond soon.
               </div>
             )}
             {status === "error" && (
@@ -207,21 +387,45 @@ export default function ContactForm() {
             <button
               type="submit"
               className="contact-submit"
-              disabled={status === "sending" || !form.name || !form.email || !form.message}
+              disabled={status === "sending" || !isFormValid}
             >
               {status === "sending" ? (
                 <span className="contact-submit-loading">Sending…</span>
+              ) : isWip ? (
+                "Open Email Client →"
               ) : (
                 "Send Message →"
               )}
             </button>
 
             <p className="contact-privacy">
-              Your message goes directly to Dr. Khachar's inbox. No spam, no third parties.
+              {isWip ? (
+                <>
+                  Email is sent from your mail client. Your draft is auto-saved
+                  locally so you can come back to it.
+                </>
+              ) : (
+                <>
+                  Your message goes directly to Dr. Praduman Khachar's inbox. No spam, no third parties.
+                </>
+              )}
             </p>
           </form>
         </div>
       </div>
     </section>
   );
+}
+
+function timeAgo(date: Date): string {
+  const ms = Date.now() - date.getTime();
+  const s = Math.floor(ms / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
 }
