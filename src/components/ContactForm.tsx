@@ -143,20 +143,18 @@ export default function ContactForm() {
     }
   };
 
-  const isWip = FORMSPREE_ID === "xbljonpz";
-  const isOverLimit = form.message.length > MAX_MESSAGE_LENGTH;
   const isFormValid =
     form.name.trim() && form.email.trim() && form.message.trim() && !isOverLimit;
 
   return (
     <section className="contact-section section-pad" id="contact">
       <div
+        className="container contact-container"
         ref={ref}
-        className="contact-inner"
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(24px)",
-          transition: "all 0.7s ease",
+          transform: visible ? "none" : "translateY(24px)",
+          transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
         <div className="contact-header">
@@ -168,34 +166,28 @@ export default function ContactForm() {
           </p>
         </div>
 
-        {isWip && (
-          <div
-            style={{
-              background: "color-mix(in oklch, var(--c-amber) 15%, transparent)",
-              border: "1px solid color-mix(in oklch, var(--c-amber) 35%, transparent)",
-              borderRadius: 10,
-              padding: "0.8rem 1rem",
-              marginBottom: "1.5rem",
-              fontFamily: "var(--font-body)",
-              fontSize: "0.88rem",
-              color: "var(--c-ink-soft)",
-              lineHeight: 1.5,
-            }}
+        <div
+          style={{
+            background: "color-mix(in oklch, var(--c-terracotta) 10%, transparent)",
+            border: "1px solid color-mix(in oklch, var(--c-terracotta) 25%, transparent)",
+            borderRadius: 10,
+            padding: "0.9rem 1.1rem",
+            marginBottom: "1.5rem",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.88rem",
+            color: "var(--c-ink-soft)",
+            lineHeight: 1.5,
+          }}
+        >
+          📮 <strong>Direct Email Contact</strong> — Submissions will automatically open your default email application to send directly to{" "}
+          <a
+            href="mailto:pkhachar@gmail.com"
+            style={{ color: "var(--c-terracotta)", fontWeight: 600, textDecoration: "underline" }}
           >
-            <strong style={{ color: "var(--c-amber)" }}>⚠️ Work in progress</strong> — the
-            backend is not yet configured. Submissions will open your email client
-            via <code style={{ background: "var(--c-parchment-deep)", padding: "1px 5px", borderRadius: 3 }}>mailto:</code>{" "}
-            (works for short messages, truncates around 2,000 characters on some
-            clients). For long messages, please email directly at{" "}
-            <a
-              href="mailto:pkhachar@gmail.com"
-              style={{ color: "var(--c-terracotta)", fontWeight: 600 }}
-            >
-              pkhachar@gmail.com
-            </a>
-            . Your draft is auto-saved locally so you won't lose your typing.
-          </div>
-        )}
+            pkhachar@gmail.com
+          </a>
+          . Your draft is auto-saved locally on this device as you type.
+        </div>
 
         {showDraftRestored && (
           <div
@@ -390,25 +382,14 @@ export default function ContactForm() {
               disabled={status === "sending" || !isFormValid}
             >
               {status === "sending" ? (
-                <span className="contact-submit-loading">Sending…</span>
-              ) : isWip ? (
-                "Open Email Client →"
+                <span className="contact-submit-loading">Opening Email…</span>
               ) : (
-                "Send Message →"
+                "Compose Email to Dr. Khachar →"
               )}
             </button>
 
             <p className="contact-privacy">
-              {isWip ? (
-                <>
-                  Email is sent from your mail client. Your draft is auto-saved
-                  locally so you can come back to it.
-                </>
-              ) : (
-                <>
-                  Your message goes directly to Dr. Praduman Khachar's inbox. No spam, no third parties.
-                </>
-              )}
+              Your message is prepared in your standard email program and sent directly to Dr. Praduman Khachar's inbox. No third-party data tracking.
             </p>
           </form>
         </div>
