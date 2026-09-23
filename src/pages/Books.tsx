@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useTheme } from "../hooks/useTheme";
+import { useMetaTags } from "../hooks/useMetaTags";
 import {
   motion,
   AnimatePresence,
@@ -957,6 +958,24 @@ export default function BooksPage() {
     obs.observe(footerRef.current);
     return () => obs.disconnect();
   }, []);
+
+  useMetaTags({
+    title: "Complete Bibliography — 33 Books on Gujarat & Saurashtra History",
+    description: "Explore 33 authored works by Dr. Praduman Khachar covering Kathi dynasty history, Girnar, Junagadh, and princely states. 23 selected by Library of Congress, USA.",
+    canonicalUrl: "https://www.praduman.com/books",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Complete Bibliography of Dr. Pradumankumar B. Khachar",
+      "url": "https://www.praduman.com/books",
+      "description": "33 published books on the history of Saurashtra, Kathiyavad, and Gujarat. 23 titles preserved in the US Library of Congress.",
+      "author": {
+        "@type": "Person",
+        "name": "Dr. Pradumankumar B. Khachar",
+        "url": "https://www.praduman.com"
+      }
+    }
+  });
 
   return (
     <main className="sp-page" id="main-content" role="main">
