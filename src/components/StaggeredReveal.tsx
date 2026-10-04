@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { ReactNode } from 'react';
 
 interface StaggeredRevealProps {
@@ -14,7 +15,7 @@ export function StaggeredReveal({
   delay = 0, 
   stagger = 0.1 
 }: StaggeredRevealProps) {
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -25,13 +26,13 @@ export function StaggeredReveal({
     },
   };
 
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { 
       opacity: 1, 
       y: 0,
       transition: {
-        type: 'spring',
+        type: 'spring' as const,
         damping: 20,
         stiffness: 100,
       },

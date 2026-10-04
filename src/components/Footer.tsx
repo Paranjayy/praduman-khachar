@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { JSX } from "react";
 import { Link } from "react-router-dom";
 import { SITE, SOCIALS } from "../data/content";
 

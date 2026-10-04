@@ -15,9 +15,8 @@
  * Run automatically before each build (see package.json scripts).
  */
 
-import { readdir, writeFile, stat } from "node:fs/promises";
+import { readdir, writeFile, stat, readFile } from "node:fs/promises";
 import { join, extname, basename } from "node:path";
-import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
@@ -50,14 +49,97 @@ const OUTLETS = {
   },
 };
 
-function getDimensions(file) {
-  try {
-    const out = execSync(`sips -g pixelWidth -g pixelHeight "${file}"`, {
-      encoding: "utf8",
-    });
-    const w = parseInt(out.match(/pixelWidth:\s*(\d+)/)?.[1] || "0", 10);
-    const h = parseInt(out.match(/pixelHeight:\s*(\d+)/)?.[1] || "0", 10);
+function parsePngDimensions(buffer) {
+  const pngSignature = "89504e470d0a1a0a";
+  if (buffer.length < 24 || buffer.subarray(0, 8).toString("hex") !== pngSignature) {
+    return null;
+  }
+  return {
+    w: buffer.readUInt32BE(16),
+    h: buffer.readUInt32BE(20),
+  };
+}
+
+function parseJpegDimensions(buffer) {
+  if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) return null;
+  let offset = 2;
+
+  while (offset + 9 < buffer.length) {
+    if (buffer[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    const marker = buffer[offset + 1];
+    if (marker === 0xd9 || marker === 0xda) break;
+    if (offset + 4 > buffer.length) break;
+
+    const segmentLength = buffer.readUInt16BE(offset + 2);
+    if (segmentLength < 2 || offset + 2 + segmentLength > buffer.length) break;
+
+    const isSofMarker =
+      marker >= 0xc0 &&
+      marker <= 0xcf &&
+      marker !== 0xc4 &&
+      marker !== 0xc8 &&
+      marker !== 0xcc;
+
+    if (isSofMarker && offset + 9 < buffer.length) {
+      return {
+        h: buffer.readUInt16BE(offset + 5),
+        w: buffer.readUInt16BE(offset + 7),
+      };
+    }
+
+    offset += 2 + segmentLength;
+  }
+
+  return null;
+}
+
+function parseWebpDimensions(buffer) {
+  if (buffer.length < 16) return null;
+  if (buffer.subarray(0, 4).toString() !== "RIFF") return null;
+  if (buffer.subarray(8, 12).toString() !== "WEBP") return null;
+
+  const chunkType = buffer.subarray(12, 16).toString();
+
+  if (chunkType === "VP8X" && buffer.length >= 30) {
+    const w = 1 + buffer.readUIntLE(24, 3);
+    const h = 1 + buffer.readUIntLE(27, 3);
     return { w, h };
+  }
+
+  if (chunkType === "VP8L" && buffer.length >= 25) {
+    const b1 = buffer[21];
+    const b2 = buffer[22];
+    const b3 = buffer[23];
+    const b4 = buffer[24];
+    const w = 1 + (((b2 & 0x3f) << 8) | b1);
+    const h = 1 + (((b4 & 0x0f) << 10) | (b3 << 2) | ((b2 & 0xc0) >> 6));
+    return { w, h };
+  }
+
+  if (chunkType === "VP8 " && buffer.length >= 30) {
+    for (let i = 20; i + 10 < buffer.length; i += 1) {
+      if (buffer[i] === 0x9d && buffer[i + 1] === 0x01 && buffer[i + 2] === 0x2a) {
+        return {
+          w: buffer.readUInt16LE(i + 3) & 0x3fff,
+          h: buffer.readUInt16LE(i + 5) & 0x3fff,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+async function getDimensions(file) {
+  try {
+    const buffer = await readFile(file);
+    const parsed =
+      parsePngDimensions(buffer) || parseJpegDimensions(buffer) || parseWebpDimensions(buffer);
+    return parsed || { w: 0, h: 0 };
   } catch {
     return { w: 0, h: 0 };
   }
@@ -109,7 +191,7 @@ async function main() {
       const ext = extname(f).toLowerCase();
       if (!SUPPORTED.has(ext)) continue;
       const fullPath = join(dir, f);
-      const { w, h } = getDimensions(fullPath);
+      const { w, h } = await getDimensions(fullPath);
       const st = await stat(fullPath);
       items.push({
         id: `g${String(++idx).padStart(4, "0")}`,
