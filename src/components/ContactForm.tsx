@@ -143,6 +143,7 @@ export default function ContactForm() {
     }
   };
 
+  const isOverLimit = form.message.length > MAX_MESSAGE_LENGTH;
   const isFormValid =
     form.name.trim() && form.email.trim() && form.message.trim() && !isOverLimit;
 
