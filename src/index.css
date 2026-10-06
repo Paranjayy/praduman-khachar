@@ -12441,6 +12441,14 @@ body {
 }
 
 /* ── Citations Page ── */
+.citation-tools { margin-bottom: 1.5rem; }
+.citation-download { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 44px; padding: 0.65rem 1rem; border: 1px solid var(--c-border); border-radius: 6px; background: var(--c-parchment-deep); color: var(--c-ink); font: inherit; font-size: 0.9rem; cursor: pointer; }
+.citation-download:hover { border-color: var(--c-terracotta); }
+.citation-tools p { margin-top: 1rem; max-width: 65ch; line-height: 1.6; }
+.citation-status { min-height: 1.5em; margin-bottom: 1rem; color: var(--c-ink); }
+.citation-record-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 0.75rem; }
+.citation-header { gap: 1rem; }
+.citation-code code { overflow-wrap: anywhere; }
 .citations-container {
     max-width: 1200px;
     margin: 0 auto;

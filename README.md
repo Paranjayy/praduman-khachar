@@ -25,6 +25,14 @@ Both quality and browser checks are required before merging into main.
 Vercel deploys from main. The production smoke workflow checks the live site
 hourly and after successful Production deployment events.
 
+## Research exports
+
+Download the bibliography or a single book as a `.ris` file from `/citations`.
+Book detail pages also offer **Download citation (.ris)**. In Zotero, choose
+**File → Import → A file** and select the download. Exports use the existing
+catalog; unknown publication details are omitted. Verify metadata against the
+book before submitting a reference. [Zotero import instructions](https://www.zotero.org/support/kb/importing_standardized_formats).
+
 ## Project structure
 
 - `src/pages/`: routes for books, media, biography, research tools, and the gallery.
