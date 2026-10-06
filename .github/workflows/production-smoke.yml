@@ -1,0 +1,43 @@
+name: Production smoke
+
+on:
+  deployment_status:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Check the live archive in a browser
+        run: npx playwright test tests/browser/smoke.spec.ts
+        env:
+          PLAYWRIGHT_BASE_URL: https://www.praduman.com
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: production-failure
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

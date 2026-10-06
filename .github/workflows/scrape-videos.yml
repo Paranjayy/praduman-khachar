@@ -1,60 +1,79 @@
 name: Scrape YouTube Videos
 
 on:
-  # Run every Sunday at 2am IST (= 20:30 UTC Saturday)
+  # Sunday at 2am IST (20:30 UTC Saturday).
   schedule:
-    - cron: "30 20 * * 0"
-
-  # Allow manual trigger from GitHub Actions UI
+    - cron: "30 20 * * 6"
   workflow_dispatch:
     inputs:
       limit:
-        description: "Number of videos to scrape (default: 100)"
+        description: Maximum new videos (1-500)
         required: false
         default: "100"
 
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: scrape-videos
+  cancel-in-progress: false
+
 jobs:
   scrape:
-    name: Scrape & Commit Video Data
+    name: Propose archive data update
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    timeout-minutes: 30
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run video scraper
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Scrape new videos
+        env:
+          SCRAPE_LIMIT: ${{ inputs.limit || '100' }}
         run: |
-          LIMIT="${{ github.event.inputs.limit || '100' }}"
-          echo "Scraping $LIMIT videos..."
-          node scripts/scrape-videos.mjs --limit "$LIMIT"
-
-      - name: Check if data changed
+          if ! [[ "$SCRAPE_LIMIT" =~ ^[0-9]{1,3}$ ]] || (( 10#$SCRAPE_LIMIT < 1 || 10#$SCRAPE_LIMIT > 500 )); then
+            echo "Limit must be an integer from 1 to 500"
+            exit 1
+          fi
+          node scripts/scrape-videos.mjs --limit "$SCRAPE_LIMIT"
+      - name: Detect updated archive
         id: diff
         run: |
-          git diff --quiet src/data/videos.json && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
-
-      - name: Commit and push updated data
+          if git diff --quiet -- public/data/videos.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Preserve update as an artifact
         if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-data-update
+          path: public/data/videos.json
+          retention-days: 14
+      - name: Publish review branch and run CI
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPDATE_BRANCH: data/videos-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          TOTAL=$(node -e "const d=require('./src/data/videos.json'); console.log(d.total)")
-          OK=$(node -e "const d=require('./src/data/videos.json'); console.log(d.transcript_ok)")
-          git add src/data/videos.json
-          git commit -m "data: update videos.json — $TOTAL videos, $OK transcripts [skip ci]"
-          git push
-
-      - name: No changes
-        if: steps.diff.outputs.changed == 'false'
-        run: echo "✅ No changes to videos.json — skipping commit"
+          git switch -c "$UPDATE_BRANCH"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/videos.json
+          git commit -m "data: propose video archive update"
+          git push origin "$UPDATE_BRANCH"
+          # GITHUB_TOKEN-created PRs do not trigger pull_request workflows.
+          # Explicit workflow_dispatch runs checks on the same candidate commit.
+          gh workflow run ci.yml --ref "$UPDATE_BRANCH"
+          if gh pr create --base main --head "$UPDATE_BRANCH" --title "data: update video archive" --body "Scheduled scraper update. Review archive metadata and wait for required CI before merging."; then
+            echo "Created a data update PR with required checks." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::GitHub did not allow automated PR creation. The checked review branch and data artifact are preserved."
+            echo "Open a PR from [$UPDATE_BRANCH](https://github.com/$GITHUB_REPOSITORY/compare/main...$UPDATE_BRANCH). No data was pushed to main." >> "$GITHUB_STEP_SUMMARY"
+          fi

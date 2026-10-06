@@ -10,7 +10,8 @@ const LEGAL_CONTENT: Record<string, { title: string, body: string[] }> = {
       "1. Information Collection: We do not collect personal identification information from users unless voluntarily provided.",
       "2. Usage: Any information provided is used solely for the purpose of communicating archival research or responding to inquiries.",
       "3. Cookies: We use minimal session cookies for site performance and analytics (Vercel Analytics).",
-      "4. Third-Party Links: Our site contains links to other websites (YouTube, Instagram). We are not responsible for their privacy practices."
+      "4. Third-Party Links: Our site contains links to other websites (YouTube, Instagram). We are not responsible for their privacy practices.",
+      "5. Error Reporting: When enabled, Sentry receives technical error messages and stack traces to help repair failures. We do not enable session recordings, form collection, or browsing breadcrumbs. Saved items and contact drafts remain in your browser's local storage."
     ]
   },
   terms: {

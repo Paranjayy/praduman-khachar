@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import Hero from "../components/Hero";
 import StatsRibbon from "../components/StatsRibbon";
 import FeaturedTalks from "../components/FeaturedTalks";
@@ -25,10 +26,10 @@ export default function HomePage() {
         <StatsRibbon />
       </section>
       <section id="today" ref={revealRef}>
-        <OnThisDay />
+        <ErrorBoundary label="On this day"><OnThisDay /></ErrorBoundary>
       </section>
       <section id="talks" ref={revealRef}>
-        <FeaturedTalks />
+        <ErrorBoundary label="Featured talks"><FeaturedTalks /></ErrorBoundary>
       </section>
       <section id="about" ref={revealRef}>
         <About />
@@ -43,13 +44,13 @@ export default function HomePage() {
         <Testimonials />
       </section>
       <section id="media" ref={revealRef}>
-        <MediaSection />
+        <ErrorBoundary label="Media"><MediaSection /></ErrorBoundary>
       </section>
       <section id="support" ref={revealRef}>
         <Support />
       </section>
       <section id="contact" ref={revealRef}>
-        <Contact />
+        <ErrorBoundary label="Contact form"><Contact /></ErrorBoundary>
       </section>
     </div>
   );

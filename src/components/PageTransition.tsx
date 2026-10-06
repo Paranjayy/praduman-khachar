@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "./ErrorBoundary";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
@@ -20,7 +21,7 @@ export default function PageTransition({ children }: Props) {
       variants={variants}
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      {children}
+      <ErrorBoundary label="This page">{children}</ErrorBoundary>
     </motion.div>
   );
 }

@@ -1,76 +1,36 @@
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { reportError } from "../lib/errorReporting";
 
 interface Props {
   children: ReactNode;
+  label?: string;
+  fullPage?: boolean;
 }
 
-interface State {
-  hasError: boolean;
-  error: Error | null;
-}
+export class ErrorBoundary extends Component<Props, { hasError: boolean }> {
+  state = { hasError: false };
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null
-  };
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError() {
+    return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    reportError(error, this.props.label ?? "Archive", info.componentStack ?? undefined);
   }
 
-  public render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f5f0e8",
-          color: "#2c2418",
-          fontFamily: "sans-serif",
-          padding: "2rem",
-          textAlign: "center"
-        }}>
-          <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Archival Engine Interrupted</h1>
-          <p style={{ maxWidth: "500px", marginBottom: "2rem", opacity: 0.8 }}>
-            A telemetry error occurred during the rendering of the archive. This usually happens on older browsers or due to cache mismatches.
-          </p>
-          <pre style={{
-            background: "rgba(0,0,0,0.05)",
-            padding: "1rem",
-            borderRadius: "8px",
-            fontSize: "0.8rem",
-            marginBottom: "2rem",
-            maxWidth: "90%",
-            overflow: "auto"
-          }}>
-            {this.state.error?.toString()}
-          </pre>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              background: "#b8553a",
-              color: "white",
-              border: "none",
-              padding: "0.8rem 2rem",
-              borderRadius: "50px",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
-          >
-            Reload Workstation
-          </button>
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    const label = this.props.label ?? "Archive";
+    return (
+      <section className={`recovery-panel${this.props.fullPage ? " recovery-panel-full" : ""}`} role="alert">
+        <h2>{label} is temporarily unavailable</h2>
+        <p>Something went wrong while loading this section. You can try again or continue browsing the archive.</p>
+        <div className="recovery-actions">
+          <button type="button" onClick={() => this.setState({ hasError: false })}>Try again</button>
+          {this.props.fullPage && <button type="button" onClick={() => window.location.reload()}>Reload page</button>}
+          <a href="/books">Browse books</a>
         </div>
-      );
-    }
-
-    return this.props.children;
+      </section>
+    );
   }
 }

@@ -14462,3 +14462,34 @@ mark {
     line-height: 1.7;
     max-width: 60ch;
 }
+/* Recovery sections reuse the archive's existing editorial palette. */
+.recovery-panel {
+  margin: 1.5rem auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  max-width: 44rem;
+  border: 1px solid var(--c-border, #d5cbbb);
+  background: var(--c-parchment, #faf7f2);
+  color: var(--c-ink, #2c2418);
+  overflow-wrap: anywhere;
+}
+.recovery-panel h2 { font-family: var(--font-display, Georgia, serif); margin-bottom: 0.75rem; }
+.recovery-panel p { line-height: 1.65; }
+.recovery-panel-full { margin-top: 15vh; }
+.recovery-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 1.25rem; }
+.recovery-actions button, .saved-export {
+  background: var(--c-ink, #2c2418);
+  color: var(--c-parchment, #faf7f2);
+  padding: 0.65rem 1rem;
+  border: 1px solid currentColor;
+  font: inherit;
+  cursor: pointer;
+}
+.saved-export { margin: 0.5rem 1rem 1rem; font-size: 0.8rem; }
+.recovery-actions a { text-decoration: underline; }
+.recovery-actions button:focus-visible, .saved-export:focus-visible { outline: 2px solid var(--c-terracotta); outline-offset: 3px; }
+
+.cmd-result-row { display: flex; align-items: center; }
+.cmd-result-row .cmd-item { flex: 1; min-width: 0; }
+.cmd-save { flex-shrink: 0; padding: 0.6rem; margin-right: 0.5rem; font: inherit; font-size: 0.75rem; background: none; color: var(--c-ink); border: 1px solid var(--c-border); cursor: pointer; }
+.cmd-save[aria-pressed="true"] { color: var(--c-terracotta); }
+.cmd-save:focus-visible { outline: 2px solid var(--c-terracotta); outline-offset: 2px; }

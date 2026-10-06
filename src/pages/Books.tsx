@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { getBookmarks, saveBookBookmarks } from "../components/CommandPalette";
 import { useTheme } from "../hooks/useTheme";
 import { useMetaTags } from "../hooks/useMetaTags";
 import {
@@ -813,8 +814,7 @@ export default function BooksPage() {
   const [countersVisible, setCountersVisible] = useState(false);
   const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
     try {
-      const saved = localStorage.getItem("pk-bookmarks");
-      return new Set(saved ? JSON.parse(saved) : []);
+      return new Set(getBookmarks().filter((item) => item.type === "book").map((item) => item.title));
     } catch {
       return new Set();
     }
@@ -833,8 +833,21 @@ export default function BooksPage() {
 
   // Persist bookmarks
   useEffect(() => {
-    localStorage.setItem("pk-bookmarks", JSON.stringify([...bookmarks]));
+    saveBookBookmarks([...bookmarks]);
   }, [bookmarks]);
+
+  useEffect(() => {
+    const sync = () => {
+      const titles = getBookmarks().filter((item) => item.type === "book").map((item) => item.title);
+      setBookmarks((prev) => prev.size === titles.length && titles.every((title) => prev.has(title)) ? prev : new Set(titles));
+    };
+    window.addEventListener("pk-bookmarks-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("pk-bookmarks-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   const toggleBookmark = (title: string) => {
     setBookmarks((prev) => {
@@ -868,7 +881,8 @@ export default function BooksPage() {
         try {
           const imported = JSON.parse(ev.target?.result as string);
           if (Array.isArray(imported)) {
-            setBookmarks(new Set([...bookmarks, ...imported]));
+            const titles = imported.filter((title): title is string => typeof title === "string" && BOOKS.some((book) => book.title === title));
+            setBookmarks(new Set([...bookmarks, ...titles]));
           }
         } catch {
           // silently fail
@@ -905,7 +919,8 @@ export default function BooksPage() {
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target instanceof HTMLElement && e.target.closest("input, textarea, select, button, [contenteditable=true], [role=dialog]")) return;
       if (e.key === "/") {
         e.preventDefault();
         document.querySelector<HTMLInputElement>(".sp-search")?.focus();

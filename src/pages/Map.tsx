@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -84,6 +85,7 @@ export default function MapPage() {
       <main className="section map-container">
         <div className="map-layout leaflet-enabled">
           <div className="map-visual-wrap">
+            <ErrorBoundary label="Interactive map">
             <MapContainer 
               center={[21.8, 70.5]} 
               zoom={8} 
@@ -109,6 +111,7 @@ export default function MapPage() {
                 </Marker>
               ))}
             </MapContainer>
+            </ErrorBoundary>
           </div>
 
           <aside className="map-sidebar">
