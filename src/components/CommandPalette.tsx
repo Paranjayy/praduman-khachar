@@ -334,15 +334,17 @@ export default function CommandPalette() {
     if (!open) return;
     const items = tab === "search" ? allItems : bookmarkItems;
     const onKey = (e: KeyboardEvent) => {
-      // Native buttons must retain Enter/arrow-key behavior when focused.
-      if (e.target instanceof HTMLElement && e.target.closest("button")) return;
-      if (e.key === "ArrowDown") {
+      const button = e.target instanceof HTMLElement ? e.target.closest("button") : null;
+      // Save, export and tab buttons retain their native activation behavior.
+      if (button && (e.key === "Enter" || e.key === " ")) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (!items.length) return;
         e.preventDefault();
-        setSelectedIdx((i) => Math.min(i + 1, items.length - 1));
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIdx((i) => Math.max(i - 1, 0));
+        const next = Math.max(0, Math.min(selectedIdx + (e.key === "ArrowDown" ? 1 : -1), items.length - 1));
+        setSelectedIdx(next);
+        // After leaving a tab/control, Enter should open the highlighted result.
+        if (button) button.closest(".cmd-panel")
+          ?.querySelector<HTMLButtonElement>(`[data-cmd-index="${next}"]`)?.focus();
       }
       if (e.key === "Enter" && items[selectedIdx]) {
         e.preventDefault();
@@ -467,6 +469,7 @@ export default function CommandPalette() {
                     <button
                       key={item.id}
                       className={`cmd-item${selectedIdx === i ? " selected" : ""}`}
+                      data-cmd-index={i}
                       onClick={item.action}
                       onMouseEnter={() => setSelectedIdx(i)}
                     >
@@ -490,6 +493,7 @@ export default function CommandPalette() {
                       <button
                         key={item.id}
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -511,6 +515,7 @@ export default function CommandPalette() {
                       <div key={item.id} className="cmd-result-row">
                       <button
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -557,6 +562,7 @@ export default function CommandPalette() {
                       <div key={item.id} className="cmd-result-row">
                       <button
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -618,6 +624,7 @@ export default function CommandPalette() {
                   <button
                     key={item.id}
                     className={`cmd-item${selectedIdx === i ? " selected" : ""}`}
+                    data-cmd-index={i}
                     onClick={item.action}
                     onMouseEnter={() => setSelectedIdx(i)}
                   >

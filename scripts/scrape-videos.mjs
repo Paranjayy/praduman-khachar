@@ -22,6 +22,7 @@ import { writeFileSync, readFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
+import { transcriptTotals } from "./video-archive.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -288,8 +289,7 @@ async function main() {
   writeFileSync(OUT_PATH, JSON.stringify({
     scraped_at: new Date().toISOString(),
     total: merged.length,
-    transcript_ok: transcriptOk,
-    transcript_fail: transcriptFail,
+    ...transcriptTotals(merged),
     videos: merged,
   }, null, 2), "utf8");
 
