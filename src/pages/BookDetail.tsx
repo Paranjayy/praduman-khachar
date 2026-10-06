@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { downloadRis } from "../lib/citations";
+import { contributorCredits, downloadRis } from "../lib/citations";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 
 export default function BookDetail() {
@@ -229,7 +229,7 @@ export default function BookDetail() {
             )}
 
             <div className="book-author-meta">
-              <span>By Dr. Praduman Khachar</span>
+              <span>{contributorCredits(book)}</span>
               <span className="sep">•</span>
               <span>Published {book.year || "n.d."}</span>
             </div>

@@ -1,6 +1,13 @@
 // ── Shared domain types ──────────────────────────────────────────
 
+export interface BookContributor {
+  family: string;
+  given?: string;
+  role: "author" | "editor" | "translator";
+}
+
 export interface Book {
+  contributors?: BookContributor[];
   title: string;
   titleGu?: string;
   year?: string;

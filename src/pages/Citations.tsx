@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Copy, Download, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { BOOKS } from "../data/content";
@@ -11,8 +11,17 @@ export default function CitationsPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const [copyMessage, setCopyMessage] = useState("");
+  useEffect(() => {
+    if (!copiedId) return;
+    const timer = setTimeout(() => {
+      setCopiedId(null);
+      setCopyMessage("");
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [copiedId]);
   const copyToClipboard = async (text: string, id: string) => {
     setCopiedId(null);
+    setCopyMessage("");
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(id);

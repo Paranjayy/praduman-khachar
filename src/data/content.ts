@@ -113,6 +113,7 @@ export const SOCIALS = [
 
 export const BOOKS: Book[] = [
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Kathi Itihas Ane Sanskriti",
     slug: "kathi-itihas-ane-sanskriti",
     titleGu: "કાઠી ઈતિહાસ અને સંસ્કૃતિ",
@@ -138,6 +139,7 @@ export const BOOKS: Book[] = [
     ],
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Prachin Bharat Na Videshi Yatri",
     slug: "prachin-bharat-na-videshi-yatri",
     titleGu: "પ્રાચીન ભારતના વિદેશીયાત્રી",
@@ -161,6 +163,7 @@ export const BOOKS: Book[] = [
     ],
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Bhuchar Mori Ni Ladai",
     slug: "bhuchar-mori-ni-ladai",
     titleGu: "ભૂચર મોરીની લડાઈ",
@@ -177,6 +180,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/bhuchar-mori-ni-ladai.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Suman",
     slug: "itihas-suman",
     titleGu: "ઈતિહાસ સુમન",
@@ -192,6 +196,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/itihas-suman.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Bahauddin College: Ek Aitihasik Adhyayan",
     slug: "bahauddin-college-ek-aitihasik-adhyayan",
     titleGu: "સોરઠની વિદ્યાપીઠ બહાઉદ્દીન કોલેજ",
@@ -207,6 +212,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/bahauddin-college.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Etale ?",
     slug: "itihas-etale",
     titleGu: "ઈતિહાસ એટલે ?",
@@ -220,6 +226,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/itihas-etale.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Grantho Ane Shilalekho",
     slug: "grantho-ane-shilalekho",
     titleGu: "ગ્રંથો અને શિલાલેખો",
@@ -233,6 +240,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/grantho-ane-shilalekho.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Bhule Bisre Aaine",
     slug: "bhule-bisre-aaine",
     titleGu: "ભૂલે બિસરે આઈને",
@@ -246,6 +254,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/bhule-bisre-aaine.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Tavarikh",
     slug: "tavarikh",
     titleGu: "તવારીખ",
@@ -259,6 +268,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/tavarikh.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Shashko Ni Vanshavalio",
     slug: "shashko-ni-vanshavalio",
     titleGu: "સૌરાષ્ટ્ર ગુજરાતના શાસકોની વંશાવળીઓ",
@@ -272,6 +282,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/shashko-ni-vanshavalio.jpg",
   },
   {
+    contributors: [{ family: "Watson", given: "John W.", role: "author" }],
     title: "Kathiyavad Sarvasangrah",
     slug: "kathiyavad-sarvasangrah",
     titleGu: "કાઠિયાવાડ સર્વસંગ્રહ - કર્નલ વોટસન કૃત",
@@ -285,6 +296,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/kathiyavad-sarvasangrah.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Kathiyavad Na Rajvio",
     slug: "kathiyavad-na-rajvio",
     titleGu: "કાઠિયાવાડના રાજવીઓ",
@@ -298,6 +310,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/kathiyavad-na-rajvio.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Swaminarayan Sampraday Ma Kathi Darbaro",
     slug: "swaminarayan-sampraday-ma-kathi-darbaro",
     titleGu: "સ્વામિનારાયણ સંપ્રદાયમાં કાઠી દરબારોનું પ્રદાન",
@@ -311,6 +324,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/swaminarayan-sampraday.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Kathio Ane Kathiyavad",
     slug: "kathio-ane-kathiyavad",
     titleGu: "કાઠીઓ અને કાઠિયાવાડ (પીએચ.ડી.મહાનિબંધ)",
@@ -324,6 +338,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/kathio-ane-kathiyavad.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Babi Rajvansh Na Gito",
     slug: "babi-rajvansh-na-gito",
     titleGu: "બાબી રાજવંશના ગીતો",
@@ -337,6 +352,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/babi-rajvansh-na-gito.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Manjusha",
     slug: "itihas-manjusha",
     titleGu: "ઈતિહાસ મંજૂષા",
@@ -350,6 +366,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/itihas-manjusha.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Dr. Shambhuprasad Desai",
     slug: "dr-shambhuprasad-desai",
     titleGu: "શતદલ વ્યક્તિત્વ ડૉ.શંભુપ્રસાદ દેસાઈ",
@@ -363,6 +380,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/dr-shambhuprasad-desai.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Girnar No Itihas",
     slug: "girnar-no-itihas",
     titleGu: "ગિરનારનો ઈતિહાસ",
@@ -383,6 +401,7 @@ export const BOOKS: Book[] = [
     ],
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Saurashtra No Gauravvanto Itihas",
     slug: "saurashtra-no-gauravvanto-itihas",
     titleGu: "સૌરાષ્ટ્રનો ગૌરવવંતો ઈતિહાસ",
@@ -396,6 +415,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/saurashtra-no-gauravvanto-itihas.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }, { family: "Vala", given: "Dhirubhai", role: "author" }],
     title: "Tasviroma Junagadh",
     slug: "tasviroma-junagadh",
     titleGu: "તસવીરોમાં જૂનાગઢ",
@@ -423,6 +443,7 @@ export const BOOKS: Book[] = [
     ],
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Sorath Sarkar",
     slug: "sorath-sarkar",
     titleGu: "સોરઠ સરકાર નવાબ મહાબતખાનજી",
@@ -436,6 +457,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/sorath-sarkar.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Sanshodhak Parichay",
     slug: "sanshodhak-parichay",
     titleGu: "સંશોધક પરિચય",
@@ -449,6 +471,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/sanshodhak-parichay.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Gir Girnar Na Mandiro",
     slug: "gir-girnar-na-mandiro",
     titleGu: "ગિર ગિરનારના મંદિરો",
@@ -462,6 +485,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/gir-girnar-na-mandiro.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Ni Ajani Vato",
     slug: "itihas-ni-ajani-vato",
     titleGu: "ઈતિહાસની અજાણી વાતો",
@@ -474,6 +498,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/itihas-ni-ajani-vato.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Varidhi",
     slug: "itihas-varidhi",
     titleGu: "ઈતિહાસ વારિધિ",
@@ -486,6 +511,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/itihas-varidhi.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Swaminarayan Sampraday (Revised)",
     slug: "swaminarayan-sampraday-revised",
     titleGu:
@@ -499,6 +525,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/swaminarayan-sampraday-revised.jpg",
   },
   {
+    contributors: [{ family: "Watson", given: "John W.", role: "author" }, { family: "Khachar", given: "Pradumankumar B.", role: "editor" }],
     title: "Kathio No Itihas",
     slug: "kathio-no-itihas",
     titleGu: "કાઠીઓનો ઈતિહાસ (ગુજરાતી) કર્નલ વોટસન કૃત",
@@ -511,6 +538,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/kathio-no-itihas.jpg",
   },
   {
+    contributors: [{ family: "Watson", given: "John W.", role: "author" }, { family: "Khachar", given: "Pradumankumar B.", role: "editor" }],
     title: "History of Kathi",
     slug: "history-of-kathi",
     titleGu: "હિસ્ટ્રી ઓફ કાઠી (અંગ્રેજી) કર્નલ વોટસન કૃત",
@@ -523,6 +551,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/history-of-kathi.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Saurashtra Na Prasiddh Rajvio",
     slug: "saurashtra-na-prasiddh-rajvio",
     titleGu: "સૌરાષ્ટ્રના પ્રસિદ્ધ રાજવીઓ",
@@ -535,6 +564,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/saurashtra-na-prasiddh-rajvio.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Gir Somnath Historical Places",
     slug: "gir-somnath-historical-places",
     titleGu: "ગિર સોમનાથ જીલ્લાના ઐતિહાસિક સ્થળો",
@@ -547,6 +577,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/gir-somnath-historical-places.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Kathiyavad Ni Rasdhar",
     slug: "kathiyavad-ni-rasdhar",
     titleGu: "કાઠિયાવાડની રસધાર",
@@ -573,6 +604,7 @@ export const BOOKS: Book[] = [
     ],
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Sorath Ane Barda Region History",
     slug: "sorath-ane-barda-region-history",
     titleGu: "સોરઠ અને બરડા પ્રદેશનો ઈતિહાસ",
@@ -585,6 +617,7 @@ export const BOOKS: Book[] = [
     imageUrl: "/books/covers/sorath-ane-barda-region.jpg",
   },
   {
+    contributors: [{ family: "Khachar", given: "Pradumankumar B.", role: "author" }],
     title: "Itihas Ni Atarie Thi",
     slug: "itihas-ni-atarie-thi",
     titleGu: "ઈતિહાસની અટારીએથી",

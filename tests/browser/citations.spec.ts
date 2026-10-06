@@ -45,6 +45,7 @@ test("a book detail downloads its citation rather than opening print", async ({ 
 });
 
 test("clipboard success and denial produce honest accessible feedback", async ({ page }) => {
+  await page.clock.install();
   await page.evaluate(() => Object.defineProperty(navigator, "clipboard", {
     configurable: true, value: { writeText: async () => {} },
   }));
@@ -52,6 +53,8 @@ test("clipboard success and denial produce honest accessible feedback", async ({
   const copy = card.getByRole("button", { name: /^Copy APA citation/ });
   await copy.click();
   await expect(page.getByRole("status").filter({ hasText: "Citation copied." })).toBeVisible();
+  await page.clock.fastForward(2100);
+  await expect(page.locator(".citation-status")).toHaveText("");
   await page.evaluate(() => Object.defineProperty(navigator, "clipboard", {
     configurable: true, value: { writeText: async () => { throw new Error("Permission denied"); } },
   }));
@@ -61,4 +64,16 @@ test("clipboard success and denial produce honest accessible feedback", async ({
   const download = page.waitForEvent("download");
   await card.getByRole("button", { name: /^Download RIS for/ }).click();
   expect((await download).suggestedFilename()).toMatch(/\.ris$/);
+});
+
+test("an edited Watson edition displays and downloads the correct contributor roles", async ({ page }) => {
+  await page.goto("/books/history-of-kathi");
+  await expect(page.locator(".book-author-meta")).toContainText("By John W. Watson");
+  await expect(page.locator(".book-author-meta")).toContainText("Edited by Pradumankumar B. Khachar");
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download citation (.ris)", exact: true }).click();
+  const ris = await contents(await downloaded);
+  expect(ris).toContain("AU  - Watson, John W.");
+  expect(ris).toContain("A3  - Khachar, Pradumankumar B.");
+  expect(ris).not.toContain("AU  - Khachar");
 });
