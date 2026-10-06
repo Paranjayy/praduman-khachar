@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { BOOKS, BOOK_CATEGORIES } from "../data/content";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import { recordEvent } from "../hooks/useAnalytics";
+import { downloadBookmarks } from "../lib/bookmarkExport";
 
 // ─── Search History & Bookmarks ───────────────────────────────────────────────
 const HISTORY_KEY = "pk-search-history";
@@ -19,7 +20,8 @@ const BOOKMARKS_KEY = "pk-bookmarks";
 
 function getHistory(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+    const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+    return Array.isArray(value) ? value.filter((q): q is string => typeof q === "string").slice(0, 5) : [];
   } catch {
     return [];
   }
@@ -27,10 +29,10 @@ function getHistory(): string[] {
 function saveHistory(q: string) {
   if (!q.trim()) return;
   const prev = getHistory().filter((h) => h !== q);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify([q, ...prev].slice(0, 5)));
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify([q, ...prev].slice(0, 5))); } catch { /* Storage may be disabled. */ }
 }
 function clearHistory() {
-  localStorage.removeItem(HISTORY_KEY);
+  try { localStorage.removeItem(HISTORY_KEY); } catch { /* Storage may be disabled. */ }
 }
 
 export type BookmarkItem = {
@@ -41,18 +43,36 @@ export type BookmarkItem = {
 
 export function getBookmarks(): BookmarkItem[] {
   try {
-    return JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]");
+    const value = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]");
+    if (!Array.isArray(value)) return [];
+    return value.map((item) => {
+      if (typeof item !== "string") return item;
+      const book = BOOKS.find((b) => b.title === item);
+      return book ? { id: book.slug || book.title.toLowerCase().replace(/ /g, "-"), title: book.title, type: "book" } : null;
+    }).filter((item): item is BookmarkItem =>
+      item && typeof item.id === "string" && item.id.length > 0 &&
+      typeof item.title === "string" && (item.type === "book" || item.type === "video")
+    );
   } catch {
     return [];
   }
 }
 export function toggleBookmark(item: BookmarkItem) {
   const prev = getBookmarks();
-  const exists = prev.find((b) => b.id === item.id);
+  const exists = prev.find((b) => b.id === item.id && b.type === item.type);
   const next = exists
-    ? prev.filter((b) => b.id !== item.id)
-    : [item, ...prev].slice(0, 20);
-  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(next));
+    ? prev.filter((b) => b.id !== item.id || b.type !== item.type)
+    : [item, ...prev];
+  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(next)); } catch { return; }
+  window.dispatchEvent(new Event("pk-bookmarks-changed"));
+}
+
+export function saveBookBookmarks(titles: string[]) {
+  const videos = getBookmarks().filter((item) => item.type === "video");
+  const books: BookmarkItem[] = BOOKS.filter((book) => titles.includes(book.title)).map((book) => ({
+    id: book.slug || book.title.toLowerCase().replace(/ /g, "-"), title: book.title, type: "book",
+  }));
+  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...books, ...videos])); } catch { return; }
   window.dispatchEvent(new Event("pk-bookmarks-changed"));
 }
 export function isBookmarked(id: string): boolean {
@@ -67,6 +87,7 @@ interface CmdItem {
   icon: string;
   action: () => void;
   keywords?: string;
+  bookmark?: BookmarkItem;
 }
 
 const NAV_ITEMS: Omit<CmdItem, "action">[] = [
@@ -204,7 +225,11 @@ export default function CommandPalette() {
   useEffect(() => {
     const sync = () => setBookmarks(getBookmarks());
     window.addEventListener("pk-bookmarks-changed", sync);
-    return () => window.removeEventListener("pk-bookmarks-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("pk-bookmarks-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
   const close = useCallback(() => setOpen(false), []);
@@ -233,6 +258,7 @@ export default function CommandPalette() {
           .slice(0, 6)
           .map((v) => ({
             id: `v-${v.id}`,
+            bookmark: { id: v.id, title: v.title, type: "video" },
             icon: "▶",
             label: v.title,
             sublabel:
@@ -259,6 +285,7 @@ export default function CommandPalette() {
         .slice(0, 5)
         .map((b) => ({
           id: `book-${b.title}`,
+          bookmark: { id: b.slug || b.title.toLowerCase().replace(/ /g, "-"), title: b.title, type: "book" },
           label: b.title,
           sublabel: `${BOOK_CATEGORIES[b.category] || b.category} · ${b.year || ""}`,
           icon: "📖",
@@ -291,7 +318,7 @@ export default function CommandPalette() {
   ];
 
   const bookmarkItems: CmdItem[] = bookmarks.map((b) => ({
-    id: `bk-${b.id}`,
+    id: `bk-${b.type}-${b.id}`,
     icon: b.type === "video" ? "▶" : "📖",
     label: b.title,
     sublabel: b.type === "video" ? "Video" : "Book",
@@ -307,15 +334,20 @@ export default function CommandPalette() {
     if (!open) return;
     const items = tab === "search" ? allItems : bookmarkItems;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
+      const button = e.target instanceof HTMLElement ? e.target.closest("button") : null;
+      // Save, export and tab buttons retain their native activation behavior.
+      if (button && (e.key === "Enter" || e.key === " ")) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (!items.length) return;
         e.preventDefault();
-        setSelectedIdx((i) => Math.min(i + 1, items.length - 1));
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIdx((i) => Math.max(i - 1, 0));
+        const next = Math.max(0, Math.min(selectedIdx + (e.key === "ArrowDown" ? 1 : -1), items.length - 1));
+        setSelectedIdx(next);
+        // After leaving a tab/control, Enter should open the highlighted result.
+        if (button) button.closest(".cmd-panel")
+          ?.querySelector<HTMLButtonElement>(`[data-cmd-index="${next}"]`)?.focus();
       }
       if (e.key === "Enter" && items[selectedIdx]) {
+        e.preventDefault();
         items[selectedIdx].action();
       }
     };
@@ -437,6 +469,7 @@ export default function CommandPalette() {
                     <button
                       key={item.id}
                       className={`cmd-item${selectedIdx === i ? " selected" : ""}`}
+                      data-cmd-index={i}
                       onClick={item.action}
                       onMouseEnter={() => setSelectedIdx(i)}
                     >
@@ -460,6 +493,7 @@ export default function CommandPalette() {
                       <button
                         key={item.id}
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -478,9 +512,10 @@ export default function CommandPalette() {
                   {filteredVideos.map((item, i) => {
                     const idx = recentItems.length + filteredNav.length + i;
                     return (
+                      <div key={item.id} className="cmd-result-row">
                       <button
-                        key={item.id}
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -499,6 +534,16 @@ export default function CommandPalette() {
                         )}
                         <span className="cmd-item-arrow">↵</span>
                       </button>
+                      {item.bookmark && <button
+                        type="button"
+                        className="cmd-save"
+                        aria-label={`Save ${item.label}`}
+                        aria-pressed={bookmarks.some((b) => b.id === item.bookmark!.id && b.type === item.bookmark!.type)}
+                        onClick={() => toggleBookmark(item.bookmark!)}
+                      >
+                        {bookmarks.some((b) => b.id === item.bookmark!.id && b.type === item.bookmark!.type) ? "Saved" : "Save"}
+                      </button>}
+                      </div>
                     );
                   })}
                 </div>
@@ -514,9 +559,10 @@ export default function CommandPalette() {
                       filteredVideos.length +
                       i;
                     return (
+                      <div key={item.id} className="cmd-result-row">
                       <button
-                        key={item.id}
                         className={`cmd-item${selectedIdx === idx ? " selected" : ""}`}
+                        data-cmd-index={idx}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIdx(idx)}
                       >
@@ -527,6 +573,16 @@ export default function CommandPalette() {
                         )}
                         <span className="cmd-item-arrow">↵</span>
                       </button>
+                      {item.bookmark && <button
+                        type="button"
+                        className="cmd-save"
+                        aria-label={`Save ${item.label}`}
+                        aria-pressed={bookmarks.some((b) => b.id === item.bookmark!.id && b.type === item.bookmark!.type)}
+                        onClick={() => toggleBookmark(item.bookmark!)}
+                      >
+                        {bookmarks.some((b) => b.id === item.bookmark!.id && b.type === item.bookmark!.type) ? "Saved" : "Save"}
+                      </button>}
+                      </div>
                     );
                   })}
                 </div>
@@ -561,10 +617,14 @@ export default function CommandPalette() {
                 <div className="cmd-group-label">
                   Saved Items ({bookmarks.length})
                 </div>
+                <button type="button" className="saved-export" onClick={() => downloadBookmarks(bookmarks)}>
+                  Export saved items
+                </button>
                 {bookmarkItems.map((item, i) => (
                   <button
                     key={item.id}
                     className={`cmd-item${selectedIdx === i ? " selected" : ""}`}
+                    data-cmd-index={i}
                     onClick={item.action}
                     onMouseEnter={() => setSelectedIdx(i)}
                   >

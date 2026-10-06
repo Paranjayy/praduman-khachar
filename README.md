@@ -1,117 +1,62 @@
-# Dr. Praduman Khachar — Portfolio Website
+# Dr. Praduman Khachar's archive
 
-**Live:** https://praduman-khachar.vercel.app  
-**Repo:** https://github.com/Paranjayy/praduman-khachar
+Official portfolio and digital library for Dr. Pradumankumar B. Khachar.
 
-A professional digital portfolio for Dr. Pradumankumar B. Khachar — Historian, Author, Associate Professor, and YouTuber from Junagadh, Gujarat.
+- Live site: https://www.praduman.com
+- Repository: https://github.com/Paranjayy/praduman-khachar
+- Stack: React 19, TypeScript, Vite, React Router, and Vercel.
+- Visual direction: editorial typography, warm parchment, ink, and terracotta.
 
----
+## Development
 
-## 🏗 Tech Stack
+Use Node.js 22.22.2 or newer.
 
-- **Framework:** React + TypeScript + Vite
-- **Styling:** Vanilla CSS (Stripe-Press aesthetic — serif, parchment tones, scholarly)
-- **Routing:** react-router-dom v6
-- **Analytics:** Vercel Analytics
-- **Deployment:** Vercel (auto-deploy on push to `main`)
-- **Fonts:** Playfair Display · Source Serif 4 · Noto Sans Gujarati
-
----
-
-## 📁 Structure
-
-```
-src/
-  App.tsx            — routes
-  index.css          — all styles (~1600 lines)
-  data/
-    content.ts       — books, playlists, stats, socials
-    writings.ts      — Dr. K's own articles (add here)
-  pages/
-    Home.tsx         — landing
-    About.tsx        — biography, career, achievements
-    Books.tsx        — 33 books with category filter
-    Media.tsx        — 575 videos + playlists tabs
-    Articles.tsx     — video transcript reader (deep-linked)
-    Writings.tsx     — original scholarly writing
-    Admin.tsx        — password-protected writing studio
-  components/        — Hero, Nav, Footer, etc.
-public/
-  data/
-    videos.json      — 575 scraped videos (DO NOT edit manually)
-    playlists.json   — playlist metadata
-scripts/
-  scrape-channel.mjs — yt-dlp full channel scraper
+```sh
+npm ci
+npm run dev
+npm run check
+npm run build
+npx playwright install chromium
+npm run test:browser
 ```
 
----
+CI checks types, lint, unit tests, and the built site in desktop/mobile browsers.
+Both quality and browser checks are required before merging into main.
+Vercel deploys from main. The production smoke workflow checks the live site
+hourly and after successful Production deployment events.
 
-## 🎥 Video Archive
+## Project structure
 
-All 575 videos scraped via `yt-dlp`:
-- 506 regular videos
-- 66 YouTube Shorts
-- 3 live streams
+- `src/pages/`: routes for books, media, biography, research tools, and the gallery.
+- `src/components/`: navigation, contact, search, and shared interface components.
+- `src/data/`: publication metadata, original writings, and curated content.
+- `public/`: published assets and committed archive data.
+- `scripts/`: scrapers and generators.
+- `tests/`: unit regressions and browser checks.
+- `docs/`: planning, research, historical notes, and operations.
 
-Each video includes: title, description, thumbnail, views, likes, comments, VTT transcript (Gujarati/Hindi priority), tags, publish date.
+## Archive maintenance
 
-```bash
-export PATH="/opt/homebrew/bin:$PATH"
-
-# Resume scrape (skips already-done):
-node scripts/scrape-channel.mjs
-
-# Fresh scrape:
-node scripts/scrape-channel.mjs --fresh
-
-# After scrape — deploy data:
-git add public/data && git commit -m "data: update archive" && git push
+```sh
+npm run scrape:channel
+npm run scrape:playlists
+npm run data:refresh
 ```
 
----
+Review generated data before committing it. Production builds use committed stats;
+refreshing social data is a separate operation and does not block deployments.
+Do not publish copyrighted book content or add unverified identity claims.
 
-## ✍️ Adding Articles (for Dr. Khachar)
+The writing editor's client-side gate is not server authentication. Never use it
+as protection for private data or administrative server operations.
 
-1. Go to `/admin` on the live site
-2. Enter password: `history2024`
-3. Write your article using the editor
-4. Click "Export TypeScript"
-5. Paste the copied code into `src/data/writings.ts` inside the `WRITINGS` array
-6. Commit and push — Vercel deploys in ~30 seconds
+## Documentation
 
----
+- [Document index](docs/README.md)
+- [Reliability, monitoring, and recovery](docs/operations.md)
+- [Current implementation plan](docs/planning/2026-10-06-resilience.md)
+- [Agent rules](AGENTS.md)
+- [Visual direction](DESIGN.md)
 
-## 🚀 Development
-
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build
-```
-
----
-
-## 📊 Stats (as of April 2026)
-
-| Metric | Value |
-|---|---|
-| Books published | 33 |
-| Selected by Library of Congress, USA | 23 |
-| Videos archived | 575 |
-| Years teaching | 33+ |
-| PhD students guided | 4 completed, 3 in progress |
-
----
-
-## 🗺 Roadmap
-
-See [DELEGATE.md](https://github.com/Paranjayy/praduman-khachar) in this repo for the full task list and design plans.
-
-Key upcoming features:
-- [ ] Contact form (Formspree)
-- [ ] Featured Talks carousel (top videos by likes)
-- [ ] Hero redesign (cinematic, parallax, animated counter)
-- [ ] 3D book grid (needs book cover photos)
-- [ ] Interactive career timeline
-- [ ] Abhilekh Patal browser extension
-- [ ] Unified search across videos + writings + books
+Original root documents and assets are preserved on the
+[archive branch](https://github.com/Paranjayy/praduman-khachar/tree/archive/root-docs-2026-10-06).

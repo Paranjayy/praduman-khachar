@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-stats.mjs && node scripts/gen-rss.mjs && node scripts/gen-gallery.mjs && vite build",
+    "build": "npm run typecheck && node scripts/gen-rss.mjs && node scripts/gen-gallery.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "scrape:channel": "node scripts/scrape-channel.mjs",
@@ -13,9 +13,15 @@
     "scrape:channel:fresh": "node scripts/scrape-channel.mjs --fresh",
     "scrape:videos": "node scripts/scrape-videos.mjs",
     "scrape:playlists": "node scripts/scrape-playlists.mjs",
-    "scrape:all": "node scripts/scrape-playlists.mjs && node scripts/scrape-channel.mjs"
+    "scrape:all": "node scripts/scrape-playlists.mjs && node scripts/scrape-channel.mjs",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.tests.json --noEmit",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "data:refresh": "node scripts/gen-stats.mjs"
   },
   "dependencies": {
+    "@sentry/react": "^11.4.0",
     "@types/leaflet": "^1.9.21",
     "@vercel/analytics": "^2.0.1",
     "convex": "^1.46.0",
@@ -30,6 +36,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
@@ -37,7 +46,12 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "jsdom": "^30.1.2",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "^5.0.3"
+  },
+  "engines": {
+    "node": ">=22.22.2"
   }
 }

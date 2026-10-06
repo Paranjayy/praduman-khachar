@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import {
@@ -144,7 +145,7 @@ function AppInner() {
     <>
       <AnalyticsTracker />
       <OfflineBanner />
-      <HistoryPulse />
+      <ErrorBoundary label="Archive activity"><HistoryPulse /></ErrorBoundary>
       <ScrollProgress />
       <Nav />
       <AnimatePresence mode="wait">
@@ -368,15 +369,15 @@ function AppInner() {
       </AnimatePresence>
       <Footer />
       <BackToTop />
-      <CommandPalette />
-      <SurpriseMe />
-      <DesignCustomizer />
+      <ErrorBoundary label="Search"><CommandPalette /></ErrorBoundary>
+      <ErrorBoundary label="Archive discovery"><SurpriseMe /></ErrorBoundary>
+      <ErrorBoundary label="Display settings"><DesignCustomizer /></ErrorBoundary>
       <WhatsAppShare />
       <MobileBottomNav />
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       {/* Vercel Analytics — auto-tracks page views, link clicks, custom events */}
       <Analytics />
-      <CustomCursor />
+      <ErrorBoundary label="Cursor"><CustomCursor /></ErrorBoundary>
     </>
   );
 }

@@ -5,10 +5,13 @@ import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ConvexClientProvider } from "./components/ConvexProvider";
 import "./index.css";
+import { initializeErrorReporting } from "./lib/errorReporting";
+
+initializeErrorReporting();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ErrorBoundary>
+    <ErrorBoundary fullPage>
       <ConvexClientProvider>
         <BrowserRouter>
           <App />

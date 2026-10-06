@@ -1,16 +1,25 @@
 name: CI
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 on:
   push:
     branches:
       - main
       - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
   quality:
     name: Typecheck + Lint + Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
 
@@ -21,17 +30,54 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Typecheck
-        run: ./node_modules/.bin/tsc --noEmit
+        run: npm run typecheck
 
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Save candidate build
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-build
+          path: dist/
+          retention-days: 3
+
+  browser:
+    name: Browser smoke tests
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidate-build
+          path: dist/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
