@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
+import { contributorCredits, downloadRis } from "../lib/citations";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 
 export default function BookDetail() {
@@ -228,7 +229,7 @@ export default function BookDetail() {
             )}
 
             <div className="book-author-meta">
-              <span>By Dr. Praduman Khachar</span>
+              <span>{contributorCredits(book)}</span>
               <span className="sep">•</span>
               <span>Published {book.year || "n.d."}</span>
             </div>
@@ -310,8 +311,8 @@ export default function BookDetail() {
               >
                 <BookOpen size={18} /> Request Access
               </a>
-              <button className="secondary-btn" onClick={() => window.print()}>
-                <Download size={18} /> Export Metadata
+              <button className="secondary-btn" onClick={() => downloadRis([book], `${book.slug || "khachar-book"}.ris`)}>
+                <Download size={18} /> Download citation (.ris)
               </button>
             </div>
 
